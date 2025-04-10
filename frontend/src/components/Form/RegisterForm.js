@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './RegisterForm.css';
-import Button from '../Button/Button';
+import FormInput from './FormInput';
+import FormFooter from './FormFooter';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -80,77 +81,54 @@ function RegisterForm() {
     return (
         <div className="inscription-container">
             <form onSubmit={handleSubmit} className="inscription-form">
-                <div className="form-group">
-                    <label htmlFor="nom">Nom</label>
-                    <input
-                        type="text"
-                        id="nom"
-                        name="nom"
-                        value={formData.nom}
-                        onChange={handleChange}
-                        className={errors.nom ? "input-error" : ""}
-                    />
-                    {errors.nom && <span className="error-message">{errors.nom}</span>}
-                </div>
+                <FormInput
+                    id="nom"
+                    label="Nom"
+                    name="nom"
+                    value={formData.nom}
+                    onChange={handleChange}
+                    error={errors.nom}
+                />
 
-                <div className="form-group">
-                    <label htmlFor="prenom">Prénom</label>
-                    <input
-                        type="text"
-                        id="prenom"
-                        name="prenom"
-                        value={formData.prenom}
-                        onChange={handleChange}
-                        className={errors.prenom ? "input-error" : ""}
-                    />
-                    {errors.prenom && <span className="error-message">{errors.prenom}</span>}
-                </div>
+                <FormInput
+                    id="prenom"
+                    label="Prénom"
+                    name="prenom"
+                    value={formData.prenom}
+                    onChange={handleChange}
+                    error={errors.prenom}
+                />
 
-                <div className="form-group">
-                    <label htmlFor="pseudo">Pseudo</label>
-                    <input
-                        type="text"
-                        id="pseudo"
-                        name="pseudo"
-                        value={formData.pseudo}
-                        onChange={handleChange}
-                        className={errors.pseudo ? "input-error" : ""}
-                    />
-                    {errors.pseudo && <span className="error-message">{errors.pseudo}</span>}
-                </div>
+                <FormInput
+                    id="pseudo"
+                    label="Pseudo"
+                    name="pseudo"
+                    value={formData.pseudo}
+                    onChange={handleChange}
+                    error={errors.pseudo}
+                />
 
-                <div className="form-group">
-                    <label htmlFor="motDePasse">Mot de passe</label>
-                    <input
-                        type="password"
-                        id="motDePasse"
-                        name="motDePasse"
-                        value={formData.motDePasse}
-                        onChange={handleChange}
-                        className={errors.motDePasse ? "input-error" : ""}
-                    />
-                    {errors.motDePasse && <span className="error-message">{errors.motDePasse}</span>}
-                </div>
+                <FormInput
+                    id="motDePasse"
+                    label="Mot de passe"
+                    type="password"
+                    name="motDePasse"
+                    value={formData.motDePasse}
+                    onChange={handleChange}
+                    error={errors.motDePasse}
+                />
 
-                <div className="form-group">
-                    <label htmlFor="confirmationMotDePasse">Confirmer le mot de passe</label>
-                    <input
-                        type="password"
-                        id="confirmationMotDePasse"
-                        name="confirmationMotDePasse"
-                        value={formData.confirmationMotDePasse}
-                        onChange={handleChange}
-                        className={errors.confirmationMotDePasse ? "input-error" : ""}
-                    />
-                    {errors.confirmationMotDePasse && <span className="error-message">{errors.confirmationMotDePasse}</span>}
-                </div>
+                <FormInput
+                    id="confirmationMotDePasse"
+                    label="Confirmer le mot de passe"
+                    type="password"
+                    name="confirmationMotDePasse"
+                    value={formData.confirmationMotDePasse}
+                    onChange={handleChange}
+                    error={errors.confirmationMotDePasse}
+                />
 
-                <Button
-                    type="submit"
-                    className="inscription-button"
-                >
-                    S'inscrire
-                </Button>
+                <FormFooter handleLoginClick={handleLoginClick} />
             </form>
         </div>
     );
