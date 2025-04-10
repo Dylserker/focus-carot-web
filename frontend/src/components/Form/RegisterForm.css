@@ -40,22 +40,6 @@ input {
     margin-top: 5px;
 }
 
-.inscription-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
-}
-
-.inscription-button:hover {
-    background-color: #45a049;
-}
-
 .login-link {
     margin-top: 20px;
     text-align: right;

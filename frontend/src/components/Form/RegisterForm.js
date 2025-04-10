@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './RegisterForm.css';
+import Button from '../Button/Button';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -144,11 +145,12 @@ function RegisterForm() {
                     {errors.confirmationMotDePasse && <span className="error-message">{errors.confirmationMotDePasse}</span>}
                 </div>
 
-                <button type="submit" className="inscription-button">S'inscrire</button>
-
-                <div className="login-link">
-                    <p>Si vous avez déjà un compte: <span className="clickable" onClick={handleLoginClick}>Clique ici</span></p>
-                </div>
+                <Button
+                    type="submit"
+                    className="inscription-button"
+                >
+                    S'inscrire
+                </Button>
             </form>
         </div>
     );
