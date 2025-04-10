@@ -160,7 +160,7 @@ const SignUp = () => {
                         {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
                     </div>
 
-                    <button type="submit" className="signup-button">S'inscrire</button>
+                    <button type="submit" className="signup-button">inscrire</button>
 
                     <div className="login-link">
                         <p>Si vous avez déjà un compte: <Link to="/login">Cliquez ici</Link></p>
