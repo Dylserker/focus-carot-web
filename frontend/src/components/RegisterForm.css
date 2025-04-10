@@ -55,3 +55,19 @@ input {
 .inscription-button:hover {
     background-color: #45a049;
 }
+
+.login-link {
+    margin-top: 20px;
+    text-align: right;
+    font-size: 0.8rem;
+}
+
+.clickable {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.clickable:hover {
+    color: #0056b3;
+}

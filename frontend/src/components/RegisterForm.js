@@ -72,9 +72,12 @@ function RegisterForm() {
         }
     };
 
+    const handleLoginClick = () => {
+        console.log("Redirection vers la page de connexion");
+    };
+
     return (
         <div className="inscription-container">
-            <h2>Inscription</h2>
             <form onSubmit={handleSubmit} className="inscription-form">
                 <div className="form-group">
                     <label htmlFor="nom">Nom</label>
@@ -129,7 +132,7 @@ function RegisterForm() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="confirmationMotDePasse">Confirmation du mot de passe</label>
+                    <label htmlFor="confirmationMotDePasse">Confirmer le mot de passe</label>
                     <input
                         type="password"
                         id="confirmationMotDePasse"
@@ -138,12 +141,14 @@ function RegisterForm() {
                         onChange={handleChange}
                         className={errors.confirmationMotDePasse ? "input-error" : ""}
                     />
-                    {errors.confirmationMotDePasse && (
-                        <span className="error-message">{errors.confirmationMotDePasse}</span>
-                    )}
+                    {errors.confirmationMotDePasse && <span className="error-message">{errors.confirmationMotDePasse}</span>}
                 </div>
 
-                <button type="submit" className="inscription-button">Inscription</button>
+                <button type="submit" className="inscription-button">S'inscrire</button>
+
+                <div className="login-link">
+                    <p>Si vous avez déjà un compte: <span className="clickable" onClick={handleLoginClick}>Clique ici</span></p>
+                </div>
             </form>
         </div>
     );
