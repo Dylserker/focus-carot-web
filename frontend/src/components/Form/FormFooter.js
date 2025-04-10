@@ -6,7 +6,7 @@ function FormFooter({ handleLoginClick }) {
         <div className="form-actions">
             <Button type="submit" className="submit-button">S'inscrire</Button>
             <p className="login-link">
-                Déjà un compte? <button type="button" onClick={handleLoginClick}>Se connecter</button>
+                Déjà un compte? <Button type="button" onClick={handleLoginClick} className="login-button">Se connecter</Button>
             </p>
         </div>
     );
