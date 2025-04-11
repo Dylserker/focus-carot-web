@@ -1,61 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from '../components/Header';
 import './Profile.css';
 
 function Profile() {
     const [editMode, setEditMode] = useState(false);
+    const fileInputRef = useRef(null);
 
     const [userData, setUserData] = useState({
         firstName: 'Jean',
         lastName: 'Dupont',
         email: 'jean.dupont@example.com',
         password: '••••••••',
-        title: 'Développeur Web'
+        title: 'Développeur Web',
+        pseudo: 'Pseudo123',
+        avatar: '/profile-placeholder.png',
     });
 
     const handleEdit = () => {
         setEditMode(!editMode);
     };
 
+    const handleAvatarClick = () => {
+        if (editMode && fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const imageUrl = URL.createObjectURL(e.target.files[0]);
+            setUserData({...userData, avatar: imageUrl});
+        }
+    };
+
+
     return (
         <div>
             <Header />
-        <div className="profile-container">
+            <div className="profile-container">
 
-            <main className="profile-content">
-                <div className="profile-details">
-                    <div className="profile-header">
-                        <div className="profile-avatar-large">
-                            <img src="/profile-placeholder.png" alt="Photo de profil" />
-                        </div>
-                        <div className="profile-header-info">
-                            <h1>Pseudo123</h1>
-                            <div className="profile-stats">
-                                <div className="stat">
-                                    <span className="stat-value">Niveau 10</span>
-                                    <span className="stat-label">Aventurier</span>
-                                </div>
-                                <div className="xp-bar">
-                                    <div className="xp-progress" style={{ width: '70%' }}></div>
-                                    <span className="xp-text">70/100 XP</span>
-                                </div>
-                            </div>
-
-                            <div className="profile-info-container">
-                                <div className="personal-info">
-                                    <div className="info-row">
-                                        <label>Prénom:</label>
-                                        {editMode ? (
-                                            <input
-                                                type="text"
-                                                value={userData.firstName}
-                                                onChange={(e) => setUserData({...userData, firstName: e.target.value})}
-                                            />
-                                        ) : (
-                                            <span>{userData.firstName}</span>
-                                        )}
+                <main className="profile-content">
+                    <div className="profile-details">
+                        <div className="profile-header">
+                            <div className="profile-avatar-large">
+                                <img src={userData.avatar} alt="Photo de profil" />
+                                {editMode && (
+                                    <div className="avatar-edit-overlay" onClick={handleAvatarClick}>
+                                        <span>Modifier</span>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            style={{ display: 'none' }}
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
                                     </div>
-                                    <div className="info-row">
+                                )}
+                            </div>
+                            <div className="profile-header-info">
+                                {editMode ? (
+                                    <input
+                                        type="text"
+                                        className="pseudo-input"
+                                        value={userData.pseudo}
+                                        onChange={(e) => setUserData({...userData, pseudo: e.target.value})}
+                                    />
+                                ) : (
+                                    <h1>{userData.pseudo}</h1>
+                                )}
+                                <div className="profile-stats">
+                                    <div className="stat">
+                                        <span className="stat-value">Niveau 10</span>
+                                        <span className="stat-label">Aventurier</span>
+                                    </div>
+                                    <div className="xp-bar">
+                                        <div className="xp-progress" style={{ width: '70%' }}></div>
+                                        <span className="xp-text">70/100 XP</span>
+                                    </div>
+                                </div>
+
+                                <div className="profile-info-container">
+                                    <div className="personal-info">
+                                        <div className="info-row">
+                                            <label>Prénom:</label>
+                                            {editMode ? (
+                                                <input
+                                                    type="text"
+                                                    value={userData.firstName}
+                                                    onChange={(e) => setUserData({...userData, firstName: e.target.value})}
+                                                />
+                                            ) : (
+                                                <span>{userData.firstName}</span>
+                                            )}
+                                        </div>
+
+                                        <div className="info-row">
                                         <label>Nom:</label>
                                         {editMode ? (
                                             <input

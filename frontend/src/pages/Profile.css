@@ -145,6 +145,39 @@
     background-color: #3a80d2;
 }
 
+.avatar-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.profile-avatar-large {
+    position: relative;
+}
+
+.profile-avatar-large:hover .avatar-edit-overlay {
+    opacity: 1;
+}
+
+.pseudo-input {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 5px;
+}
+
 @media (max-width: 768px) {
     .profile-header {
         flex-direction: column;
