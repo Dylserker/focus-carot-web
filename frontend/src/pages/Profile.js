@@ -1,10 +1,14 @@
 import React, { useState, useRef } from 'react';
 import Header from '../components/Header';
+import Modal from '../components/Modal';
+
 import './Profile.css';
 
 function Profile() {
     const [editMode, setEditMode] = useState(false);
     const fileInputRef = useRef(null);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [userData, setUserData] = useState({
         firstName: 'Jean',
@@ -31,6 +35,14 @@ function Profile() {
             const imageUrl = URL.createObjectURL(e.target.files[0]);
             setUserData({...userData, avatar: imageUrl});
         }
+    };
+
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
     };
 
 
@@ -154,13 +166,14 @@ function Profile() {
                 </div>
             </main>
                 <div className="custom-button-container">
-                    <button
-                        className="custom-button"
-                        onClick={() => console.log('Bouton personnalisé cliqué')}
-                    >
+                    <button className="custom-button" onClick={openModal}>
                         Personnalisation
                     </button>
                 </div>
+                <Modal isOpen={isModalOpen} onClose={closeModal}>
+                    <h2>Ma Modale</h2>
+                    <p>Contenu de la modale ici...</p>
+                </Modal>
             </div>
         </div>
     );
