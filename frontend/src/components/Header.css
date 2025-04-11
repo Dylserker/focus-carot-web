@@ -5,8 +5,11 @@
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
 }
+
 
 .logo {
     margin-right: 20px;
@@ -42,7 +45,10 @@
 }
 
 .profile-avatar {
-    margin-left: auto;
+    position: relative;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .profile-avatar img {
@@ -51,4 +57,48 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ccc;
+}
+
+.profile-section {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+}
+
+.profile-info {
+    margin-right: 15px;
+    text-align: right;
+}
+
+.profile-username {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.profile-level {
+    font-size: 12px;
+    color: #555;
+}
+
+.profile-title {
+    font-size: 12px;
+    color: #777;
+    font-style: italic;
+}
+
+.profile-xp-bar {
+    height: 6px;
+    width: 100px;
+    background-color: #eee;
+    border-radius: 3px;
+    margin-top: 3px;
+    overflow: hidden;
+}
+
+.xp-progress {
+    height: 100%;
+    background-color: #4CAF50;
 }

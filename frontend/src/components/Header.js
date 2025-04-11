@@ -25,10 +25,20 @@ function Header() {
                         </ul>
                     </nav>
                 </div>
-                <div className="profile-avatar">
-                    <Link to="/profile">
-                        <img src="/profile-placeholder.png" alt="Photo de profil" />
-                    </Link>
+                <div className="profile-section">
+                    <div className="profile-info">
+                        <div className="profile-username">Pseudo123</div>
+                        <div className="profile-level">Niveau 10</div>
+                        <div className="profile-title">Aventurier</div>
+                        <div className="profile-xp-bar">
+                            <div className="xp-progress" style={{ width: '70%' }}></div>
+                        </div>
+                    </div>
+                    <div className="profile-avatar">
+                        <Link to="/profile">
+                            <img src="/profile-placeholder.png" alt="Photo de profil" />
+                        </Link>
+                    </div>
                 </div>
             </div>
         </header>
