@@ -13,16 +13,16 @@ function Header() {
                 <div className="nav-section">
                     <nav className="nav-top">
                         <ul>
-                            <li><Link to="/tasks">Tasks</Link></li>
-                            <li><Link to="/success">Success</Link></li>
+                            <li><Link to="/tasks">Tâches</Link></li>
+                            <li><Link to="/success">Succès</Link></li>
                             <li><Link to="/admin">Admin</Link></li>
                         </ul>
                     </nav>
                     <nav className="nav-bottom">
                         <ul>
-                            <li><Link to="/settings">Settings</Link></li>
+                            <li><Link to="/settings">Paramètre</Link></li>
                             <li><Link to="/contact">Contact</Link></li>
-                            <li><Link to="/logout">Logout</Link></li>
+                            <li><Link to="/logout">Déconnexion</Link></li>
                         </ul>
                     </nav>
                 </div>
