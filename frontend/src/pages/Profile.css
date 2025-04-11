@@ -208,3 +208,32 @@
         max-width: none;
     }
 }
+
+.custom-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+    margin-top: 20px;
+    border-top: 1px solid #eaeaea;
+}
+
+.custom-button {
+    background-color: #4a90e2;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.custom-button:hover {
+    background-color: #3a80d2;
+}
+
+.custom-button:active {
+    transform: translateY(1px);
+}
