@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import Logo from '../assets/logo/Logo_without_back.png';
 
 function Header() {
     return (
         <header className="header">
             <div className="logo">
-                <h1>Mon Site</h1>
+                <img src={Logo} alt="Logo du site" />
             </div>
             <nav className="navigation">
                 <ul>
