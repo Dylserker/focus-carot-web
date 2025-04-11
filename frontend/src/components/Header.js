@@ -6,7 +6,6 @@ function Header() {
     return (
         <header className="header">
             <div className="header-container">
-                {/* Logo à gauche */}
                 <div className="logo">
                     <img src="/logo192.png" alt="Logo" />
                 </div>
