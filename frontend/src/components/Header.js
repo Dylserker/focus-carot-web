@@ -1,24 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-import Logo from '../assets/logo/Logo_sans_titre.png';
 
 function Header() {
     return (
         <header className="header">
-            <div className="logo">
-                <img src={Logo} alt="Logo du site" />
+            <div className="header-container">
+                {/* Logo à gauche */}
+                <div className="logo">
+                    <img src="/logo192.png" alt="Logo" />
+                </div>
+                <div className="nav-section">
+                    <nav className="nav-top">
+                        <ul>
+                            <li><Link to="/tasks">Tasks</Link></li>
+                            <li><Link to="/success">Success</Link></li>
+                            <li><Link to="/admin">Admin</Link></li>
+                        </ul>
+                    </nav>
+                    <nav className="nav-bottom">
+                        <ul>
+                            <li><Link to="/settings">Settings</Link></li>
+                            <li><Link to="/contact">Contact</Link></li>
+                            <li><Link to="/logout">Logout</Link></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
-            <nav className="navigation">
-                <ul>
-                    <li><Link to="/task">Tâche</Link></li>
-                    <li><Link to="/succes">Succès</Link></li>
-                    <li><Link to="/setting">Paramètre</Link></li>
-                    <li><Link to="/contact">Contact</Link></li>
-                    <li><Link to="/admin">Admin</Link></li>
-                    <li><Link to="/logout">Déconnexion</Link></li>
-                </ul>
-            </nav>
         </header>
     );
 }

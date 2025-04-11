@@ -1,35 +1,41 @@
 .header {
+    padding: 10px 20px;
+}
+
+.header-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    margin-right: 20px;
+    height: 50px;
 }
 
 .logo img {
-    max-height: 100px;
-    width: auto;
+    height: 100%;
 }
 
-.navigation ul {
+.nav-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-top, .nav-bottom {
+    display: flex;
+}
+
+.nav-top ul, .nav-bottom ul {
     display: flex;
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.navigation li {
-    margin-left: 1.5rem;
+.nav-top ul li, .nav-bottom ul li {
+    margin-right: 15px;
 }
 
-.navigation a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.navigation a:hover {
-    color: #007bff;
+.nav-top ul li:last-child, .nav-bottom ul li:last-child {
+    margin-right: 0;
 }
