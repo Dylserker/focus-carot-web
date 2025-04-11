@@ -10,7 +10,6 @@
     width: 100%;
 }
 
-
 .logo {
     margin-right: 20px;
     height: 50px;
@@ -71,16 +70,21 @@
     transform: translateY(-50%);
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     background-color: #f2f2f2;
     padding: 10px 15px;
     border-radius: 8px;
+    width: 800px;
 }
-
 
 .profile-info {
     margin-right: 15px;
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
+
 
 .profile-username {
     font-weight: bold;
@@ -100,7 +104,7 @@
 
 .profile-xp-bar {
     height: 6px;
-    width: 100px;
+    width: 700px;
     background-color: #eee;
     border-radius: 3px;
     margin-top: 3px;
