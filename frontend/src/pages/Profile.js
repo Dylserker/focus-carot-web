@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
-
 import './Profile.css';
 
 function Profile() {
@@ -19,6 +18,10 @@ function Profile() {
         pseudo: 'Pseudo123',
         avatar: '/profile-placeholder.png',
     });
+
+    const [selectedAvatar, setSelectedAvatar] = useState(userData.avatar);
+    const [selectedBadge, setSelectedBadge] = useState('Aventurier');
+    const [selectedProgressColor, setSelectedProgressColor] = useState('#4CAF50');
 
     const handleEdit = () => {
         setEditMode(!editMode);
@@ -171,9 +174,101 @@ function Profile() {
                     </button>
                 </div>
                 <Modal isOpen={isModalOpen} onClose={closeModal}>
-                    <h2>Ma Modale</h2>
-                    <p>Contenu de la modale ici...</p>
+                    <div className="customization-modal">
+                        <h2>Personnalisation</h2>
+
+                        <div className="customization-section">
+                            <h3>Chibi</h3>
+                            <div className="button-group">
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedAvatar('/avatar1.png')}
+                                >
+                                    Chibi 1
+                                </button>
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedAvatar('/avatar2.png')}
+                                >
+                                    Chibi 2
+                                </button>
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedAvatar('/avatar3.png')}
+                                >
+                                    Chibi 3
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="customization-section">
+                            <h3>Badge</h3>
+                            <div className="button-group">
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedBadge('Aventurier')}
+                                >
+                                    Aventurier
+                                </button>
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedBadge('Expert')}
+                                >
+                                    Expert
+                                </button>
+                                <button
+                                    className="customization-button"
+                                    onClick={() => setSelectedBadge('Maître')}
+                                >
+                                    Maître
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="customization-section">
+                            <h3>Couleur de progression</h3>
+                            <div className="button-group">
+                                <button
+                                    className="customization-button color-button"
+                                    style={{ backgroundColor: '#4CAF50' }}
+                                    onClick={() => setSelectedProgressColor('#4CAF50')}
+                                >
+                                    Vert
+                                </button>
+                                <button
+                                    className="customization-button color-button"
+                                    style={{ backgroundColor: '#2196F3' }}
+                                    onClick={() => setSelectedProgressColor('#2196F3')}
+                                >
+                                    Bleu
+                                </button>
+                                <button
+                                    className="customization-button color-button"
+                                    style={{ backgroundColor: '#F44336' }}
+                                    onClick={() => setSelectedProgressColor('#F44336')}
+                                >
+                                    Rouge
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="save-button"
+                                onClick={() => {
+                                    setUserData({
+                                        ...userData,
+                                        avatar: selectedAvatar
+                                    });
+                                    closeModal();
+                                }}
+                            >
+                                Sauvegarder
+                            </button>
+                        </div>
+                    </div>
                 </Modal>
+
             </div>
         </div>
     );
