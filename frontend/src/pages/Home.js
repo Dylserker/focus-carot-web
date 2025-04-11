@@ -3,30 +3,38 @@ import Header from '../components/Header';
 import './Home.css';
 
 function Home() {
+    const tachesDuJour = [
+        { id: 1, nom: "Réviser le cours de React", difficulte: "Moyenne" },
+        { id: 2, nom: "Faire les exercices de programmation", difficulte: "Difficile" },
+        { id: 3, nom: "Préparer la présentation", difficulte: "Facile" },
+        { id: 4, nom: "Réunion d'équipe", difficulte: "Moyenne" },
+    ];
+
     return (
         <div className="home-container">
             <Header />
             <main className="main-content">
-                <section className="hero">
-                    <h2>Bienvenue sur Mon Site</h2>
-                    <p>Découvrez nos produits et services exceptionnels</p>
-                    <button className="cta-button">En savoir plus</button>
-                </section>
+                <div className="layout-container">
+                    <div className="chiby-container">
+                        <div className="chiby-placeholder">
+                            Chiby
+                        </div>
+                    </div>
 
-                <section className="features">
-                    <div className="feature">
-                        <h3>Fonctionnalité 1</h3>
-                        <p>Description de la première fonctionnalité</p>
+                    <div className="tasks-container">
+                        <h3>Tâches du jour</h3>
+                        <ul className="tasks-list">
+                            {tachesDuJour.map(tache => (
+                                <li key={tache.id} className="task-item">
+                                    <span className="task-name">{tache.nom}</span>
+                                    <span className={`task-difficulty ${tache.difficulte.toLowerCase()}`}>
+                                        {tache.difficulte}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                    <div className="feature">
-                        <h3>Fonctionnalité 2</h3>
-                        <p>Description de la deuxième fonctionnalité</p>
-                    </div>
-                    <div className="feature">
-                        <h3>Fonctionnalité 3</h3>
-                        <p>Description de la troisième fonctionnalité</p>
-                    </div>
-                </section>
+                </div>
             </main>
         </div>
     );
