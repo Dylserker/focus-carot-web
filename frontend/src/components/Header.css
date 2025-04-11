@@ -5,6 +5,7 @@
 .header-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
 .logo {
@@ -38,12 +39,6 @@
 
 .nav-top ul li:last-child, .nav-bottom ul li:last-child {
     margin-right: 0;
-}
-
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }
 
 .profile-avatar {
