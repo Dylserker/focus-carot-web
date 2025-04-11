@@ -39,3 +39,21 @@
 .nav-top ul li:last-child, .nav-bottom ul li:last-child {
     margin-right: 0;
 }
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-avatar {
+    margin-left: auto;
+}
+
+.profile-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}

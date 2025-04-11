@@ -25,6 +25,11 @@ function Header() {
                         </ul>
                     </nav>
                 </div>
+                <div className="profile-avatar">
+                    <Link to="/profile">
+                        <img src="/profile-placeholder.png" alt="Photo de profil" />
+                    </Link>
+                </div>
             </div>
         </header>
     );
