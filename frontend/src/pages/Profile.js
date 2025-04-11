@@ -38,7 +38,6 @@ function Profile() {
         <div>
             <Header />
             <div className="profile-container">
-
                 <main className="profile-content">
                     <div className="profile-details">
                         <div className="profile-header">
@@ -154,8 +153,16 @@ function Profile() {
                     </div>
                 </div>
             </main>
+                <div className="custom-button-container">
+                    <button
+                        className="custom-button"
+                        onClick={() => console.log('Bouton personnalisé cliqué')}
+                    >
+                        Personnalisation
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
     );
 }
 
