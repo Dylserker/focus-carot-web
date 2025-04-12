@@ -5,6 +5,7 @@ import Login from './components/Login';
 import './App.css';
 import Home from "./pages/Home";
 import Admin from './pages/Admin';
+import Tasks from './pages/Tasks';
 import Profile from './pages/Profile';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/admin" element={<Admin />} />
+                    <Route path="/tasks" element={<Tasks />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/" element={<Navigate to="/register" />} />
