@@ -187,3 +187,41 @@ h2 {
 .pagination-button:hover:not(:disabled) {
     background-color: #f0f0f0;
 }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.current-photo {
+    margin-top: 10px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.save-button, .cancel-button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.save-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.cancel-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
