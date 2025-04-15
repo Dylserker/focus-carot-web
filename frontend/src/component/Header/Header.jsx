@@ -13,9 +13,12 @@ const Header = ({ title = 'Mon Application' }) => {
                 </div>
                 <nav className="main-nav">
                     <ul>
-                        <li><Link to="/">Accueil</Link></li>
-                        <li><Link to="/apropos">À propos</Link></li>
+                        <li><Link to="/task">Tâche</Link></li>
+                        <li><Link to="/success">Succès</Link></li>
+                        <li><Link to="/setting">Paramètre</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
+                        <li><Link to="/admin">Admin</Link></li>
+                        <li><Link to="/logout">Déconnexion</Link></li>
                     </ul>
                 </nav>
             </div>
