@@ -12,7 +12,7 @@ const ProgressBar = ({
 
     return (
         <div className="progress-bar-container" style={{
-            width: '100%',
+            width: '400px',
             backgroundColor: backgroundColor,
             borderRadius: '4px',
             height: height,
