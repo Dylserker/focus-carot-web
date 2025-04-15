@@ -30,14 +30,14 @@ const Header = () => {
                     </ul>
                 </nav>
                 <div className="user-profile">
-                    <div className="profile-photo-container">
-                        <div className="profile-photo"></div>
-                    </div>
                     <div className="profile-info">
                         <div className="profile-pseudo">{user.pseudo}</div>
                         <div className="profile-level">Niveau {user.level}</div>
                         <div className="profile-title">{user.title}</div>
                         <ProgressBar progress={user.progress} />
+                    </div>
+                    <div className="profile-photo-container">
+                        <div className="profile-photo"></div>
                     </div>
                 </div>
             </div>
