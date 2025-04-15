@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import logoImage from '../../assets/logo/Logo_sans_titre.png';
 
-const Header = ({ title = 'Mon Application' }) => {
+const Header = () => {
     return (
         <header className="header">
             <div className="header-container">
                 <div className="logo">
                     <Link to="/">
-                        <h1>{title}</h1>
+                        <img src={logoImage} alt="Logo" className="header-logo" />
                     </Link>
                 </div>
                 <nav className="main-nav">

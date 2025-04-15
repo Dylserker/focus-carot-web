@@ -13,10 +13,9 @@
     align-items: center;
 }
 
-.logo h1 {
-    margin: 0;
-    color: #ecf0f1;
-    font-size: 1.5rem;
+.header-logo {
+    height: 150px;
+    width: auto;
 }
 
 .main-nav ul {
