@@ -6,7 +6,7 @@
 
 .header-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
     padding: 0 20px;
@@ -19,7 +19,6 @@
 }
 
 .logo {
-    margin-right: auto;
     padding: 0;
 }
 
