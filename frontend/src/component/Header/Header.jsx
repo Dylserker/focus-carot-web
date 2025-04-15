@@ -2,8 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
+import ProgressBar from '../ProgressBar';
 
 const Header = () => {
+    const user = {
+        pseudo: "Utilisateur",
+        level: 5,
+        title: "Débutant",
+        progress: 65
+    };
     return (
         <header className="header">
             <div className="header-container">
@@ -22,8 +29,20 @@ const Header = () => {
                         <li><Link to="/logout">Déconnexion</Link></li>
                     </ul>
                 </nav>
+                <div className="user-profile">
+                    <div className="profile-photo-container">
+                        <div className="profile-photo"></div>
+                    </div>
+                    <div className="profile-info">
+                        <div className="profile-pseudo">{user.pseudo}</div>
+                        <div className="profile-level">Niveau {user.level}</div>
+                        <div className="profile-title">{user.title}</div>
+                        <ProgressBar progress={user.progress} />
+                    </div>
+                </div>
             </div>
         </header>
+
     );
 };
 
