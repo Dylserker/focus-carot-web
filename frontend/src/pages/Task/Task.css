@@ -1,0 +1,136 @@
+/* Task.css */
+.task-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.task-page {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+    flex-grow: 1;
+}
+
+.task-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.create-task-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.create-task-button:hover {
+    background-color: #45a049;
+}
+
+.task-containers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.task-container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-container h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: white;
+    border-radius: 4px;
+    border-left: 3px solid #4CAF50;
+}
+
+.task-item.completed {
+    border-left-color: #999;
+    opacity: 0.7;
+}
+
+.task-item input[type="checkbox"] {
+    margin-right: 1rem;
+}
+
+.no-tasks {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+.stats-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.stat-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.completion-bar {
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.completion-progress {
+    height: 100%;
+    background-color: #4CAF50;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .task-containers {
+        grid-template-columns: 1fr;
+    }
+
+    .task-page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
