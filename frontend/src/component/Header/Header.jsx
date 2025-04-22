@@ -1,10 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
 import ProgressBar from '../ProgressBar';
 
 const Header = () => {
+    const navigate = useNavigate();
+
+    const handleProfileClick = () => {
+        navigate('/profile');
+    };
+
     const user = {
         pseudo: "Utilisateur",
         level: 5,
@@ -37,7 +43,7 @@ const Header = () => {
                         <ProgressBar progress={user.progress} />
                     </div>
                     <div className="profile-photo-container">
-                        <div className="profile-photo"></div>
+                        <div className="profile-photo" onClick={handleProfileClick}></div>
                     </div>
                 </div>
             </div>
