@@ -9,6 +9,7 @@ import Contact from './pages/Contact/Contact';
 import Success from './pages/Success/Success';
 import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
+import Admin from './pages/Admin/Admin';
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/success" element={<Success />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/admin" element={<Admin />} />
                 </Routes>
             </div>
         </Router>
