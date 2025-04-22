@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import Task from './pages/Task/Task';
 import Contact from './pages/Contact/Contact';
 import Success from './pages/Success/Success';
+import Settings from './pages/Settings/Settings';
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                     <Route path="/tasks" element={<Task />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/success" element={<Success />} />
+                    <Route path="/settings" element={<Settings />} />
                 </Routes>
             </div>
         </Router>
