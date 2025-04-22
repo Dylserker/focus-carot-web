@@ -21,9 +21,9 @@ const Header = () => {
                 </div>
                 <nav className="main-nav">
                     <ul>
-                        <li><Link to="/task">Tâche</Link></li>
+                        <li><Link to="/tasks">Tâche</Link></li>
                         <li><Link to="/success">Succès</Link></li>
-                        <li><Link to="/setting">Paramètre</Link></li>
+                        <li><Link to="/settings">Paramètre</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
                         <li><Link to="/admin">Admin</Link></li>
                         <li><Link to="/logout">Déconnexion</Link></li>
