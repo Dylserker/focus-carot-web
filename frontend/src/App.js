@@ -6,6 +6,7 @@ import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import Task from './pages/Task/Task';
 import Contact from './pages/Contact/Contact';
+import Success from './pages/Success/Success';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/tasks" element={<Task />} />
                     <Route path="/contact" element={<Contact />} />
+                    <Route path="/success" element={<Success />} />
                 </Routes>
             </div>
         </Router>
