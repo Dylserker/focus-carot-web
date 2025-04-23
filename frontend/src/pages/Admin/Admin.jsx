@@ -10,7 +10,6 @@ const Admin = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // États pour la modal de modification
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [formData, setFormData] = useState({
@@ -41,7 +40,6 @@ const Admin = () => {
         }
     };
 
-    // Fonction pour ouvrir la modal et initialiser les données du formulaire
     const handleEdit = (user) => {
         setCurrentUser(user);
         setFormData({
@@ -54,7 +52,6 @@ const Admin = () => {
         setIsEditModalOpen(true);
     };
 
-    // Fonction pour gérer les changements dans le formulaire
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -63,11 +60,9 @@ const Admin = () => {
         });
     };
 
-    // Fonction pour gérer la soumission du formulaire
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Mettre à jour l'utilisateur dans la liste
         const updatedUsers = users.map(user =>
             user.id === currentUser.id
                 ? { ...user, ...formData }
@@ -145,6 +140,7 @@ const Admin = () => {
                             isOpen={isEditModalOpen}
                             onClose={() => setIsEditModalOpen(false)}
                             title="Modifier l'utilisateur"
+                            maxWidth="600px"
                         >
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group">
@@ -206,28 +202,32 @@ const Admin = () => {
                                 </div>
 
                                 <div className="form-actions">
-                                    <Button type="submit" variant="primary">
-                                        Enregistrer
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => setIsEditModalOpen(false)}
-                                    >
-                                        Annuler
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="danger"
-                                        onClick={() => {
-                                            if (currentUser) {
-                                                handleDelete(currentUser.id);
-                                                setIsEditModalOpen(false);
-                                            }
-                                        }}
-                                    >
-                                        Supprimer
-                                    </Button>
+                                    <div className="form-actions-left">
+                                        <Button type="submit" variant="primary">
+                                            Enregistrer
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() => setIsEditModalOpen(false)}
+                                        >
+                                            Annuler
+                                        </Button>
+                                    </div>
+                                    <div className="form-actions-right">
+                                        <Button
+                                            type="button"
+                                            variant="danger"
+                                            onClick={() => {
+                                                if (currentUser) {
+                                                    handleDelete(currentUser.id);
+                                                    setIsEditModalOpen(false);
+                                                }
+                                            }}
+                                        >
+                                            Supprimer
+                                        </Button>
+                                    </div>
                                 </div>
                             </form>
                         </Modal>

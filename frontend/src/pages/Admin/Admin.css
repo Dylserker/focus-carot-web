@@ -69,28 +69,47 @@
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: 600;
+    color: #333;
 }
 
 .form-group input {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 .form-actions {
     display: flex;
     justify-content: space-between;
+    margin-top: 30px;
+    padding: 0 5px;
+}
+
+.form-actions-left {
+    display: flex;
     gap: 10px;
-    margin-top: 20px;
+}
+
+.form-actions-right {
+    display: flex;
 }
 
 .form-actions button:last-child {
