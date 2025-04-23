@@ -10,26 +10,59 @@ import Success from './pages/Success/Success';
 import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
 import Admin from './pages/Admin/Admin';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './component/Utils/PrivateRoute';
 
 function App() {
     return (
-        <Router>
-            <div className="App">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/tasks" element={<Task />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/success" element={<Success />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/admin" element={<Admin />} />
-                </Routes>
-            </div>
-        </Router>
+        <AuthProvider>
+            <Router>
+                <div className="App">
+                    <Routes>
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/" element={
+                            <PrivateRoute>
+                                <Home />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/tasks" element={
+                            <PrivateRoute>
+                                <Task />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/contact" element={
+                            <PrivateRoute>
+                                <Contact />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/success" element={
+                            <PrivateRoute>
+                                <Success />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/settings" element={
+                            <PrivateRoute>
+                                <Settings />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/profile" element={
+                            <PrivateRoute>
+                                <Profile />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/admin" element={
+                            <PrivateRoute>
+                                <Admin />
+                            </PrivateRoute>
+                        } />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </div>
+            </Router>
+        </AuthProvider>
     );
 }
+
 
 export default App;
