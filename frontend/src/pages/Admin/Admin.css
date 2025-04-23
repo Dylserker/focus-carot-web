@@ -88,7 +88,11 @@
 
 .form-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 10px;
     margin-top: 20px;
+}
+
+.form-actions button:last-child {
+    margin-left: auto;
 }

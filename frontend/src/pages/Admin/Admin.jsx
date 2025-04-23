@@ -141,7 +141,6 @@ const Admin = () => {
                             </table>
                         </div>
 
-                        {/* Modal de modification */}
                         <Modal
                             isOpen={isEditModalOpen}
                             onClose={() => setIsEditModalOpen(false)}
@@ -216,6 +215,18 @@ const Admin = () => {
                                         onClick={() => setIsEditModalOpen(false)}
                                     >
                                         Annuler
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="danger"
+                                        onClick={() => {
+                                            if (currentUser) {
+                                                handleDelete(currentUser.id);
+                                                setIsEditModalOpen(false);
+                                            }
+                                        }}
+                                    >
+                                        Supprimer
                                     </Button>
                                 </div>
                             </form>
