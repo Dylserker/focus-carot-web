@@ -1,5 +1,5 @@
 {
-    "name": "juliengidel/mvc",
+    "name": "dylserker/mvc",
     "autoload": {
         "psr-4": {
             "App\\": "src/"
