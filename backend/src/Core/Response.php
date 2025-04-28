@@ -38,13 +38,37 @@ class Response {
         $this->body = $body;
         return $this;
     }
-    
-    public function json(array $data): self {
-        $this->headers['Content-Type'] = 'application/json';
-        $this->body = json_encode($data);
-        return $this;
+
+    public static function json($data, $statusCode = 200) {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        
+        // Convertir les objets en tableaux associatifs pour le JSON
+        if (is_object($data) && method_exists($data, 'toArray')) {
+            $data = $data->toArray();
+        } elseif (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_object($value) && method_exists($value, 'toArray')) {
+                    $data[$key] = $value->toArray();
+                }
+            }
+        }
+        
+        return json_encode([
+            'status' => $statusCode < 400 ? 'success' : 'error',
+            'data' => $data
+        ]);
     }
     
+    public static function error($message, $statusCode = 400) {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        return json_encode([
+            'status' => 'error',
+            'message' => $message
+        ]);
+    }
+
     public function send(): void {
         http_response_code($this->code);
         
