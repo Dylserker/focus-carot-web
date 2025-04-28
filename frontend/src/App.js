@@ -10,6 +10,7 @@ import Success from './pages/Success/Success';
 import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
 import Admin from './pages/Admin/Admin';
+import ItemsPage from './pages/ItemsPage';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './component/Utils/PrivateRoute';
 
@@ -56,6 +57,11 @@ function App() {
                                 <Admin />
                             </PrivateRoute>
                         } />
+                        <Route path="/items" element={
+                            <PrivateRoute>
+                                <ItemsPage />
+                            </PrivateRoute>
+                        } />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </div>
@@ -63,6 +69,5 @@ function App() {
         </AuthProvider>
     );
 }
-
 
 export default App;

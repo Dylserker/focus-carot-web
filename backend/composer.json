@@ -1,0 +1,9 @@
+{
+    "name": "juliengidel/mvc",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {}
+}
