@@ -3,7 +3,7 @@
         'name' => 'dylserker/mvc',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => '27ed63db058760115f87992f145039d84debddf7',
+        'reference' => 'f9c728f5ba0aab304080fe340b3c2c02277fb001',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'dylserker/mvc' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => '27ed63db058760115f87992f145039d84debddf7',
+            'reference' => 'f9c728f5ba0aab304080fe340b3c2c02277fb001',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
