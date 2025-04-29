@@ -42,8 +42,7 @@ class Response {
     public static function json($data, $statusCode = 200) {
         http_response_code($statusCode);
         header('Content-Type: application/json');
-        
-        // Convertir les objets en tableaux associatifs pour le JSON
+
         if (is_object($data) && method_exists($data, 'toArray')) {
             $data = $data->toArray();
         } elseif (is_array($data)) {

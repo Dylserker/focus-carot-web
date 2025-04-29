@@ -6,33 +6,27 @@ use App\Core\Response;
 use Firebase\JWT\JWT;
 
 class AuthController {
-    private $secretKey = "votre_cle_secrete_jwt"; // À placer dans un .env en production
+    private $secretKey = "votre_cle_secrete_jwt";
     
     public function register($data) {
-        // Vérifier que les données requises sont présentes
         if (!isset($data['email']) || !isset($data['password']) || !isset($data['username'])) {
             return Response::error('Email, mot de passe et nom d\'utilisateur requis', 400);
         }
-        
-        // Vérifier si l'email existe déjà
+
         if (User::emailExists($data['email'])) {
             return Response::error('Cet email est déjà utilisé', 400);
         }
-        
-        // Créer le nouvel utilisateur
+
         $user = new User();
         $user->setEmail($data['email']);
         $user->setPassword($data['password']);
         $user->setUsername($data['username']);
         $user->role = $data['role'] ?? 'user';
-        
-        // Enregistrer l'utilisateur
+
         $userId = $user->save();
-        
-        // Générer le token JWT
+
         $token = $this->generateToken($user);
-        
-        // Retourner les informations de l'utilisateur et le token
+
         return Response::json([
             'user' => $user->toArray(),
             'token' => $token
@@ -40,23 +34,18 @@ class AuthController {
     }
     
     public function login($data) {
-        // Vérifier que les données requises sont présentes
         if (!isset($data['email']) || !isset($data['password'])) {
             return Response::error('Email et mot de passe requis', 400);
         }
-        
-        // Rechercher l'utilisateur par son email
+
         $user = User::findByEmail($data['email']);
-        
-        // Vérifier si l'utilisateur existe et si le mot de passe est correct
+
         if (!$user || !$user->verifyPassword($data['password'])) {
             return Response::error('Identifiants invalides', 401);
         }
-        
-        // Générer le token JWT
+
         $token = $this->generateToken($user);
-        
-        // Retourner les informations de l'utilisateur et le token
+
         return Response::json([
             'user' => $user->toArray(),
             'token' => $token
@@ -68,7 +57,7 @@ class AuthController {
             'iss' => 'focus_carot_web',
             'aud' => 'focus_carot_web',
             'iat' => time(),
-            'exp' => time() + (60 * 60 * 24), // Expire dans 24h
+            'exp' => time() + (60 * 60 * 24),
             'user_id' => $user->id,
             'email' => $user->email,
             'role' => $user->role
@@ -78,9 +67,6 @@ class AuthController {
     }
     
     public function me() {
-        // Cette méthode nécessiterait une authentification middleware
-        // pour extraire l'ID utilisateur du token JWT
-        // Pour l'instant, nous simulons un utilisateur authentifié
         
         $headers = getallheaders();
         

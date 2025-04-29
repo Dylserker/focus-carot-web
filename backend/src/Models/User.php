@@ -57,8 +57,7 @@ class User {
     public function verifyPassword($password) {
         return password_verify($password, $this->password);
     }
-    
-    // Convertir l'objet en tableau pour l'API
+
     public function toArray() {
         return [
             'id' => $this->id,
@@ -144,25 +143,21 @@ class User {
             ]);
 
             $this->id = (int) $db->getConnection()->lastInsertId();
-            
-            // Créer les enregistrements associés (progression utilisateur)
+
             $this->initializeUserData();
 
             return $this->id;
         }
     }
-    
-    // Initialiser les données associées à un nouvel utilisateur
+
     private function initializeUserData() {
         if (!$this->id) return;
         
         $db = Database::getInstance();
-        
-        // Créer l'entrée dans user_progression
+
         $sql = "INSERT INTO user_progression (user_id, level, experience_points) VALUES (?, 1, 0)";
         $db->query($sql, [$this->id]);
-        
-        // Créer l'entrée dans settings avec les valeurs par défaut
+
         $sql = "INSERT INTO settings (user_id, notifications_enabled, theme, language, daily_goal) 
                 VALUES (?, 1, 'default', 'fr', 3)";
         $db->query($sql, [$this->id]);

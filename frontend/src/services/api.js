@@ -78,7 +78,6 @@ class ApiService {
     }
   }
 
-  // Méthode pour supprimer un élément
   async deleteItem(id) {
     try {
       const response = await fetch(`${API_URL}/api/items/${id}`, {

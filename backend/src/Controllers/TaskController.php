@@ -74,8 +74,7 @@ class TaskController {
         
         if (isset($requestData['status'])) {
             $task->setStatus($requestData['status']);
-            
-            // Si la tâche est marquée comme terminée, mettre à jour la date d'achèvement
+
             if ($requestData['status'] === 'terminée' && $task->status !== 'terminée') {
                 $task->markAsCompleted();
             }
