@@ -96,7 +96,7 @@ class AuthController {
         
         try {
             $token = $auth[1];
-            $decoded = JWT::decode($token, $this->secretKey, ['HS256']);
+            $decoded = JWT::decode($token, new Key($this->secretKey, 'HS256'));
             $user = User::findById($decoded->user_id);
             
             if (!$user) {
