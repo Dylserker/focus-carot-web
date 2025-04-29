@@ -11,6 +11,7 @@ const Input = ({
     onChange,
     name = '',
     id = '',
+    autoComplete = '',
     ...restProps
 }) => {
     const baseClasses = 'input';
@@ -46,6 +47,7 @@ const Input = ({
             onChange={onChange}
             name={name}
             id={id}
+            autoComplete={autoComplete}
             {...restProps}
         />
     );
