@@ -51,7 +51,7 @@ class AuthController {
             'token' => $token
         ]);
     }
-    
+
     private function generateToken($user) {
         $payload = [
             'iss' => 'focus_carot_web',
@@ -60,12 +60,14 @@ class AuthController {
             'exp' => time() + (60 * 60 * 24),
             'user_id' => $user->id,
             'email' => $user->email,
-            'role' => $user->role
+            'role' => $user->role,
+            'nom' => $user->nom,
+            'prenom' => $user->prenom
         ];
-        
+
         return JWT::encode($payload, $this->secretKey, 'HS256');
     }
-    
+
     public function me() {
         
         $headers = getallheaders();
