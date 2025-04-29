@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../component/Input';
 import Button from '../../component/Button';
+import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 
 const Login = () => {
@@ -9,6 +10,9 @@ const Login = () => {
         email: '',
         password: ''
     });
+    const [error, setError] = useState('');
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -18,15 +22,26 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Tentative de connexion avec:', formData);
+        setError('');
+
+        try {
+            const success = await login(formData);
+            if (success) {
+                navigate('/home');
+            }
+        } catch (err) {
+            setError('Échec de la connexion. Veuillez vérifier vos identifiants.');
+            console.error('Erreur de connexion:', err);
+        }
     };
 
     return (
         <div className="login-container">
             <div className="login-form-wrapper">
                 <h2>Connexion</h2>
+                {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
