@@ -3,12 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
 import ProgressBar from '../ProgressBar';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const handleProfileClick = () => {
         navigate('/profile');
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     const user = {
@@ -32,7 +39,7 @@ const Header = () => {
                         <li><Link to="/settings">Paramètre</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
                         <li><Link to="/admin">Admin</Link></li>
-                        <li><Link to="/logout">Déconnexion</Link></li>
+                        <li><Link onClick={handleLogout} to="#">Déconnexion</Link></li>
                     </ul>
                 </nav>
                 <div className="user-profile">
