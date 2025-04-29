@@ -9,28 +9,46 @@ class AuthController {
     private $secretKey = "votre_cle_secrete_jwt";
     
     public function register($data) {
+        error_log("Tentative d'inscription avec les données: " . json_encode($data));
+        
         if (!isset($data['email']) || !isset($data['password']) || !isset($data['username'])) {
+            error_log("Données d'inscription incomplètes");
             return Response::error('Email, mot de passe et nom d\'utilisateur requis', 400);
         }
-
+    
         if (User::emailExists($data['email'])) {
+            error_log("Tentative d'inscription avec un email déjà utilisé: " . $data['email']);
             return Response::error('Cet email est déjà utilisé', 400);
         }
-
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setPassword($data['password']);
-        $user->setUsername($data['username']);
-        $user->role = $data['role'] ?? 'user';
-
-        $userId = $user->save();
-
-        $token = $this->generateToken($user);
-
-        return Response::json([
-            'user' => $user->toArray(),
-            'token' => $token
-        ], 201);
+    
+        try {
+            $user = new User();
+            $user->setEmail($data['email']);
+            $user->setPassword($data['password']);
+            $user->setUsername($data['username']);
+            $user->role = $data['role'] ?? 'user';
+            $user->avatar_url = $data['avatar_url'] ?? null;
+            
+            error_log("Tentative de sauvegarde de l'utilisateur: " . $data['email']);
+            $userId = $user->save();
+            
+            if (!$userId) {
+                error_log("Échec de l'inscription pour l'utilisateur: " . $data['email']);
+                return Response::error('Erreur lors de l\'inscription, veuillez vérifier les logs', 500);
+            }
+            
+            error_log("Inscription réussie pour l'utilisateur: " . $data['email'] . " avec ID: " . $userId);
+            
+            $token = $this->generateToken($user);
+            
+            return Response::json([
+                'user' => $user->toArray(),
+                'token' => $token
+            ], 201);
+        } catch (\Exception $e) {
+            error_log("Exception lors de l'inscription: " . $e->getMessage());
+            return Response::error('Erreur lors de l\'inscription: ' . $e->getMessage(), 500);
+        }
     }
     
     public function login($data) {

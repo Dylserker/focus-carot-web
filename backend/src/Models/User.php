@@ -113,54 +113,113 @@ class User {
     public function save() {
         $db = Database::getInstance();
 
-        if ($this->id) {
-            $sql = "UPDATE users 
-                    SET email = ?, password = ?, username = ?, role = ?, avatar_url = ?
-                    WHERE id = ?";
-
-            $db->query($sql, [
-                $this->email,
-                $this->password,
-                $this->username,
-                $this->role ?? 'user',
-                $this->avatar_url,
-                $this->id
-            ]);
-
-            return $this->id;
-
-        } else {
-            // Insertion
-            $sql = "INSERT INTO users (email, password, username, role, avatar_url) 
-                    VALUES (?, ?, ?, ?, ?)";
-
-            $db->query($sql, [
-                $this->email,
-                $this->password,
-                $this->username,
-                $this->role ?? 'user',
-                $this->avatar_url
-            ]);
-
-            $this->id = (int) $db->getConnection()->lastInsertId();
-
-            $this->initializeUserData();
-
-            return $this->id;
+        try {
+            if ($this->id) {
+                $sql = "UPDATE users 
+                        SET email = ?, password = ?, username = ?, role = ?, avatar_url = ?
+                        WHERE id = ?";
+    
+                $result = $db->query($sql, [
+                    $this->email,
+                    $this->password,
+                    $this->username,
+                    $this->role ?? 'user',
+                    $this->avatar_url,
+                    $this->id
+                ]);
+                
+                if (!$result) {
+                    error_log("Erreur lors de la mise à jour de l'utilisateur ID: " . $this->id);
+                    return false;
+                }
+    
+                return $this->id;
+    
+            } else {
+                // Insertion
+                $sql = "INSERT INTO users (email, password, username, role, avatar_url) 
+                        VALUES (?, ?, ?, ?, ?)";
+    
+                $result = $db->query($sql, [
+                    $this->email,
+                    $this->password,
+                    $this->username,
+                    $this->role ?? 'user',
+                    $this->avatar_url
+                ]);
+                
+                if (!$result) {
+                    error_log("Erreur lors de l'insertion d'un nouvel utilisateur avec email: " . $this->email);
+                    return false;
+                }
+    
+                // Utilise la méthode directe lastInsertId() de Database
+                $this->id = (int) $db->lastInsertId();
+                
+                if (!$this->id) {
+                    error_log("Erreur: Impossible d'obtenir l'ID du nouvel utilisateur inséré");
+                    return false;
+                }
+                
+                error_log("Nouvel utilisateur créé avec l'ID: " . $this->id);
+    
+                $this->initializeUserData();
+    
+                return $this->id;
+            }
+        } catch (\Exception $e) {
+            error_log("Exception lors de la sauvegarde de l'utilisateur: " . $e->getMessage());
+            return false;
         }
     }
 
     private function initializeUserData() {
-        if (!$this->id) return;
+        if (!$this->id) {
+            error_log("Erreur: Impossible d'initialiser les données utilisateur car l'ID n'est pas défini");
+            return false;
+        }
         
         $db = Database::getInstance();
-
-        $sql = "INSERT INTO user_progression (user_id, level, experience_points) VALUES (?, 1, 0)";
-        $db->query($sql, [$this->id]);
-
-        $sql = "INSERT INTO settings (user_id, notifications_enabled, theme, language, daily_goal) 
-                VALUES (?, 1, 'default', 'fr', 3)";
-        $db->query($sql, [$this->id]);
+        $success = true;
+        
+        try {
+            // Initialisation de la progression de l'utilisateur
+            $sql = "INSERT INTO user_progression (user_id, level, experience_points, total_experience_earned, current_streak, longest_streak) 
+                    VALUES (?, 1, 0, 0, 0, 0)";
+            $result = $db->query($sql, [$this->id]);
+            if (!$result) {
+                error_log("Erreur lors de l'initialisation de la progression pour l'utilisateur ID: " . $this->id);
+                $success = false;
+            }
+        
+            // Initialisation des paramètres par défaut
+            $sql = "INSERT INTO settings (user_id, notifications_enabled, theme, language, daily_goal) 
+                    VALUES (?, 1, 'default', 'fr', 3)";
+            $result = $db->query($sql, [$this->id]);
+            if (!$result) {
+                error_log("Erreur lors de l'initialisation des paramètres pour l'utilisateur ID: " . $this->id);
+                $success = false;
+            }
+            
+            // Création du profil utilisateur vide
+            $sql = "INSERT INTO user_profiles (user_id, gender) 
+                    VALUES (?, 'non_specifie')";
+            $result = $db->query($sql, [$this->id]);
+            if (!$result) {
+                error_log("Erreur lors de la création du profil pour l'utilisateur ID: " . $this->id);
+                $success = false;
+            }
+            
+            if ($success) {
+                error_log("Données utilisateur initialisées avec succès pour l'utilisateur ID: " . $this->id);
+            }
+            
+            return $success;
+            
+        } catch (\Exception $e) {
+            error_log("Exception lors de l'initialisation des données utilisateur: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function delete() {
