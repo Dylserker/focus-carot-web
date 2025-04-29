@@ -78,6 +78,39 @@ if (count($api_uri_parts) >= 1) {
             }
             break;
 
+        case 'auth':
+            $controller = new \App\Controllers\AuthController();
+
+            // Déterminer l'action en fonction de l'URI
+            $action = isset($api_uri_parts[1]) ? $api_uri_parts[1] : null;
+
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'POST':
+                    if ($action === 'register') {
+                        echo $controller->register($data);
+                    } elseif ($action === 'login') {
+                        echo $controller->login($data);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['error' => 'Action non trouvée']);
+                    }
+                    break;
+
+                case 'GET':
+                    if ($action === 'me') {
+                        echo $controller->me();
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['error' => 'Action non trouvée']);
+                    }
+                    break;
+
+                default:
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Méthode non autorisée']);
+            }
+            break;
+
         default:
             http_response_code(404);
             echo json_encode(['error' => 'Ressource non trouvée']);
@@ -86,7 +119,8 @@ if (count($api_uri_parts) >= 1) {
     echo json_encode([
         'message' => 'Bienvenue sur l\'API Focus Carot Web',
         'endpoints' => [
-            '/users' => 'Gestion des utilisateurs'
+            '/users' => 'Gestion des utilisateurs',
+            '/auth' => 'Authentification (register, login, me)'
         ]
     ]);
 }

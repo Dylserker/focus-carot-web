@@ -112,13 +112,17 @@ class User {
 
     public function save() {
         $db = Database::getInstance();
+        error_log("Début de la méthode save() pour l'utilisateur avec email: " . $this->email);
 
         try {
             if ($this->id) {
                 $sql = "UPDATE users 
-                        SET email = ?, password = ?, username = ?, role = ?, avatar_url = ?
-                        WHERE id = ?";
-    
+                    SET email = ?, password = ?, username = ?, role = ?, avatar_url = ?
+                    WHERE id = ?";
+
+                error_log("SQL de mise à jour: " . $sql);
+                error_log("Paramètres de mise à jour: email=" . $this->email . ", username=" . $this->username . ", role=" . ($this->role ?? 'user') . ", id=" . $this->id);
+
                 $result = $db->query($sql, [
                     $this->email,
                     $this->password,
@@ -127,19 +131,24 @@ class User {
                     $this->avatar_url,
                     $this->id
                 ]);
-                
+
+                error_log("Résultat de la mise à jour: " . ($result ? "succès" : "échec"));
+
                 if (!$result) {
                     error_log("Erreur lors de la mise à jour de l'utilisateur ID: " . $this->id);
                     return false;
                 }
-    
+
                 return $this->id;
-    
+
             } else {
                 // Insertion
                 $sql = "INSERT INTO users (email, password, username, role, avatar_url) 
-                        VALUES (?, ?, ?, ?, ?)";
-    
+                    VALUES (?, ?, ?, ?, ?)";
+
+                error_log("SQL d'insertion: " . $sql);
+                error_log("Paramètres d'insertion: email=" . $this->email . ", username=" . $this->username . ", role=" . ($this->role ?? 'user'));
+
                 $result = $db->query($sql, [
                     $this->email,
                     $this->password,
@@ -147,31 +156,36 @@ class User {
                     $this->role ?? 'user',
                     $this->avatar_url
                 ]);
-                
+
+                error_log("Résultat de l'insertion: " . ($result ? "succès" : "échec"));
+
                 if (!$result) {
                     error_log("Erreur lors de l'insertion d'un nouvel utilisateur avec email: " . $this->email);
                     return false;
                 }
-    
+
                 // Utilise la méthode directe lastInsertId() de Database
                 $this->id = (int) $db->lastInsertId();
-                
+                error_log("ID obtenu après insertion: " . $this->id);
+
                 if (!$this->id) {
                     error_log("Erreur: Impossible d'obtenir l'ID du nouvel utilisateur inséré");
                     return false;
                 }
-                
+
                 error_log("Nouvel utilisateur créé avec l'ID: " . $this->id);
-    
+
                 $this->initializeUserData();
-    
+
                 return $this->id;
             }
         } catch (\Exception $e) {
             error_log("Exception lors de la sauvegarde de l'utilisateur: " . $e->getMessage());
+            error_log("Trace: " . $e->getTraceAsString());
             return false;
         }
     }
+
 
     private function initializeUserData() {
         if (!$this->id) {
