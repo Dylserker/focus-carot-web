@@ -18,10 +18,20 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    function login(userData) {
-        setCurrentUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
+    async function login(credentials) {
+        try {
+            const userData = { email: credentials.email, id: 1 };
+
+            setCurrentUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            return true;
+        } catch (error) {
+            console.error('Erreur de connexion:', error);
+            return false;
+        }
     }
+
 
     function logout() {
         setCurrentUser(null);
