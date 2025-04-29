@@ -121,6 +121,7 @@ const Register = () => {
                             value={formData.password}
                             onChange={handleChange}
                             placeholder="Créez un mot de passe"
+                            autoComplete="current-password"
                             required
                         />
                     </div>
@@ -134,6 +135,7 @@ const Register = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             placeholder="Confirmez votre mot de passe"
+                            autoComplete="current-password"
                             required
                         />
                     </div>
