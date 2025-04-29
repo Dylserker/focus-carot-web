@@ -8,7 +8,7 @@ import './Admin.css';
 const Admin = () => {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error] = useState(null);
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);

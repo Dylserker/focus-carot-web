@@ -53,7 +53,7 @@ const Profile = () => {
                 <div className="profile-picture-section">
                     <div className="profile-picture">
                         {profileData.profilePicture ? (
-                            <img src={profileData.profilePicture} alt="Photo de profil" />
+                            <img src={profileData.profilePicture} alt="Profil" />
                         ) : (
                             <div className="placeholder-image">Photo</div>
                         )}

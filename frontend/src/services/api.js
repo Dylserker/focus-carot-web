@@ -4,7 +4,6 @@
 const API_URL = 'http://localhost/focus-carot-web/backend';
 
 class ApiService {
-  // Méthode pour obtenir la liste des éléments
   async getItems() {
     try {
       const response = await fetch(`${API_URL}/api/items`);
@@ -19,7 +18,6 @@ class ApiService {
     }
   }
 
-  // Méthode pour obtenir un élément par son ID
   async getItem(id) {
     try {
       const response = await fetch(`${API_URL}/api/items/${id}`);
@@ -34,7 +32,6 @@ class ApiService {
     }
   }
 
-  // Méthode pour créer un nouvel élément
   async createItem(itemData) {
     try {
       const response = await fetch(`${API_URL}/api/items`, {
@@ -58,7 +55,6 @@ class ApiService {
     }
   }
 
-  // Méthode pour mettre à jour un élément
   async updateItem(id, itemData) {
     try {
       const response = await fetch(`${API_URL}/api/items/${id}`, {
