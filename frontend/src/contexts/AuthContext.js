@@ -32,6 +32,25 @@ export function AuthProvider({ children }) {
         }
     }
 
+    async function register(userData) {
+        try {
+            const newUser = {
+                email: userData.email,
+                id: Math.floor(Math.random() * 1000),
+                nom: userData.nom,
+                prenom: userData.prenom,
+                pseudo: userData.pseudo
+            };
+
+            setCurrentUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
+
+            return true;
+        } catch (error) {
+            console.error('Erreur d\'inscription:', error);
+            return false;
+        }
+    }
 
     function logout() {
         setCurrentUser(null);
@@ -41,6 +60,7 @@ export function AuthProvider({ children }) {
     const value = {
         currentUser,
         login,
+        register,
         logout,
         isAuthenticated: !!currentUser
     };

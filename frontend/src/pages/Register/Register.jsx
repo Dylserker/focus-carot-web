@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../component/Input';
 import Button from '../../component/Button';
+import { useAuth } from '../../contexts/AuthContext';
 import './Register.css';
 
 const Register = () => {
@@ -13,6 +14,9 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState('');
+    const { register } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -22,19 +26,39 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
         if (formData.password !== formData.confirmPassword) {
-            alert('Les mots de passe ne correspondent pas');
+            setError('Les mots de passe ne correspondent pas');
             return;
         }
-        console.log('Données du formulaire :', formData);
+
+        try {
+            const userData = {
+                nom: formData.nom,
+                prenom: formData.prenom,
+                pseudo: formData.pseudo,
+                email: formData.email,
+                password: formData.password
+            };
+
+            const success = await register(userData);
+            if (success) {
+                navigate('/home');
+            }
+        } catch (err) {
+            setError('Échec de l\'inscription. Veuillez réessayer.');
+            console.error('Erreur d\'inscription:', err);
+        }
     };
 
     return (
         <div className="register-container">
             <div className="register-form-wrapper">
                 <h2>Créer un compte</h2>
+                {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="nom">Nom</label>
