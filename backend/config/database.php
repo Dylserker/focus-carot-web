@@ -1,5 +1,4 @@
 <?php
-// Ce fichier ne contient que la configuration
 return [
     'host' => 'localhost',
     'dbname' => 'focus_carot_web',

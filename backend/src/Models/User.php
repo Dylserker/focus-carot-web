@@ -142,7 +142,6 @@ class User {
                 return $this->id;
 
             } else {
-                // Insertion
                 $sql = "INSERT INTO users (email, password, username, role, avatar_url) 
                     VALUES (?, ?, ?, ?, ?)";
 
@@ -164,7 +163,6 @@ class User {
                     return false;
                 }
 
-                // Utilise la méthode directe lastInsertId() de Database
                 $this->id = (int) $db->lastInsertId();
                 error_log("ID obtenu après insertion: " . $this->id);
 
