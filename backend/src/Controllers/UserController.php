@@ -1,73 +1,88 @@
 <?php
-namespace App\Controllers;
+        namespace App\Controllers;
 
-use App\Models\User;
-use App\Core\Response;
+        use App\Entity\User;
+        use Doctrine\ORM\EntityManagerInterface;
+        use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+        use Symfony\Component\HttpFoundation\JsonResponse;
+        use Symfony\Component\HttpFoundation\Request;
+        use Symfony\Component\Routing\Annotation\Route;
 
-class UserController {
+        #[Route('/api/users', name: 'api_users_')]
+        class UserController extends AbstractController
+        {
+            private $entityManager;
 
-    public function index() {
-        $users = User::findAll();
+            public function __construct(EntityManagerInterface $entityManager)
+            {
+                $this->entityManager = $entityManager;
+            }
 
-        return Response::json($users);
-    }
+            #[Route('', name: 'index', methods: ['GET'])]
+            public function index(): JsonResponse
+            {
+                $users = $this->entityManager->getRepository(User::class)->findAll();
+                return new JsonResponse(['data' => $users]);
+            }
 
-    public function show($id) {
-        $user = User::findById($id);
+            #[Route('/{id}', name: 'show', methods: ['GET'])]
+            public function show($id): JsonResponse
+            {
+                $user = $this->entityManager->getRepository(User::class)->find($id);
+                if (!$user) {
+                    return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
+                }
+                return new JsonResponse(['data' => $user]);
+            }
 
-        if (!$user) {
-            return Response::json(['error' => 'Utilisateur non trouvé'], 404);
+            #[Route('', name: 'create', methods: ['POST'])]
+            public function create(Request $request): JsonResponse
+            {
+                $data = json_decode($request->getContent(), true);
+                $user = new User();
+                $user->setPseudo($data['pseudo']);
+                $user->setNom($data['nom']);
+                $user->setPrenom($data['prenom']);
+                $user->setTitre($data['titre'] ?? null);
+                $user->setPhoto($data['photo'] ?? null);
+
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+
+                return new JsonResponse(['data' => $user], 201);
+            }
+
+            #[Route('/{id}', name: 'update', methods: ['PUT'])]
+            public function update($id, Request $request): JsonResponse
+            {
+                $user = $this->entityManager->getRepository(User::class)->find($id);
+                if (!$user) {
+                    return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
+                }
+
+                $data = json_decode($request->getContent(), true);
+                $user->setPseudo($data['pseudo'] ?? $user->getPseudo());
+                $user->setNom($data['nom'] ?? $user->getNom());
+                $user->setPrenom($data['prenom'] ?? $user->getPrenom());
+                $user->setTitre($data['titre'] ?? $user->getTitre());
+                $user->setPhoto($data['photo'] ?? $user->getPhoto());
+
+                $this->entityManager->flush();
+
+                return new JsonResponse(['data' => $user]);
+            }
+
+            #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+            public function delete($id): JsonResponse
+            {
+                $user = $this->entityManager->getRepository(User::class)->find($id);
+                if (!$user) {
+                    return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
+                }
+
+                $this->entityManager->remove($user);
+                $this->entityManager->flush();
+
+                return new JsonResponse(null, 204);
+            }
         }
-
-        return Response::json($user);
-    }
-
-    public function create($requestData) {
-        $user = new User();
-        $user->setEmail($requestData['email']);
-        $user->setPassword($requestData['password']);
-        $user->setUsername($requestData['username']);
-
-        $userId = $user->save();
-
-        $savedUser = User::findById($userId);
-
-        return Response::json($savedUser, 201);
-    }
-
-    public function update($id, $requestData) {
-        $user = User::findById($id);
-
-        if (!$user) {
-            return Response::json(['error' => 'Utilisateur non trouvé'], 404);
-        }
-
-        if (isset($requestData['email'])) {
-            $user->setEmail($requestData['email']);
-        }
-
-        if (isset($requestData['password'])) {
-            $user->setPassword($requestData['password']);
-        }
-
-        if (isset($requestData['username'])) {
-            $user->setUsername($requestData['username']);
-        }
-
-        $user->save();
-
-        return Response::json($user);
-    }
-
-    public function delete($id) {
-        $user = User::findById($id);
-
-        if (!$user) {
-            return Response::json(['error' => 'Utilisateur non trouvé'], 404);
-        }
-
-        $user->delete();
-
-        return Response::json(['message' => 'Utilisateur supprimé avec succès']);
-    }
-}
