@@ -1,4 +1,6 @@
 <?php
+$secretKey = trim(file_get_contents(__DIR__ . '/secret.key'));
+
 return [
     'db' => [
         'host' => 'localhost',
@@ -7,6 +9,6 @@ return [
         'pass' => ''
     ],
     'jwt' => [
-        'secret' => 'votre_clé_secrète_jwt'
+        'secret' => $secretKey
     ]
 ];
