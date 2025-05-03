@@ -1,7 +1,6 @@
 <?php
 namespace App;
 
-use App\Core\Request;
 use App\Core\Routeur;
 
 class Kernel {
@@ -9,6 +8,7 @@ class Kernel {
         private Routeur $routeur
     ) {
         $this->setupCORS();
+        $this->loadRoutes();
         $this->run();
     }
 
@@ -19,9 +19,15 @@ class Kernel {
         header('Content-Type: application/json');
     }
 
+    private function loadRoutes() {
+        $routes = require __DIR__ . '/routes.php';
+        $routes($this->routeur);
+    }
+
     private function run() {
-        $request = new Request($_SERVER, $_GET, $_POST);
+        $request = new \App\Core\Request($_SERVER, $_GET, $_POST);
         $response = $this->routeur->request($request);
+        http_response_code($response->getStatusCode());
         echo json_encode($response->getBody());
     }
 }
