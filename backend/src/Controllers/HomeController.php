@@ -1,15 +1,11 @@
-<?php 
-
+<?php
 namespace App\Controllers;
 
-use App\Models\Users;
-
-class HomeController extends BaseController {
-    
+class HomeController {
     public function index() {
-        return $this->render('home', [
-            'nom' => 'Julien',
-            'users' => Users::getAll()
-        ]);
+        return [
+            'message' => 'Bienvenue sur l\'API',
+            'status' => 'OK'
+        ];
     }
 }

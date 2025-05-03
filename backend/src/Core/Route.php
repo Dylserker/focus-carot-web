@@ -27,29 +27,30 @@ class Route {
         return $this->action;
     }
 
-    public function isValidFor(Request $request): bool {
-        if (!in_array($request->method, $this->getMethods(), true)) {
-            return false;
-        }
+    public function isValidFor(Request $request) {
 
-        $exploded_uri = explode('/', trim($request->uri, '/'));
-        $exploded_path = explode('/', trim($this->path, '/'));
+        $exploded_uri = explode('/', trim($request->uri));
+        $exploded_path = explode('/', trim($this->path));
 
-        if (trim($request->uri, '/') === trim($this->path, '/')) {
+        if($request->uri === $this->path) {
             return true;
         }
 
-        if (count($exploded_uri) !== count($exploded_path)) {
+        if(count($exploded_uri) !== count($exploded_path)) {
             return false;
         }
 
-        foreach ($exploded_path as $index => $value) {
+        if(!in_array($request->method, $this->getMethods(), true)) {
+            return false;
+        }
+
+        foreach($exploded_path as $index => $value) {
             $isVariable = str_contains($value, '{') && str_contains($value, '}');
-            if ($isVariable) {
+            if($isVariable) {
                 continue;
             }
 
-            if ($value !== $exploded_uri[$index]) {
+            if($value !== $exploded_uri[$index]) {
                 return false;
             }
         }

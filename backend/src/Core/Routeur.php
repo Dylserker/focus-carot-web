@@ -1,81 +1,48 @@
-<?php 
-
+<?php
 namespace App\Core;
 
-use Exception;
-use ReflectionClass;
-use App\Controllers\BaseController;
-
 class Routeur {
+    private array $routes = [];
 
-    public function __construct(
-        private array $routes = []
-    ) {}
-
-    public function addRoute(string|array $methods, string $path, string $controller, string $action) 
-    {
-        if (is_string($methods)) {
-            $methods = [$methods];
-        }
-
-        $this->routes[] = new Route($path, $controller, $action, $methods);
+    public function addRoute(array $methods, string $path, string $controller, string $action): void {
+        $this->routes[] = [
+            'methods' => $methods,
+            'path' => $path,
+            'controller' => $controller,
+            'action' => $action
+        ];
     }
 
-    public function request(Request $request): Response 
-    {
-        $response = new Response(404, "Route not found");
- 
-        /** @var Route $route */
-        foreach($this->routes as $route) {
-            if ($route->isValidFor($request)) {
-                $reflected_controller = new ReflectionClass($route->getController());
-
-                $exploded_uri = explode('/', trim($request->uri, '/'));
-                $indexes = $this->indexOfParams($route->getPath());
-                $params = array_filter($exploded_uri, function($v, $k) use ($indexes) {
-                    return in_array($k, $indexes, true);
-                }, ARRAY_FILTER_USE_BOTH);
-
-                /** @var BaseController $controller */
-                $controller = $reflected_controller->newInstance();
-                $controller->setRequest($request);
-
-                try {
-                    $result = call_user_func_array(
-                        [$controller, $route->getAction()], 
-                        $params
-                    );
-
-                    if ($result instanceof Response) {
-                        $response = $result;
-                    } else {
-                        $response = new Response(200, $result);
-                    }
-                } catch(Exception $e) {
-                    $response = new Response(500, json_encode([
-                        'success' => false,
-                        'error' => $e->getMessage()
-                    ]));
-                    $response->setHeader('Content-Type', 'application/json');
-                }
-
-                break;
+    public function request(Request $request): Response {
+        foreach ($this->routes as $route) {
+            if ($this->matchRoute($route, $request)) {
+                return $this->executeRoute($route, $request);
             }
         }
-    
-        return $response;
+        return (new Response())->setBody(['error' => 'Route not found'])->setStatusCode(404);
     }
 
-    private function indexOfParams(string $path) : array 
-    {
-        $exploded_path = explode('/', trim($path, '/'));
-        $indexes = [];
-
-        foreach($exploded_path as $key => $value) {
-            if(str_contains($value, '{') && str_contains($value, '}')) {
-                $indexes[] = $key;
-            }
+    private function matchRoute(array $route, Request $request): bool {
+        if (!in_array($request->getMethod(), $route['methods'])) {
+            return false;
         }
-        return $indexes;
+
+        $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route['path']);
+        return preg_match("#^{$pattern}$#", $request->getUri());
+    }
+
+    private function executeRoute(array $route, Request $request): Response {
+        $controller = new $route['controller']();
+        $params = $this->extractParams($route['path'], $request->getUri());
+        $result = $controller->{$route['action']}(...$params);
+
+        return (new Response())->setBody($result);
+    }
+
+    private function extractParams(string $path, string $uri): array {
+        preg_match_all('/\{([^}]+)\}/', $path, $paramNames);
+        preg_match('#^' . preg_replace('/\{[^}]+\}/', '([^/]+)', $path) . '$#', $uri, $paramValues);
+        array_shift($paramValues);
+        return $paramValues;
     }
 }

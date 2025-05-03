@@ -1,9 +1,16 @@
 <?php
 
+use App\Controllers\HomeController;
+use App\Controllers\UsersController;
+use App\Core\Routeur;
+use App\Core\TemplateEngine;
 use App\Kernel;
 
-require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+require 'vendor/autoload.php';
 
-return function (array $context) {
-    return new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
-};
+$routeur = new Routeur();
+$routeur->addRoute(['GET'], '/users/{id}', UsersController::class, 'user');
+$routeur->addRoute(['GET'], '/', HomeController::class, 'index');
+$routeur->addRoute(['GET'], '/users', UsersController::class, 'liste');
+
+new Kernel($routeur);

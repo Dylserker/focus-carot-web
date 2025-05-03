@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Controllers;
 
@@ -17,7 +17,7 @@ abstract class BaseController {
         return $this->templateEngine->render($filepath, $context);
     }
 
-    public function setRequest(Request $request): void {
+    public function setRequest(Request $request) {
         $this->request = $request;
     }
 
