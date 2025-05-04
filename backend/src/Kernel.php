@@ -8,8 +8,7 @@ class Kernel {
         private Routeur $routeur
     ) {
         $this->setupCORS();
-        $this->loadRoutes();
-        $this->run();
+        $this->handle();
     }
 
     private function setupCORS() {
@@ -19,14 +18,19 @@ class Kernel {
         header('Content-Type: application/json');
     }
 
-    private function loadRoutes() {
-        $routes = require __DIR__ . '/routes.php';
-        $routes($this->routeur);
-    }
+    private function handle() {
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
+        }
 
-    private function run() {
         $request = new \App\Core\Request($_SERVER, $_GET, $_POST);
         $response = $this->routeur->request($request);
+
+        if ($response->getBody() === null) {
+            return;  // Pour le cas du favicon qui gère sa propre sortie
+        }
+
         http_response_code($response->getStatusCode());
         echo json_encode($response->getBody());
     }
