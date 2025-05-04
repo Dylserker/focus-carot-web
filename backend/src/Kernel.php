@@ -28,7 +28,7 @@ class Kernel {
         $response = $this->routeur->request($request);
 
         if ($response->getBody() === null) {
-            return;  // Pour le cas du favicon qui gère sa propre sortie
+            return;
         }
 
         http_response_code($response->getStatusCode());
