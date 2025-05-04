@@ -5,3 +5,4 @@ node_modules
 vendor
 .env
 composer.lock
+src/secret.key
