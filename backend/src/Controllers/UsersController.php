@@ -2,36 +2,49 @@
 namespace App\Controllers;
 
 use App\Core\Database;
+use App\Models\User;
 
-class UsersController {
+class UsersController
+{
     private $db;
+    private $userModel;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new Database();
+        $this->userModel = new User();
     }
 
-    public function liste() {
-        try {
-            $stmt = $this->db->getPDO()->query('SELECT * FROM users');
-            return ['users' => $stmt->fetchAll(\PDO::FETCH_ASSOC)];
-        } catch (\PDOException $e) {
-            return ['error' => 'Erreur lors de la récupération des utilisateurs'];
+    public function liste()
+    {
+        $users = $this->userModel->getAll();
+        if ($users) {
+            return ['users' => $users];
         }
+        return ['error' => 'Erreur lors de la récupération des utilisateurs'];
     }
 
-    public function user($id) {
-        try {
-            $stmt = $this->db->getPDO()->prepare('SELECT * FROM users WHERE id = ?');
-            $stmt->execute([$id]);
-            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-            if (!$user) {
-                return ['error' => 'Utilisateur non trouvé'];
-            }
-
+    public function user($id)
+    {
+        $user = $this->userModel->getById($id);
+        if ($user) {
             return ['user' => $user];
-        } catch (\PDOException $e) {
-            return ['error' => 'Erreur lors de la récupération de l\'utilisateur'];
         }
+        return ['error' => 'Utilisateur non trouvé'];
+    }
+
+    public function connexion($data)
+    {
+        if (!isset($data['email']) || !isset($data['password'])) {
+            return ['error' => 'Email et mot de passe requis'];
+        }
+
+        $user = $this->userModel->verifierConnexion($data['email'], $data['password']);
+
+        if ($user) {
+            return ['success' => true, 'user' => $user];
+        }
+
+        return ['error' => 'Identifiants incorrects'];
     }
 }
