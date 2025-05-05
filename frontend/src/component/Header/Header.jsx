@@ -34,12 +34,30 @@ const Header = () => {
                 </div>
                 <nav className="main-nav">
                     <ul>
-                        <li><Link to="/tasks">Tâche</Link></li>
-                        <li><Link to="/success">Succès</Link></li>
-                        <li><Link to="/settings">Paramètre</Link></li>
-                        <li><Link to="/contact">Contact</Link></li>
-                        <li><Link to="/admin">Admin</Link></li>
-                        <li><Link onClick={handleLogout} to="#">Déconnexion</Link></li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link to="/tasks">Tâche</Link>
+                        </li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link to="/success">Succès</Link>
+                        </li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link to="/settings">Paramètre</Link>
+                        </li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link to="/contact">Contact</Link>
+                        </li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link to="/admin">Admin</Link>
+                        </li>
+                        <li>
+                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                            <Link onClick={handleLogout} to="#">Fermer</Link>
+                        </li>
                     </ul>
                 </nav>
                 <div className="user-profile">
