@@ -48,6 +48,11 @@
     align-items: center;
     justify-content: center;
     overflow: visible;
+    transition: all 0.3s ease;
+}
+
+.main-nav li:hover .nav-bg {
+    opacity: 0;
 }
 
 .main-nav .nav-bg {
@@ -55,11 +60,38 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 180%;
-    height: 180%;
-    object-fit: contain;
+    width: 150%;
+    height: 150%;
+    background-image: url('../../assets/img/Carot.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     z-index: 0;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.main-nav li::before {
+    content: '';
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200%;
+    height: 190%;
+    background-image: url('../../assets/img/Carot_Crok.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.main-nav li:hover::before {
+    opacity: 1;
 }
 
 .main-nav a {
