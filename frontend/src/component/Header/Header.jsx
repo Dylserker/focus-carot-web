@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { currentUser, logout } = useAuth();
 
     const handleProfileClick = () => {
         navigate('/profile');
@@ -18,12 +18,13 @@ const Header = () => {
         navigate('/login');
     };
 
-    const user = {
-        pseudo: "Utilisateur",
-        level: 5,
-        title: "Débutant",
-        progress: 65
+    const userInfo = {
+        pseudo: currentUser?.username || "Invité",
+        level: currentUser?.level || 1,
+        title: currentUser?.title || "Débutant",
+        progress: currentUser?.progress || 0
     };
+
     return (
         <header className="header">
             <div className="header-container">
@@ -62,10 +63,10 @@ const Header = () => {
                 </nav>
                 <div className="user-profile">
                     <div className="profile-info">
-                        <div className="profile-pseudo">{user.pseudo}</div>
-                        <div className="profile-level">Niveau {user.level}</div>
-                        <div className="profile-title">{user.title}</div>
-                        <ProgressBar progress={user.progress} />
+                        <div className="profile-pseudo">{userInfo.pseudo}</div>
+                        <div className="profile-level">Niveau {userInfo.level}</div>
+                        <div className="profile-title">{userInfo.title}</div>
+                        <ProgressBar progress={userInfo.progress} />
                     </div>
                     <div className="profile-photo-container">
                         <div className="profile-photo" onClick={handleProfileClick}></div>
