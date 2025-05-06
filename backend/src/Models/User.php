@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Core\Database;
+use Firebase\JWT\JWT;
 
 class User
 {
@@ -42,8 +43,22 @@ class User
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
+                $key = $_ENV['JWT_SECRET'];
+                $payload = [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'iat' => time(),
+                    'exp' => time() + (60 * 60 * 24)
+                ];
+
+                $token = JWT::encode($payload, $key, 'HS256');
+
                 unset($user['password']);
-                return $user;
+
+                return [
+                    'user' => $user,
+                    'token' => $token
+                ];
             }
             return false;
         } catch (\PDOException $e) {

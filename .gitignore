@@ -3,6 +3,6 @@
 package-lock.json
 node_modules
 vendor
-.env
+backend/.env
 composer.lock
 backend/src/secret.key

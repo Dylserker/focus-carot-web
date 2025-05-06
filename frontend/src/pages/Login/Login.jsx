@@ -11,29 +11,30 @@ const Login = () => {
         password: ''
     });
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
+        setFormData(prev => ({
+            ...prev,
             [name]: value
-        });
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         try {
-            const success = await login(formData);
-            if (success) {
-                navigate('/home');
-            }
+            await login(formData);
+            navigate('/home');
         } catch (err) {
-            setError('Échec de la connexion. Veuillez vérifier vos identifiants.');
-            console.error('Erreur de connexion:', err);
+            setError(err.message || 'Échec de la connexion. Veuillez vérifier vos identifiants.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -52,6 +53,7 @@ const Login = () => {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="Entrez votre email"
+                            disabled={isLoading}
                             required
                         />
                     </div>
@@ -66,6 +68,7 @@ const Login = () => {
                             onChange={handleChange}
                             placeholder="Entrez votre mot de passe"
                             autoComplete="current-password"
+                            disabled={isLoading}
                             required
                         />
                     </div>
@@ -75,8 +78,9 @@ const Login = () => {
                             type="submit"
                             variant="primary"
                             size="large"
+                            disabled={isLoading}
                         >
-                            Se connecter
+                            {isLoading ? 'Connexion...' : 'Se connecter'}
                         </Button>
                     </div>
 

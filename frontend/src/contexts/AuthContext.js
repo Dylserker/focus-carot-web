@@ -20,15 +20,33 @@ export function AuthProvider({ children }) {
 
     async function login(credentials) {
         try {
-            const userData = { email: credentials.email, id: 1 };
+            const response = await fetch('http://localhost:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Erreur de connexion');
+            }
+
+            const userData = {
+                ...data.user,
+                token: data.token
+            };
 
             setCurrentUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('token', data.token);
 
             return true;
         } catch (error) {
             console.error('Erreur de connexion:', error);
-            return false;
+            throw error;
         }
     }
 
