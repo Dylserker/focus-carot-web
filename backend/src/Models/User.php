@@ -38,6 +38,8 @@ class User {
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
+                $titre = $this->getUserTitle($user['id']);
+
                 $key = $_ENV['JWT_SECRET'];
                 $payload = [
                     'id' => $user['id'],
@@ -47,6 +49,9 @@ class User {
                 ];
                 $token = JWT::encode($payload, $key, 'HS256');
                 unset($user['password']);
+
+                $user['title'] = $titre['name'] ?? 'Débutant';
+
                 return ['user' => $user, 'token' => $token];
             }
             return false;
@@ -104,6 +109,22 @@ class User {
             $stmt->execute([$id]);
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    public function getUserTitle($userId) {
+        try {
+            $query = "SELECT t.name FROM titles t
+                  INNER JOIN user_titles ut ON t.id = ut.title_id
+                  WHERE ut.user_id = ? AND ut.is_active = 1";
+            $stmt = $this->db->getPDO()->prepare($query);
+            $stmt->execute([$userId]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            error_log('Titre trouvé : ' . print_r($result, true));
+            return $result;
+        } catch (\PDOException $e) {
+            error_log('Erreur SQL : ' . $e->getMessage());
             return false;
         }
     }

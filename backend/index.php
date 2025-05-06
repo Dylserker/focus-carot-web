@@ -18,5 +18,6 @@ $routeur->addRoute(['GET'], '/users', UsersController::class, 'liste');
 $routeur->addRoute(['POST'], '/api/register', AuthController::class, 'register');
 $routeur->addRoute(['POST'], '/api/login', AuthController::class, 'login');
 $routeur->addRoute(['GET'], '/favicon.ico', HomeController::class, 'favicon');
+$routeur->addRoute(['GET'], '/users/{id}/title', UsersController::class, 'getUserTitle');
 
 new Kernel($routeur);

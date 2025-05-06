@@ -42,9 +42,20 @@ class UsersController
         $user = $this->userModel->verifierConnexion($data['email'], $data['password']);
 
         if ($user) {
+            $titre = $this->userModel->getUserTitle($user['id']);
+            $user['title'] = $titre['name'] ?? 'Débutant';
             return ['success' => true, 'user' => $user];
         }
 
         return ['error' => 'Identifiants incorrects'];
+    }
+
+    public function getUserTitle($id)
+    {
+        $titre = $this->userModel->getUserTitle($id);
+        if ($titre) {
+            return ['title' => $titre];
+        }
+        return ['error' => 'Titre non trouvé'];
     }
 }
