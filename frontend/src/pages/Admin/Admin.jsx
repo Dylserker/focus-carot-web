@@ -8,7 +8,7 @@ import './Admin.css';
 const Admin = () => {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error] = useState(null);
+    const [error, setError] = useState(null);
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
@@ -16,22 +16,33 @@ const Admin = () => {
         pseudo: '',
         prenom: '',
         nom: '',
-        photo: '',
         titre: ''
     });
 
     useEffect(() => {
-        setTimeout(() => {
-            const mockUsers = [
-                { id: 1, pseudo: 'user1', nom: 'Dupont', prenom: 'Jean', photo: '', titre: 'Développeur' },
-                { id: 2, pseudo: 'user2', nom: 'Martin', prenom: 'Sophie', photo: '', titre: 'Designer' },
-                { id: 3, pseudo: 'user3', nom: 'Leroy', prenom: 'Marc', photo: '', titre: 'Marketeur' },
-                { id: 4, pseudo: 'user4', nom: 'Petit', prenom: 'Claire', photo: '', titre: 'Chef de projet' },
-                { id: 5, pseudo: 'user5', nom: 'Dubois', prenom: 'Thomas', photo: '', titre: 'Administrateur' },
-            ];
-            setUsers(mockUsers);
-            setIsLoading(false);
-        }, 1000);
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/users');
+                const data = await response.json();
+                console.log('Données reçues:', data);
+
+                const formattedUsers = data.map(user => ({
+                    id: user.id,
+                    pseudo: user.username,
+                    prenom: user.first_name,
+                    nom: user.last_name,
+                    titre: user.titre || ''
+                }));
+
+                setUsers(formattedUsers);
+                setIsLoading(false);
+            } catch (err) {
+                setError('Erreur lors du chargement des utilisateurs');
+                setIsLoading(false);
+            }
+        };
+
+        fetchUsers();
     }, []);
 
     const handleDelete = (id) => {
