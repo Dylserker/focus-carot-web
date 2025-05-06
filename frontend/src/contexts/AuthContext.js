@@ -52,21 +52,33 @@ export function AuthProvider({ children }) {
 
     async function register(userData) {
         try {
-            const newUser = {
-                email: userData.email,
-                id: Math.floor(Math.random() * 1000),
-                nom: userData.nom,
-                prenom: userData.prenom,
-                pseudo: userData.pseudo
+            const response = await fetch('http://localhost:8000/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Erreur d\'inscription');
+            }
+
+            const user = {
+                ...data.user,
+                token: data.token
             };
 
-            setCurrentUser(newUser);
-            localStorage.setItem('user', JSON.stringify(newUser));
+            setCurrentUser(user);
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token', data.token);
 
             return true;
         } catch (error) {
             console.error('Erreur d\'inscription:', error);
-            return false;
+            throw error;
         }
     }
 

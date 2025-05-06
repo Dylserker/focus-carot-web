@@ -4,17 +4,14 @@ namespace App\Models;
 use App\Core\Database;
 use Firebase\JWT\JWT;
 
-class User
-{
+class User {
     private $db;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->db = new Database();
     }
 
-    public function getAll()
-    {
+    public function getAll() {
         try {
             $stmt = $this->db->getPDO()->query('SELECT * FROM users');
             $stmt->execute();
@@ -24,8 +21,7 @@ class User
         }
     }
 
-    public function getById($id)
-    {
+    public function getById($id) {
         try {
             $stmt = $this->db->getPDO()->prepare('SELECT * FROM users WHERE id = ?');
             $stmt->execute([$id]);
@@ -35,8 +31,7 @@ class User
         }
     }
 
-    public function verifierConnexion(string $email, string $password): array|false
-    {
+    public function verifierConnexion(string $email, string $password): array|false {
         try {
             $stmt = $this->db->getPDO()->prepare('SELECT * FROM users WHERE email = ?');
             $stmt->execute([$email]);
@@ -50,17 +45,64 @@ class User
                     'iat' => time(),
                     'exp' => time() + (60 * 60 * 24)
                 ];
-
                 $token = JWT::encode($payload, $key, 'HS256');
-
                 unset($user['password']);
-
-                return [
-                    'user' => $user,
-                    'token' => $token
-                ];
+                return ['user' => $user, 'token' => $token];
             }
             return false;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    public function emailExiste($email) {
+        try {
+            $stmt = $this->db->getPDO()->prepare('SELECT COUNT(*) FROM users WHERE email = ?');
+            $stmt->execute([$email]);
+            return $stmt->fetchColumn() > 0;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    public function creerUtilisateur($data) {
+        try {
+            $pdo = $this->db->getPDO();
+            $pdo->beginTransaction();
+
+            $sql = "INSERT INTO users (email, password, last_name, first_name, username, created_at) 
+                   VALUES (:email, :password, :last_name, :first_name, :username, NOW())";
+
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'last_name' => $data['nom'],
+                'first_name' => $data['prenom'],
+                'username' => $data['pseudo']
+            ]);
+
+            if ($result) {
+                $userId = $pdo->lastInsertId();
+                $pdo->commit();
+                return $userId;
+            }
+
+            $pdo->rollBack();
+            return false;
+        } catch (\PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    public function getUtilisateurParId($id) {
+        try {
+            $stmt = $this->db->getPDO()->prepare('SELECT id, email, last_name, first_name, username FROM users WHERE id = ?');
+            $stmt->execute([$id]);
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             return false;
         }
