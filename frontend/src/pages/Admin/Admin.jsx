@@ -139,10 +139,8 @@ const Admin = () => {
                     >
                         <form onSubmit={(e) => {
                             e.preventDefault();
-                            // Logique de mise à jour à implémenter
                             setIsEditModalOpen(false);
                         }}>
-                            {/* Champs du formulaire */}
                             <div className="form-group">
                                 <label>Email</label>
                                 <input
@@ -161,7 +159,6 @@ const Admin = () => {
                                     required
                                 />
                             </div>
-                            {/* Ajoutez les autres champs similaires */}
                             <div className="modal-actions">
                                 <Button type="submit" variant="primary">Enregistrer</Button>
                                 <Button onClick={() => setIsEditModalOpen(false)} variant="secondary">Annuler</Button>
