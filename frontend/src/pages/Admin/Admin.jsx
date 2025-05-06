@@ -19,15 +19,19 @@ const Admin = () => {
         email: ''
     });
 
+    const token = localStorage.getItem('token');
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:8000/users');
+                const response = await fetch('http://localhost:8000/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 if (!response.ok) throw new Error('Erreur réseau');
 
                 const data = await response.json();
-                console.log('Données reçues:', data);
-
                 const usersArray = data.users || [];
                 const formattedUsers = usersArray.map(user => ({
                     id: user.id,
@@ -40,7 +44,6 @@ const Admin = () => {
 
                 setUsers(formattedUsers);
             } catch (err) {
-                console.error('Erreur:', err);
                 setError('Erreur lors du chargement des utilisateurs');
             } finally {
                 setIsLoading(false);
@@ -48,7 +51,7 @@ const Admin = () => {
         };
 
         fetchUsers();
-    }, []);
+    }, [token]);
 
     const handleEdit = (user) => {
         setCurrentUser(user);

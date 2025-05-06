@@ -18,7 +18,6 @@ class User
             $stmt = $this->db->getPDO()->query('SELECT * FROM users');
             $stmt->execute();
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            return $result ? $result : [];
         } catch (\PDOException $e) {
             return false;
         }
@@ -38,7 +37,7 @@ class User
     public function verifierConnexion(string $email, string $password): array|false
     {
         try {
-            $stmt = $this->db->getPDO()->prepare('SELECT id, email, password FROM users WHERE email = ?');
+            $stmt = $this->db->getPDO()->prepare('SELECT * FROM users WHERE email = ?');
             $stmt->execute([$email]);
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
