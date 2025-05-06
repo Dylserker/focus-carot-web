@@ -28,14 +28,16 @@ const Admin = () => {
                 const data = await response.json();
                 console.log('Données reçues:', data);
 
-                const formattedUsers = Array.isArray(data) ? data.map(user => ({
+                // On accède au tableau users dans l'objet data
+                const usersArray = data.users || [];
+                const formattedUsers = usersArray.map(user => ({
                     id: user.id,
-                    pseudo: user.username || '',
-                    prenom: user.first_name || '',
-                    nom: user.last_name || '',
-                    titre: user.titre || '',
-                    email: user.email || ''
-                })) : [];
+                    email: user.email,
+                    pseudo: user.pseudo,
+                    prenom: user.prenom,
+                    nom: user.nom,
+                    titre: user.titre || ''
+                }));
 
                 setUsers(formattedUsers);
             } catch (err) {
