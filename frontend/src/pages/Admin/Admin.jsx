@@ -28,14 +28,13 @@ const Admin = () => {
                 const data = await response.json();
                 console.log('Données reçues:', data);
 
-                // On accède au tableau users dans l'objet data
                 const usersArray = data.users || [];
                 const formattedUsers = usersArray.map(user => ({
                     id: user.id,
                     email: user.email,
-                    pseudo: user.pseudo,
-                    prenom: user.prenom,
-                    nom: user.nom,
+                    pseudo: user.username,
+                    prenom: user.first_name,
+                    nom: user.last_name,
                     titre: user.titre || ''
                 }));
 
