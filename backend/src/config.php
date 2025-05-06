@@ -6,9 +6,12 @@ return [
         'host' => 'localhost',
         'name' => 'focus_carot_web',
         'user' => 'root',
-        'pass' => ''
+        'pass' => '',
+        'charset' => 'utf8mb4'
     ],
     'jwt' => [
-        'secret' => $secretKey
+        'secret' => $secretKey,
+        'expiration' => 3600,
+        'algorithm' => 'HS256'
     ]
 ];
