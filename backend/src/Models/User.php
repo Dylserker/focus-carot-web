@@ -16,7 +16,9 @@ class User
     {
         try {
             $stmt = $this->db->getPDO()->query('SELECT * FROM users');
+            $stmt->execute();
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            return $result ? $result : [];
         } catch (\PDOException $e) {
             return false;
         }
