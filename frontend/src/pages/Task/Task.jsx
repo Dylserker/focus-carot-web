@@ -13,6 +13,8 @@ const Task = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTaskDetailModalOpen, setIsTaskDetailModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTask, setEditedTask] = useState(null);
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -99,6 +101,25 @@ const Task = () => {
         }));
     };
 
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditedTask({ ...selectedTask });
+    };
+
+    const handleDeleteClick = () => {
+        setTasks(tasks.filter(task => task.id !== selectedTask.id));
+        setIsTaskDetailModalOpen(false);
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        setTasks(tasks.map(task =>
+            task.id === editedTask.id ? editedTask : task
+        ));
+        setIsEditing(false);
+        setSelectedTask(editedTask);
+    };
+
     const getStatusLabel = (status) => {
         const labels = {
             'todo': 'À faire',
@@ -151,7 +172,7 @@ const Task = () => {
                                                 className="view-task-button"
                                                 onClick={() => handleTaskClick(task)}
                                             >
-                                                Voir
+                                                Modifier
                                             </button>
                                             <button
                                                 className="change-status-button"
@@ -257,28 +278,99 @@ const Task = () => {
 
             <Modal
                 isOpen={isTaskDetailModalOpen}
-                onClose={() => setIsTaskDetailModalOpen(false)}
+                onClose={() => {
+                    setIsTaskDetailModalOpen(false);
+                    setIsEditing(false);
+                }}
                 title={selectedTask?.title}
             >
                 {selectedTask && (
-                    <div className="task-details-modal">
-                        <div className="detail-group">
-                            <label>Description</label>
-                            <p>{selectedTask.description}</p>
+                    isEditing ? (
+                        <form className="task-form" onSubmit={handleEditSubmit}>
+                            <div className="form-group">
+                                <label>Titre</label>
+                                <input
+                                    type="text"
+                                    value={editedTask.title}
+                                    onChange={(e) => setEditedTask({...editedTask, title: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    value={editedTask.description}
+                                    onChange={(e) => setEditedTask({...editedTask, description: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Statut</label>
+                                <select
+                                    value={editedTask.status}
+                                    onChange={(e) => setEditedTask({...editedTask, status: e.target.value})}
+                                >
+                                    <option value="todo">À faire</option>
+                                    <option value="in_progress">En cours</option>
+                                    <option value="done">Terminé</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Date</label>
+                                <input
+                                    type="date"
+                                    value={editedTask.date}
+                                    onChange={(e) => setEditedTask({...editedTask, date: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Priorité</label>
+                                <select
+                                    value={editedTask.priority}
+                                    onChange={(e) => setEditedTask({...editedTask, priority: e.target.value})}
+                                >
+                                    <option value="low">Basse (10 XP)</option>
+                                    <option value="medium">Moyenne (25 XP)</option>
+                                    <option value="high">Haute (50 XP)</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="submit" className="save-button">Sauvegarder</button>
+                                <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="task-details-modal">
+                            <div className="detail-group">
+                                <label>Description</label>
+                                <p>{selectedTask.description}</p>
+                            </div>
+                            <div className="detail-group">
+                                <label>Status</label>
+                                <p>{getStatusLabel(selectedTask.status)}</p>
+                            </div>
+                            <div className="detail-group">
+                                <label>Priorité</label>
+                                <p>{getPriorityLabel(selectedTask.priority)}</p>
+                            </div>
+                            <div className="detail-group">
+                                <label>Date</label>
+                                <p>{selectedTask.date}</p>
+                            </div>
+                            <div className="modal-actions">
+                                <button className="edit-button" onClick={handleEditClick}>Modifier</button>
+                                <button className="delete-button" onClick={handleDeleteClick}>Supprimer</button>
+                            </div>
                         </div>
-                        <div className="detail-group">
-                            <label>Status</label>
-                            <p>{getStatusLabel(selectedTask.status)}</p>
-                        </div>
-                        <div className="detail-group">
-                            <label>Priorité</label>
-                            <p>{getPriorityLabel(selectedTask.priority)}</p>
-                        </div>
-                        <div className="detail-group">
-                            <label>Date</label>
-                            <p>{selectedTask.date}</p>
-                        </div>
-                    </div>
+                    )
                 )}
             </Modal>
         </div>
