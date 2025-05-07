@@ -71,7 +71,13 @@ const Task = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Nouvelle tâche:', newTask);
+
+        const newTaskWithId = {
+            ...newTask,
+            id: tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1
+        };
+
+        setTasks([...tasks, newTaskWithId]);
         setIsModalOpen(false);
         setNewTask({
             title: '',
