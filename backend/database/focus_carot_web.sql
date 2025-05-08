@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 06 mai 2025 à 08:47
+-- Généré le : jeu. 08 mai 2025 à 18:01
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -83,6 +83,14 @@ CREATE TABLE `tasks` (
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `tasks`
+--
+
+INSERT INTO `tasks` (`id`, `user_id`, `title`, `description`, `status`, `due_date`, `priority`, `experience_reward`, `created_at`, `completed_at`) VALUES
+(3, 1207, 'pro', 'pro', 'à_faire', '2025-05-07', 'basse', 10, '2025-05-07 11:19:24', '2025-05-08 11:18:01'),
+(4, 1233, 'ra', 'ra', 'à_faire', '2025-05-07', 'moyenne', 25, '2025-05-07 11:19:24', '2025-05-09 11:18:01');
+
 -- --------------------------------------------------------
 
 --
@@ -96,6 +104,13 @@ CREATE TABLE `titles` (
   `unlock_condition` text NOT NULL,
   `rarity` enum('commun','rare','épique','légendaire') NOT NULL DEFAULT 'commun'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `titles`
+--
+
+INSERT INTO `titles` (`id`, `name`, `description`, `unlock_condition`, `rarity`) VALUES
+(1, 'Novice', 'Tu es au tout début, le chemin sera long et rude mais rassure toi c\'est pas impossible :D', 'Titre par défault', 'commun');
 
 -- --------------------------------------------------------
 
@@ -136,7 +151,10 @@ INSERT INTO `users` (`id`, `email`, `password`, `username`, `first_name`, `last_
 (18, 'parent2@gmail.com', '$2y$10$dP6h7BpGJv3cSXJKm9x.G.sDSgV4iqb7FHUw.NpyNcGfK9LQO4rce', 'Parent2', 'Maxime', 'Matuvu', 'parent', 'avatars/parent2.png', '2025-04-29 08:16:12', '2025-05-06 06:35:35'),
 (19, 'enfant1@gmail.com', '$2y$10$fZbCLm4eHQZyEKZxcWj3deIfRkmR.xLh1dOPOBU1UJH./.GbY2S2G', 'Enfant1', 'Kayle', 'Rails', 'enfant', 'avatars/enfant1.png', '2025-04-29 08:16:12', '2025-05-06 06:30:58'),
 (20, 'user1@gmail.com', '$2y$10$78JZcgzRdZIvD1jA/Y3ADeRfRxhPxv1VLcJ9D68lw9STiJQfN1Xza', 'Utilisateur1', 'Charles', 'Adrien', 'user', 'avatars/user1.png', '2025-04-29 08:16:12', '2025-05-06 06:30:39'),
-(1207, 'levant.dylan@gmail.com', '$2y$10$oEBS0jX5kv9fUVbyMBYh2O3nmF4NJwH7lfM8mmf4yZYcJX1StUI42', 'Dylserker', 'Dylan', 'Levant', 'admin', NULL, '2025-04-29 14:26:18', '2025-05-06 06:30:25');
+(1207, 'levant.dylan@gmail.com', '$2y$10$oEBS0jX5kv9fUVbyMBYh2O3nmF4NJwH7lfM8mmf4yZYcJX1StUI42', 'Dylserker', 'Dylan', 'Levant', 'admin', NULL, '2025-04-29 14:26:18', '2025-05-06 06:30:25'),
+(1233, 'Josse.lucie@gmail.com', '$2y$10$w6.KZvp/BHRItzR4TNSjV.ZKtHKmTjFjm.5QfbceSzgjmzu..OP6i', 'Lycoris', 'Lucie', 'Josse', 'user', NULL, '2025-05-06 11:41:23', '2025-05-06 11:41:23'),
+(1234, 'coco4562@gmail.com', '$2y$10$PPlc9zzJihbEPB8OBAmLK.dPIfcLrv2Vw.dBPv6IAFj5p6BLd9Sh6', 'gameixtreiz', 'jimmy', 'labeux', 'user', NULL, '2025-05-07 06:59:24', '2025-05-07 06:59:24'),
+(1235, 'foulon.virginie@gmail.com', '$2y$10$niL54mcN3PulwlbsaHpECuLAwW.OEnrpEvRle5Yv/fgUM/PiTYR2.', 'fleurdelys', 'Virginie', 'Foulon', 'user', NULL, '2025-05-08 07:37:37', '2025-05-08 07:37:37');
 
 -- --------------------------------------------------------
 
@@ -186,6 +204,14 @@ CREATE TABLE `user_progression` (
   `last_activity_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `user_progression`
+--
+
+INSERT INTO `user_progression` (`id`, `user_id`, `level`, `experience_points`, `total_experience_earned`, `current_streak`, `longest_streak`, `last_activity_date`) VALUES
+(27, 1207, 2, 10, 10, 1, 1, '2025-05-06'),
+(28, 1233, 1, 5, 5, 0, 0, '2025-05-06');
+
 -- --------------------------------------------------------
 
 --
@@ -199,6 +225,14 @@ CREATE TABLE `user_titles` (
   `is_active` tinyint(1) NOT NULL DEFAULT 0,
   `unlocked_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `user_titles`
+--
+
+INSERT INTO `user_titles` (`id`, `user_id`, `title_id`, `is_active`, `unlocked_at`) VALUES
+(1, 1207, 1, 1, '2025-05-06 13:04:36'),
+(2, 1233, 1, 1, '2025-05-06 13:04:36');
 
 --
 -- Index pour les tables déchargées
@@ -230,7 +264,7 @@ ALTER TABLE `settings`
 --
 ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `tasks_ibfk_1` (`user_id`);
 
 --
 -- Index pour la table `titles`
@@ -301,19 +335,19 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT pour la table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `titles`
 --
 ALTER TABLE `titles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1233;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1236;
 
 --
 -- AUTO_INCREMENT pour la table `user_achievements`
@@ -325,19 +359,19 @@ ALTER TABLE `user_achievements`
 -- AUTO_INCREMENT pour la table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1210;
 
 --
 -- AUTO_INCREMENT pour la table `user_progression`
 --
 ALTER TABLE `user_progression`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT pour la table `user_titles`
 --
 ALTER TABLE `user_titles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Contraintes pour les tables déchargées
