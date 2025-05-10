@@ -31,12 +31,18 @@ class Routeur {
         return preg_match("#^{$pattern}$#", $request->getUri());
     }
 
-    private function executeRoute(array $route, Request $request): Response {
+    public function executeRoute(array $route, Request $request): Response {
         $controller = new $route['controller']();
         $params = $this->extractParams($route['path'], $request->getUri());
         $result = $controller->{$route['action']}(...$params);
 
-        return (new Response())->setBody($result);
+        // Si le résultat est déjà une Response, la retourner directement
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        // Sinon, créer une nouvelle Response avec le résultat comme body
+        return (new Response())->setBody($result ?? []);
     }
 
     private function extractParams(string $path, string $uri): array {

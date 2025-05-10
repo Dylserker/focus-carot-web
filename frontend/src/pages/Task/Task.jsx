@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Modal from '../../component/Modal';
+import { createTask } from '../../services/taskService';
+import { useAuth } from '../../contexts/AuthContext';
 import './Task.css';
 
 const Task = () => {
@@ -22,6 +24,7 @@ const Task = () => {
         date: new Date().toISOString().split('T')[0],
         priority: 'medium',
     });
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -69,23 +72,43 @@ const Task = () => {
         setIsModalOpen(true);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const newTaskWithId = {
-            ...newTask,
-            id: tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1
-        };
+        try {
+            const taskData = {
+                title: newTask.title,
+                description: newTask.description,
+                status: newTask.status,
+                due_date: newTask.date,
+                priority: newTask.priority,
+                user_id: currentUser.id,
+                experience_reward: 10 // Valeur par défaut pour les nouvelles tâches
+            };
 
-        setTasks([...tasks, newTaskWithId]);
-        setIsModalOpen(false);
-        setNewTask({
-            title: '',
-            description: '',
-            status: 'todo',
-            date: new Date().toISOString().split('T')[0],
-            priority: 'medium',
-        });
+            const response = await createTask(taskData);
+
+            if (response.success && response.task) {
+                const newTaskWithId = {
+                    ...newTask,
+                    id: response.task.id
+                };
+
+                setTasks([...tasks, newTaskWithId]);
+                setIsModalOpen(false);
+                setNewTask({
+                    title: '',
+                    description: '',
+                    status: 'todo',
+                    date: new Date().toISOString().split('T')[0],
+                    priority: 'medium',
+                });
+            } else {
+                throw new Error(response.error || 'Erreur lors de la création de la tâche');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la création de la tâche:', error);
+        }
     };
 
     const handleTaskClick = (task) => {

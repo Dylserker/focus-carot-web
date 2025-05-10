@@ -3,6 +3,7 @@
 use App\Controllers\HomeController;
 use App\Controllers\UsersController;
 use App\Controllers\AuthController;
+use App\Controllers\TasksController;
 use App\Core\Routeur;
 use App\Kernel;
 
@@ -19,5 +20,6 @@ $routeur->addRoute(['POST'], '/api/register', AuthController::class, 'register')
 $routeur->addRoute(['POST'], '/api/login', AuthController::class, 'login');
 $routeur->addRoute(['GET'], '/favicon.ico', HomeController::class, 'favicon');
 $routeur->addRoute(['GET'], '/users/{id}/title', UsersController::class, 'getUserTitle');
+$routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create', [AuthMiddleware::class]);
 
 new Kernel($routeur);
