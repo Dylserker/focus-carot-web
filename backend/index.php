@@ -20,6 +20,6 @@ $routeur->addRoute(['POST'], '/api/register', AuthController::class, 'register')
 $routeur->addRoute(['POST'], '/api/login', AuthController::class, 'login');
 $routeur->addRoute(['GET'], '/favicon.ico', HomeController::class, 'favicon');
 $routeur->addRoute(['GET'], '/users/{id}/title', UsersController::class, 'getUserTitle');
-$routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create', [AuthMiddleware::class]);
+$routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create');
 
 new Kernel($routeur);
