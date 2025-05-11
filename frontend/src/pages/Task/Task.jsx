@@ -440,7 +440,7 @@ const Task = () => {
                             </div>
                             <div className="detail-group">
                                 <label>Date</label>
-                                <p>{selectedTask.date}</p>
+                                <p>{selectedTask.due_date}</p>
                             </div>
                             <div className="modal-actions">
                                 <button className="edit-button" onClick={handleEditClick}>Modifier</button>
