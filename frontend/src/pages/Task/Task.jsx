@@ -123,18 +123,60 @@ const Task = () => {
         setIsTaskDetailModalOpen(true);
     };
 
-    const handleStatusChange = (taskId) => {
-        setTasks(tasks.map(task => {
-            if (task.id === taskId) {
-                const nextStatus = {
-                    'todo': 'in_progress',
-                    'in_progress': 'done',
-                    'done': 'todo'
-                };
-                return { ...task, status: nextStatus[task.status] };
+    const handleStatusChange = async (taskId) => {
+        try {
+            // Trouver la tâche actuelle
+            const currentTask = tasks.find(task => task.id === taskId);
+
+            // Définir le mapping de progression des statuts
+            const nextStatus = {
+                'todo': 'in_progress',
+                'in_progress': 'done',
+                'done': 'todo'
+            };
+
+            // Définir les mappings pour le backend
+            const statusMapForBackend = {
+                'todo': 'à_faire',
+                'in_progress': 'en_cours',
+                'done': 'terminée'
+            };
+
+            const priorityMapForBackend = {
+                'low': 'basse',
+                'medium': 'moyenne',
+                'high': 'haute'
+            };
+
+            // Déterminer le nouveau statut
+            const newStatus = nextStatus[currentTask.status];
+
+            // Mettre à jour via l'API
+            const response = await updateTask(taskId, {
+                ...currentTask,
+                status: statusMapForBackend[newStatus],
+                title: currentTask.title,
+                description: currentTask.description,
+                due_date: currentTask.due_date,
+                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority
+            });
+
+            if (response.success) {
+                // Mettre à jour l'état local uniquement si la mise à jour serveur réussit
+                setTasks(tasks.map(task => {
+                    if (task.id === taskId) {
+                        return {
+                            ...task,
+                            status: newStatus,
+                            priority: currentTask.priority // Garde la priorité existante
+                        };
+                    }
+                    return task;
+                }));
             }
-            return task;
-        }));
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du statut:", error);
+        }
     };
 
     const handleEditClick = () => {
