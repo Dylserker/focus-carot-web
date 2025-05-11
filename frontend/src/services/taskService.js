@@ -91,7 +91,6 @@ export const updateTask = async (taskId, taskData) => {
 
 export const deleteTask = async (taskId) => {
     const user = JSON.parse(localStorage.getItem('user'));
-
     if (!user || !user.token) {
         throw new Error('Non authentifié');
     }

@@ -72,4 +72,19 @@ class TasksController {
             ->setBody(['error' => 'Erreur lors de la mise à jour'])
             ->setStatusCode(500);
     }
+
+    public function delete($taskId): Response {
+        $deleted = $this->taskModel->delete($taskId);
+
+        if ($deleted) {
+            return (new Response())->setBody([
+                'success' => true,
+                'message' => 'Tâche supprimée'
+            ]);
+        }
+
+        return (new Response())
+            ->setBody(['error' => 'Erreur lors de la suppression'])
+            ->setStatusCode(500);
+    }
 }

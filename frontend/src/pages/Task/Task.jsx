@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Modal from '../../component/Modal';
-import { createTask, getTasks, updateTask } from '../../services/taskService';
+import { createTask, getTasks, updateTask, deleteTask } from '../../services/taskService';
 import { useAuth } from '../../contexts/AuthContext';
 import './Task.css';
 
@@ -142,9 +142,20 @@ const Task = () => {
         setEditedTask({ ...selectedTask });
     };
 
-    const handleDeleteClick = () => {
-        setTasks(tasks.filter(task => task.id !== selectedTask.id));
-        setIsTaskDetailModalOpen(false);
+    const handleDeleteClick = async () => {
+        try {
+            const response = await deleteTask(selectedTask.id);
+            if (response.success) {
+                // Supprime la tâche du state local
+                setTasks(tasks.filter(task => task.id !== selectedTask.id));
+                // Ferme le modal
+                setIsTaskDetailModalOpen(false);
+                setSelectedTask(null);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la suppression de la tâche:", error);
+        }
     };
 
     const handleEditSubmit = async (e) => {

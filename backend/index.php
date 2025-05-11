@@ -23,5 +23,6 @@ $routeur->addRoute(['GET'], '/users/{id}/title', UsersController::class, 'getUse
 $routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create');
 $routeur->addRoute(['GET'], '/api/tasks/user/{id}', TasksController::class, 'getUserTasks');
 $routeur->addRoute(['PUT'], '/api/tasks/{id}', TasksController::class, 'update');
+$routeur->addRoute(['DELETE'], '/api/tasks/{id}', TasksController::class, 'delete');
 
 new Kernel($routeur);

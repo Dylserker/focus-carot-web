@@ -77,4 +77,11 @@ class Task {
 
         return $this->db->execute();
     }
+
+    public function delete(int $id): bool {
+        $sql = "DELETE FROM tasks WHERE id = :id";
+        $this->db->prepare($sql);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
 }
