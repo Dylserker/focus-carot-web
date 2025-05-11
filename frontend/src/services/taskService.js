@@ -40,7 +40,7 @@ export const getTasks = async () => {
     }
 
     try {
-        const response = await fetch(`${API_URL}/api/tasks`, {
+        const response = await fetch(`${API_URL}/api/tasks/user/${user.id}`, {
             headers: {
                 'Authorization': `Bearer ${user.token}`
             }
@@ -50,7 +50,11 @@ export const getTasks = async () => {
             throw new Error('Erreur lors de la récupération des tâches');
         }
 
-        return await response.json();
+        const data = await response.json();
+        return {
+            success: true,
+            tasks: data.tasks || []
+        };
     } catch (error) {
         console.error('Erreur:', error);
         throw error;

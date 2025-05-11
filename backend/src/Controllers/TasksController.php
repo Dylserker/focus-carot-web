@@ -43,4 +43,17 @@ class TasksController {
             default => 10
         };
     }
+
+    public function getUserTasks($userId): Response {
+        $tasks = $this->taskModel->getTasksByUserId($userId);
+        if ($tasks) {
+            return (new Response())->setBody([
+                'success' => true,
+                'tasks' => $tasks
+            ]);
+        }
+        return (new Response())
+            ->setBody(['error' => 'Erreur lors de la récupération des tâches'])
+            ->setStatusCode(500);
+    }
 }

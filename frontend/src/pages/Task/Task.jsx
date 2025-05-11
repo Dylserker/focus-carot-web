@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Modal from '../../component/Modal';
-import { createTask } from '../../services/taskService';
+import { createTask, getTasks } from '../../services/taskService';
 import { useAuth } from '../../contexts/AuthContext';
 import './Task.css';
 
@@ -28,41 +28,48 @@ const Task = () => {
 
     useEffect(() => {
         const fetchTasks = async () => {
-            const todayTasks = [
-                {
-                    id: 1,
-                    title: 'Réunion d\'équipe',
-                    status: 'todo',
-                    priority: 'high',
-                    description: 'Réunion importante avec l\'équipe',
-                    date: '2024-03-20'
-                },
-                {
-                    id: 2,
-                    title: 'Finaliser le rapport',
-                    status: 'done',
-                    priority: 'medium',
-                    description: 'Finaliser le rapport mensuel',
-                    date: '2024-03-20'
-                },
-                {
-                    id: 3,
-                    title: 'Appeler le client',
-                    status: 'in_progress',
-                    priority: 'low',
-                    description: 'Appeler le client pour le suivi',
-                    date: '2024-03-20'
+            try {
+                const response = await getTasks();
+                if (response.success) {
+                    const formattedTasks = response.tasks.map(task => ({
+                        ...task,
+                        status: formatStatus(task.status),
+                        priority: formatPriority(task.priority)
+                    }));
+                    setTasks(formattedTasks);
+
+                    // Calcul des statistiques
+                    const completed = formattedTasks.filter(task => task.status === 'terminée').length;
+                    const total = formattedTasks.length;
+                    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                    setStats({
+                        totalCompleted: completed,
+                        totalCreated: total,
+                        completionRate: rate
+                    });
                 }
-            ];
+            } catch (error) {
+                console.error("Erreur lors de la récupération des tâches:", error);
+            }
+        };
 
-            const taskStats = {
-                totalCompleted: 42,
-                totalCreated: 67,
-                completionRate: Math.round((42 / 67) * 100)
+        const formatStatus = (status) => {
+            const statusMap = {
+                'à_faire': 'todo',
+                'en_cours': 'in_progress',
+                'terminée': 'done'
             };
+            return statusMap[status] || status;
+        };
 
-            setTasks(todayTasks);
-            setStats(taskStats);
+        const formatPriority = (priority) => {
+            const priorityMap = {
+                'basse': 'low',
+                'moyenne': 'medium',
+                'haute': 'high'
+            };
+            return priorityMap[priority] || priority;
         };
 
         fetchTasks();

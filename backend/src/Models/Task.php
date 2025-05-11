@@ -44,4 +44,17 @@ class Task {
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
+
+    public function getTasksByUserId(int $userId): ?array {
+        $sql = "SELECT * FROM tasks WHERE user_id = :user_id ORDER BY due_date ASC";
+        $this->db->prepare($sql);
+        $this->db->bind(':user_id', $userId);
+        $result = $this->db->stmt->execute();
+
+        if ($result) {
+            return $this->db->stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+
+        return null;
+    }
 }
