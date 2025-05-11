@@ -57,4 +57,24 @@ class Task {
 
         return null;
     }
+
+    public function update(int $id, array $data): bool {
+        $sql = "UPDATE tasks SET 
+            title = :title, 
+            description = :description, 
+            status = :status, 
+            due_date = :due_date, 
+            priority = :priority 
+            WHERE id = :id";
+
+        $this->db->prepare($sql);
+        $this->db->bind(':id', $id);
+        $this->db->bind(':title', $data['title']);
+        $this->db->bind(':description', $data['description']);
+        $this->db->bind(':status', $data['status']);
+        $this->db->bind(':due_date', $data['due_date']);
+        $this->db->bind(':priority', $data['priority']);
+
+        return $this->db->execute();
+    }
 }

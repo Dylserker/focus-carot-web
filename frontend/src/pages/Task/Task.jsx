@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Modal from '../../component/Modal';
-import { createTask, getTasks } from '../../services/taskService';
+import { createTask, getTasks, updateTask } from '../../services/taskService';
 import { useAuth } from '../../contexts/AuthContext';
 import './Task.css';
 
@@ -147,13 +147,54 @@ const Task = () => {
         setIsTaskDetailModalOpen(false);
     };
 
-    const handleEditSubmit = (e) => {
+    const handleEditSubmit = async (e) => {
         e.preventDefault();
-        setTasks(tasks.map(task =>
-            task.id === editedTask.id ? editedTask : task
-        ));
-        setIsEditing(false);
-        setSelectedTask(editedTask);
+        try {
+            // Conversion des valeurs pour la BDD
+            const statusMap = {
+                'todo': 'à_faire',
+                'in_progress': 'en_cours',
+                'done': 'terminée'
+            };
+
+            const priorityMap = {
+                'low': 'basse',
+                'medium': 'moyenne',
+                'high': 'haute'
+            };
+
+            // Mise à jour de la tâche via l'API avec les valeurs converties
+            const response = await updateTask(selectedTask.id, {
+                title: editedTask.title,
+                description: editedTask.description,
+                status: statusMap[editedTask.status],
+                due_date: editedTask.date,
+                priority: priorityMap[editedTask.priority],
+                user_id: currentUser.id
+            });
+
+            if (response.success) {
+                // Mise à jour de l'état local
+                const updatedTasks = tasks.map(task =>
+                    task.id === selectedTask.id ? {
+                        ...task,
+                        title: editedTask.title,
+                        description: editedTask.description,
+                        status: editedTask.status,
+                        due_date: editedTask.date,
+                        priority: editedTask.priority
+                    } : task
+                );
+                setTasks(updatedTasks);
+
+                setIsTaskDetailModalOpen(false);
+                setIsEditing(false);
+                setSelectedTask(null);
+                setEditedTask(null);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la tâche:", error);
+        }
     };
 
     const getStatusLabel = (status) => {

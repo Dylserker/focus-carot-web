@@ -56,4 +56,20 @@ class TasksController {
             ->setBody(['error' => 'Erreur lors de la récupération des tâches'])
             ->setStatusCode(500);
     }
+
+    public function update($taskId): Response {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $updated = $this->taskModel->update($taskId, $data);
+
+        if ($updated) {
+            return (new Response())->setBody([
+                'success' => true,
+                'message' => 'Tâche mise à jour'
+            ]);
+        }
+
+        return (new Response())
+            ->setBody(['error' => 'Erreur lors de la mise à jour'])
+            ->setStatusCode(500);
+    }
 }

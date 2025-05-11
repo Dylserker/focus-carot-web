@@ -22,5 +22,6 @@ $routeur->addRoute(['GET'], '/favicon.ico', HomeController::class, 'favicon');
 $routeur->addRoute(['GET'], '/users/{id}/title', UsersController::class, 'getUserTitle');
 $routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create');
 $routeur->addRoute(['GET'], '/api/tasks/user/{id}', TasksController::class, 'getUserTasks');
+$routeur->addRoute(['PUT'], '/api/tasks/{id}', TasksController::class, 'update');
 
 new Kernel($routeur);
