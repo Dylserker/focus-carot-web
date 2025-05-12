@@ -93,9 +93,9 @@ const Header = () => {
                 <div className="user-profile">
                     <div className="profile-info">
                         <div className="profile-pseudo">{userInfo.pseudo}</div>
-                        <div className="profile-level">Niveau {userInfo.level}</div>
+                        <div className="profile-level">Niveau {userProgression.level}</div>
                         <div className="profile-title">{userInfo.title}</div>
-                        <ProgressBar progress={userInfo.progress} />
+                        <ProgressBar progress={userProgression.progress} />
                     </div>
                     <div className="profile-photo-container">
                         <div className="profile-photo" onClick={handleProfileClick}></div>
