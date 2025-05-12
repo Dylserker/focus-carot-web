@@ -42,7 +42,13 @@ class Task {
         $sql = "SELECT * FROM tasks WHERE id = :id";
         $this->db->prepare($sql);
         $this->db->bind(':id', $id);
-        return $this->db->single();
+        $result = $this->db->single();
+        
+        if (!$result) {
+            return null;
+        }
+        
+        return $result;
     }
 
     public function getTasksByUserId(int $userId): ?array {

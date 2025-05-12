@@ -123,34 +123,36 @@ const Task = () => {
         setIsTaskDetailModalOpen(true);
     };
 
+    const { gainExperience } = useAuth();
+    
     const handleStatusChange = async (taskId) => {
         try {
             // Trouver la tâche actuelle
             const currentTask = tasks.find(task => task.id === taskId);
-
+    
             // Définir le mapping de progression des statuts
             const nextStatus = {
                 'todo': 'in_progress',
                 'in_progress': 'done',
                 'done': 'todo'
             };
-
+    
             // Définir les mappings pour le backend
             const statusMapForBackend = {
                 'todo': 'à_faire',
                 'in_progress': 'en_cours',
                 'done': 'terminée'
             };
-
+    
             const priorityMapForBackend = {
                 'low': 'basse',
                 'medium': 'moyenne',
                 'high': 'haute'
             };
-
+    
             // Déterminer le nouveau statut
             const newStatus = nextStatus[currentTask.status];
-
+    
             // Mettre à jour via l'API
             const response = await updateTask(taskId, {
                 ...currentTask,
@@ -160,7 +162,7 @@ const Task = () => {
                 due_date: currentTask.due_date,
                 priority: priorityMapForBackend[currentTask.priority] || currentTask.priority
             });
-
+    
             if (response.success) {
                 // Mettre à jour l'état local uniquement si la mise à jour serveur réussit
                 setTasks(tasks.map(task => {
@@ -173,6 +175,24 @@ const Task = () => {
                     }
                     return task;
                 }));
+                
+                // Si la tâche passe à "terminée", donner de l'XP à l'utilisateur
+                if (newStatus === 'done') {
+                    // Déterminer le montant d'XP en fonction de la priorité
+                    const xpRewards = {
+                        'low': 10,
+                        'medium': 25,
+                        'high': 50
+                    };
+                    
+                    const xpGain = xpRewards[currentTask.priority] || 10;
+                    
+                    // Mettre à jour l'XP via le contexte d'authentification
+                    await gainExperience(xpGain);
+                    
+                    // Afficher un message de confirmation
+                    alert(`Félicitations ! Vous avez gagné ${xpGain} points d'expérience.`);
+                }
             }
         } catch (error) {
             console.error("Erreur lors de la mise à jour du statut:", error);
