@@ -51,7 +51,7 @@ const Header = () => {
         pseudo: currentUser?.username || "Invité",
         level: currentUser?.level || 1,
         title: currentUser?.title || "Débutant",
-        progress: currentUser?.progress || 0
+        progress: userProgression.progress
     };
 
     return (
