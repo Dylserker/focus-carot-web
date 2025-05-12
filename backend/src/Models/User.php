@@ -40,6 +40,11 @@ class User {
             if ($user && password_verify($password, $user['password'])) {
                 $titre = $this->getUserTitle($user['id']);
 
+                // Récupérer les informations de progression
+                $stmt = $this->db->getPDO()->prepare('SELECT level, experience_points FROM user_progression WHERE user_id = ?');
+                $stmt->execute([$user['id']]);
+                $progression = $stmt->fetch(\PDO::FETCH_ASSOC);
+
                 $key = $_ENV['JWT_SECRET'];
                 $payload = [
                     'id' => $user['id'],
@@ -51,6 +56,16 @@ class User {
                 unset($user['password']);
 
                 $user['title'] = $titre['name'] ?? 'Débutant';
+
+                // Ajouter les informations de niveau et progression
+                if ($progression) {
+                    $nextLevelXp = 10 * pow(2, $progression['level'] - 1);
+                    $user['level'] = $progression['level'];
+                    $user['progress'] = ($progression['experience_points'] / $nextLevelXp) * 100;
+                } else {
+                    $user['level'] = 1;
+                    $user['progress'] = 0;
+                }
 
                 return ['user' => $user, 'token' => $token];
             }
@@ -125,6 +140,55 @@ class User {
             return $result;
         } catch (\PDOException $e) {
             error_log('Erreur SQL : ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateExperience($userId, $experienceGained) {
+        try {
+            $pdo = $this->db->getPDO();
+            $pdo->beginTransaction();
+
+            // Récupérer la progression actuelle
+            $stmt = $pdo->prepare('SELECT level, experience_points, total_experience_earned FROM user_progression WHERE user_id = ?');
+            $stmt->execute([$userId]);
+            $currentStats = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$currentStats) {
+                // Créer une entrée si elle n'existe pas
+                $stmt = $pdo->prepare('INSERT INTO user_progression (user_id, level, experience_points, total_experience_earned) VALUES (?, 1, 0, 0)');
+                $stmt->execute([$userId]);
+                $currentStats = ['level' => 1, 'experience_points' => 0, 'total_experience_earned' => 0];
+            }
+
+            $newTotalExperience = $currentStats['total_experience_earned'] + $experienceGained;
+            $currentLevel = $currentStats['level'];
+            $currentXP = $currentStats['experience_points'] + $experienceGained;
+
+            // Calculer le nouveau niveau
+            $xpForNextLevel = 10 * pow(2, $currentLevel - 1);
+            while ($currentXP >= $xpForNextLevel) {
+                $currentXP -= $xpForNextLevel;
+                $currentLevel++;
+                $xpForNextLevel = 10 * pow(2, $currentLevel - 1);
+            }
+
+            // Mettre à jour la progression
+            $stmt = $pdo->prepare('UPDATE user_progression SET level = ?, experience_points = ?, total_experience_earned = ? WHERE user_id = ?');
+            $stmt->execute([$currentLevel, $currentXP, $newTotalExperience, $userId]);
+
+            $pdo->commit();
+
+            return [
+                'level' => $currentLevel,
+                'experience' => $currentXP,
+                'nextLevelXp' => $xpForNextLevel,
+                'progress' => ($currentXP / $xpForNextLevel) * 100
+            ];
+        } catch (\PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             return false;
         }
     }

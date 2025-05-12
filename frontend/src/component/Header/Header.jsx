@@ -1,13 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
 import ProgressBar from '../ProgressBar';
 import { useAuth } from '../../contexts/AuthContext';
+import ExperienceService from '../../services/ExperienceService';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { currentUser, logout } = useAuth();
+    const { currentUser, logout, gainExperience } = useAuth();
+    const [userProgression, setUserProgression] = useState({
+        level: currentUser?.level || 1,
+        progress: currentUser?.progress || 0
+    });
+    const updateUserProgress = (progression) => {
+        setUserProgression({
+            level: progression.level,
+            progress: progression.progress
+        });
+    };
+
+    useEffect(() => {
+        const fetchUserProgression = async () => {
+            if (currentUser?.id) {
+                try {
+                    const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}/experience`);
+                    const data = await response.json();
+                    if (data.success) {
+                        updateUserProgress(data.progression);
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la récupération de la progression:', error);
+                }
+            }
+        };
+
+        fetchUserProgression();
+    }, [currentUser?.id, gainExperience]);
 
     const handleProfileClick = () => {
         navigate('/profile');

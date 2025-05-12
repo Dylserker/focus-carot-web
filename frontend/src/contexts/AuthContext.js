@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import ExperienceService from '../services/ExperienceService';
 
 const AuthContext = createContext();
 
@@ -9,6 +10,22 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const updateUserProgress = (progression) => {
+        setCurrentUser(prev => ({
+            ...prev,
+            level: progression.level,
+            progress: progression.progress
+        }));
+    };
+    const gainExperience = async (amount) => {
+        if (!currentUser) return;
+        try {
+            const progression = await ExperienceService.updateExperience(currentUser.id, amount);
+            updateUserProgress(progression);
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    };
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -92,7 +109,8 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
-        isAuthenticated: !!currentUser
+        isAuthenticated: !!currentUser,
+        gainExperience
     };
 
     return (

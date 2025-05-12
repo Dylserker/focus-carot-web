@@ -24,5 +24,7 @@ $routeur->addRoute(['POST'], '/api/tasks', TasksController::class, 'create');
 $routeur->addRoute(['GET'], '/api/tasks/user/{id}', TasksController::class, 'getUserTasks');
 $routeur->addRoute(['PUT'], '/api/tasks/{id}', TasksController::class, 'update');
 $routeur->addRoute(['DELETE'], '/api/tasks/{id}', TasksController::class, 'delete');
+$routeur->addRoute(['POST'], '/api/users/{id}/experience', UsersController::class, 'updateExperience');
+$routeur->addRoute(['GET'], '/api/users/{id}/experience', UsersController::class, 'getUserProgression');
 
 new Kernel($routeur);
