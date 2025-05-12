@@ -38,7 +38,6 @@ const Task = () => {
                     }));
                     setTasks(formattedTasks);
 
-                    // Calcul des statistiques
                     const completed = formattedTasks.filter(task => task.status === 'terminée').length;
                     const total = formattedTasks.length;
                     const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -90,7 +89,7 @@ const Task = () => {
                 due_date: newTask.date,
                 priority: newTask.priority,
                 user_id: currentUser.id,
-                experience_reward: 10 // Valeur par défaut pour les nouvelles tâches
+                experience_reward: 10
             };
 
             const response = await createTask(taskData);
