@@ -36,12 +36,10 @@ class Routeur {
         $params = $this->extractParams($route['path'], $request->getUri());
         $result = $controller->{$route['action']}(...$params);
 
-        // Si le résultat est déjà une Response, la retourner directement
         if ($result instanceof Response) {
             return $result;
         }
 
-        // Sinon, créer une nouvelle Response avec le résultat comme body
         return (new Response())->setBody($result ?? []);
     }
 

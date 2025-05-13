@@ -40,7 +40,6 @@ class User {
             if ($user && password_verify($password, $user['password'])) {
                 $titre = $this->getUserTitle($user['id']);
 
-                // Récupérer les informations de progression
                 $stmt = $this->db->getPDO()->prepare('SELECT level, experience_points FROM user_progression WHERE user_id = ?');
                 $stmt->execute([$user['id']]);
                 $progression = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -57,7 +56,6 @@ class User {
 
                 $user['title'] = $titre['name'] ?? 'Débutant';
 
-                // Ajouter les informations de niveau et progression
                 if ($progression) {
                     $nextLevelXp = 10 * pow(2, $progression['level'] - 1);
                     $user['level'] = $progression['level'];

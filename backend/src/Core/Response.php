@@ -2,8 +2,8 @@
 namespace App\Core;
 
 class Response {
-    private array $body = [];  // Initialisation avec un tableau vide
-    private int $statusCode = 200;  // Initialisation avec le code 200 par défaut
+    private array $body = [];
+    private int $statusCode = 200;
 
     public function setBody(array $body): self {
         $this->body = $body;

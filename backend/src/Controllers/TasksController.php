@@ -59,27 +59,21 @@ class TasksController {
 
     public function update($taskId): Response {
         $data = json_decode(file_get_contents('php://input'), true);
-        
-        // Récupérer l'ancienne tâche pour vérifier le changement de statut
+
         $oldTask = $this->taskModel->getById($taskId);
         $updated = $this->taskModel->update($taskId, $data);
     
         if ($updated) {
-            // Vérifier si la tâche est passée au statut "terminée"
             if ($oldTask && $oldTask['status'] !== 'terminée' && $data['status'] === 'terminée') {
-                // Attribuer de l'expérience à l'utilisateur si la tâche est terminée
                 try {
                     $userId = $data['user_id'];
                     $priority = $data['priority'];
-                    
-                    // Calculer l'expérience à donner en fonction de la priorité
+
                     $experienceReward = $this->calculateExperienceReward($priority);
-                    
-                    // Mettre à jour l'expérience de l'utilisateur
+
                     $userModel = new \App\Models\User();
                     $userModel->updateExperience($userId, $experienceReward);
                 } catch (\Exception $e) {
-                    // Logger l'erreur mais ne pas empêcher la mise à jour de la tâche
                     error_log('Erreur lors de l\'attribution d\'expérience: ' . $e->getMessage());
                 }
             }
