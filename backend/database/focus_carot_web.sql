@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 08 mai 2025 à 18:01
+-- Généré le : mar. 13 mai 2025 à 13:16
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -36,6 +36,20 @@ CREATE TABLE `achievements` (
   `required_value` int(11) NOT NULL DEFAULT 1,
   `achievement_type` enum('taches_completees','niveau_atteint','jours_consecutifs','special') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `achievements`
+--
+
+INSERT INTO `achievements` (`id`, `name`, `description`, `icon_url`, `experience_reward`, `required_value`, `achievement_type`) VALUES
+(1, 'Premier pas', 'Félicitation tu as créer ta première tâche !! ', NULL, 250, 1, 'taches_completees'),
+(2, 'Motivation', 'Incroyable tu as compléter 100% des tâches journalière que tu t\'étais fixé chapeau !!!', NULL, 5000, 1, 'taches_completees'),
+(3, 'JE PEUX LE FAIRE !!!', 'Une tâches de niveau Haute à été effectuer', NULL, 10000, 1, 'taches_completees'),
+(4, 'Je contrôle ma vie !!', '10 tâches de niveau haute à été effectuer', NULL, 25000, 1, 'taches_completees'),
+(5, 'Niveau 10 atteint', 'tu as atteint le niveau 10', NULL, 1000, 1, 'niveau_atteint'),
+(6, ' It\'s over nine thousand !', 'Wouah !!!! le niveau 9000 à été atteint mais tu es extraordinaire', NULL, 90000, 1, 'niveau_atteint'),
+(7, 'une semaine de changement', '7 jours consécutif de tâches compléter à 100%', NULL, 7000, 1, 'jours_consecutifs'),
+(8, 'Défis en vu !!', 'Une tâches spécial a été effectuer :)', NULL, 15000, 1, 'special');
 
 -- --------------------------------------------------------
 
@@ -88,8 +102,22 @@ CREATE TABLE `tasks` (
 --
 
 INSERT INTO `tasks` (`id`, `user_id`, `title`, `description`, `status`, `due_date`, `priority`, `experience_reward`, `created_at`, `completed_at`) VALUES
-(3, 1207, 'pro', 'pro', 'à_faire', '2025-05-07', 'basse', 10, '2025-05-07 11:19:24', '2025-05-08 11:18:01'),
-(4, 1233, 'ra', 'ra', 'à_faire', '2025-05-07', 'moyenne', 25, '2025-05-07 11:19:24', '2025-05-09 11:18:01');
+(3, 1207, 'Remplir ma demande Caf', 'pro', 'terminée', '2025-05-12', 'basse', 10, '2025-05-07 11:19:24', '2025-05-08 11:18:01'),
+(4, 1233, 'ra', 'ra', 'à_faire', '2025-05-07', 'moyenne', 25, '2025-05-07 11:19:24', '2025-05-09 11:18:01'),
+(5, 1207, 'Sortir le chien', 'coda school', 'terminée', '2025-05-12', 'moyenne', 10, '2025-05-11 08:30:29', NULL),
+(6, 1207, 'Me brosser les dents', 'test', 'terminée', '2025-05-12', 'haute', 10, '2025-05-11 08:42:22', NULL),
+(7, 1207, 'Aller Manger', 'heloo', 'en_cours', '2025-05-12', 'moyenne', 10, '2025-05-11 08:44:01', NULL),
+(8, 1207, 'Faire mes devoirs', 'level', 'à_faire', '2025-05-12', 'moyenne', 10, '2025-05-11 11:56:47', NULL),
+(10, 1207, 'Prendre ma douche', 'coucou', 'à_faire', '2025-05-12', 'haute', 10, '2025-05-11 12:23:49', NULL),
+(11, 1207, 'Faire mes soutenances', 'devoir de géo', 'à_faire', '2025-05-12', 'haute', 10, '2025-05-12 10:56:36', NULL),
+(12, 1207, 'Jouez à warframe', 'gérer mes cristaux archon', 'terminée', '2025-05-13', 'basse', 10, '2025-05-13 07:16:43', NULL),
+(13, 1207, 'écouter en cours', 'c\'est duuuuuuuuuuuuuuuur', 'terminée', '2025-05-13', 'moyenne', 10, '2025-05-13 07:28:42', NULL),
+(14, 1207, 'test', 'test', 'terminée', NULL, 'haute', 10, '2025-05-13 07:37:07', NULL),
+(15, 1207, 'boire mon pepsi', 'c\'est trop bon', 'terminée', NULL, 'moyenne', 10, '2025-05-13 07:38:35', NULL),
+(16, 1207, 'cahier des charges', 'c\'est chiant', 'terminée', NULL, 'moyenne', 10, '2025-05-13 07:49:59', NULL),
+(17, 1207, 'a', 'a', 'terminée', '2025-05-13', 'moyenne', 10, '2025-05-13 07:51:58', NULL),
+(18, 1207, 'e', 'e', 'terminée', '2025-05-13', 'moyenne', 10, '2025-05-13 07:52:08', NULL),
+(19, 1207, 'aa', 'aa', 'terminée', '2025-05-13', 'basse', 10, '2025-05-13 10:01:45', NULL);
 
 -- --------------------------------------------------------
 
@@ -209,8 +237,8 @@ CREATE TABLE `user_progression` (
 --
 
 INSERT INTO `user_progression` (`id`, `user_id`, `level`, `experience_points`, `total_experience_earned`, `current_streak`, `longest_streak`, `last_activity_date`) VALUES
-(27, 1207, 2, 10, 10, 1, 1, '2025-05-06'),
-(28, 1233, 1, 5, 5, 0, 0, '2025-05-06');
+(27, 1207, 11, 1255, 11475, 1, 1, '2025-05-06'),
+(28, 1233, 1, 0, 0, 0, 0, '2025-05-06');
 
 -- --------------------------------------------------------
 
@@ -317,7 +345,7 @@ ALTER TABLE `user_titles`
 -- AUTO_INCREMENT pour la table `achievements`
 --
 ALTER TABLE `achievements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `parents_children`
@@ -335,7 +363,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT pour la table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT pour la table `titles`
