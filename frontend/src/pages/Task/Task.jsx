@@ -26,6 +26,18 @@ const Task = () => {
     });
     const { currentUser } = useAuth();
 
+    const updateStats = (currentTasks) => {
+        const completed = currentTasks.filter(task => task.status === 'done').length;
+        const total = currentTasks.length;
+        const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        setStats({
+            totalCompleted: completed,
+            totalCreated: total,
+            completionRate: rate
+        });
+    };
+
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -38,15 +50,7 @@ const Task = () => {
                     }));
                     setTasks(formattedTasks);
 
-                    const completed = formattedTasks.filter(task => task.status === 'done').length;
-                    const total = formattedTasks.length;
-                    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-                    setStats({
-                        totalCompleted: completed,
-                        totalCreated: total,
-                        completionRate: rate
-                    });
+                    updateStats(formattedTasks);
                 }
             } catch (error) {
                 console.error("Erreur lors de la récupération des tâches:", error);
@@ -100,7 +104,11 @@ const Task = () => {
                     id: response.task.id
                 };
 
-                setTasks([...tasks, newTaskWithId]);
+                const updatedTasks = [...tasks, newTaskWithId];
+                setTasks(updatedTasks);
+
+                updateStats(updatedTasks);
+
                 setIsModalOpen(false);
                 setNewTask({
                     title: '',
@@ -123,10 +131,14 @@ const Task = () => {
     };
 
     const { gainExperience } = useAuth();
-    
+
     const handleStatusChange = async (taskId) => {
         try {
             const currentTask = tasks.find(task => task.id === taskId);
+            if (!currentTask) {
+                console.error("Tâche non trouvée:", taskId);
+                return;
+            }
 
             const nextStatus = {
                 'todo': 'in_progress',
@@ -139,7 +151,7 @@ const Task = () => {
                 'in_progress': 'en_cours',
                 'done': 'terminée'
             };
-    
+
             const priorityMapForBackend = {
                 'low': 'basse',
                 'medium': 'moyenne',
@@ -148,26 +160,31 @@ const Task = () => {
 
             const newStatus = nextStatus[currentTask.status];
 
-            const response = await updateTask(taskId, {
-                ...currentTask,
-                status: statusMapForBackend[newStatus],
+            const updateData = {
                 title: currentTask.title,
                 description: currentTask.description,
-                due_date: currentTask.due_date,
-                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority
-            });
-    
+                status: statusMapForBackend[newStatus],
+                due_date: currentTask.due_date || currentTask.date,
+                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority,
+                user_id: currentUser.id
+            };
+
+            const response = await updateTask(taskId, updateData);
+
             if (response.success) {
-                setTasks(tasks.map(task => {
+                const updatedTasks = tasks.map(task => {
                     if (task.id === taskId) {
                         return {
                             ...task,
-                            status: newStatus,
-                            priority: currentTask.priority
+                            status: newStatus
                         };
                     }
                     return task;
-                }));
+                });
+
+                setTasks(updatedTasks);
+
+                updateStats(updatedTasks);
 
                 if (newStatus === 'done') {
                     const xpRewards = {
@@ -175,7 +192,7 @@ const Task = () => {
                         'medium': 25,
                         'high': 50
                     };
-                    
+
                     const xpGain = xpRewards[currentTask.priority] || 10;
 
                     await gainExperience(xpGain);
@@ -197,7 +214,11 @@ const Task = () => {
         try {
             const response = await deleteTask(selectedTask.id);
             if (response.success) {
-                setTasks(tasks.filter(task => task.id !== selectedTask.id));
+                const updatedTasks = tasks.filter(task => task.id !== selectedTask.id);
+                setTasks(updatedTasks);
+
+                updateStats(updatedTasks);
+
                 setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
                 setIsEditing(false);
@@ -243,6 +264,8 @@ const Task = () => {
                     } : task
                 );
                 setTasks(updatedTasks);
+
+                updateStats(updatedTasks);
 
                 setIsTaskDetailModalOpen(false);
                 setIsEditing(false);
