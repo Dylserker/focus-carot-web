@@ -38,7 +38,7 @@ const Task = () => {
                     }));
                     setTasks(formattedTasks);
 
-                    const completed = formattedTasks.filter(task => task.status === 'terminée').length;
+                    const completed = formattedTasks.filter(task => task.status === 'done').length;
                     const total = formattedTasks.length;
                     const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
