@@ -126,17 +126,14 @@ const Task = () => {
     
     const handleStatusChange = async (taskId) => {
         try {
-            // Trouver la tâche actuelle
             const currentTask = tasks.find(task => task.id === taskId);
-    
-            // Définir le mapping de progression des statuts
+
             const nextStatus = {
                 'todo': 'in_progress',
                 'in_progress': 'done',
                 'done': 'todo'
             };
-    
-            // Définir les mappings pour le backend
+
             const statusMapForBackend = {
                 'todo': 'à_faire',
                 'in_progress': 'en_cours',
@@ -148,11 +145,9 @@ const Task = () => {
                 'medium': 'moyenne',
                 'high': 'haute'
             };
-    
-            // Déterminer le nouveau statut
+
             const newStatus = nextStatus[currentTask.status];
-    
-            // Mettre à jour via l'API
+
             const response = await updateTask(taskId, {
                 ...currentTask,
                 status: statusMapForBackend[newStatus],
@@ -163,21 +158,18 @@ const Task = () => {
             });
     
             if (response.success) {
-                // Mettre à jour l'état local uniquement si la mise à jour serveur réussit
                 setTasks(tasks.map(task => {
                     if (task.id === taskId) {
                         return {
                             ...task,
                             status: newStatus,
-                            priority: currentTask.priority // Garde la priorité existante
+                            priority: currentTask.priority
                         };
                     }
                     return task;
                 }));
-                
-                // Si la tâche passe à "terminée", donner de l'XP à l'utilisateur
+
                 if (newStatus === 'done') {
-                    // Déterminer le montant d'XP en fonction de la priorité
                     const xpRewards = {
                         'low': 10,
                         'medium': 25,
@@ -185,11 +177,9 @@ const Task = () => {
                     };
                     
                     const xpGain = xpRewards[currentTask.priority] || 10;
-                    
-                    // Mettre à jour l'XP via le contexte d'authentification
+
                     await gainExperience(xpGain);
-                    
-                    // Afficher un message de confirmation
+
                     alert(`Félicitations ! Vous avez gagné ${xpGain} points d'expérience.`);
                 }
             }
@@ -207,9 +197,7 @@ const Task = () => {
         try {
             const response = await deleteTask(selectedTask.id);
             if (response.success) {
-                // Supprime la tâche du state local
                 setTasks(tasks.filter(task => task.id !== selectedTask.id));
-                // Ferme le modal
                 setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
                 setIsEditing(false);
@@ -222,7 +210,6 @@ const Task = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Conversion des valeurs pour la BDD
             const statusMap = {
                 'todo': 'à_faire',
                 'in_progress': 'en_cours',
@@ -235,7 +222,6 @@ const Task = () => {
                 'high': 'haute'
             };
 
-            // Mise à jour de la tâche via l'API avec les valeurs converties
             const response = await updateTask(selectedTask.id, {
                 title: editedTask.title,
                 description: editedTask.description,
@@ -246,7 +232,6 @@ const Task = () => {
             });
 
             if (response.success) {
-                // Mise à jour de l'état local
                 const updatedTasks = tasks.map(task =>
                     task.id === selectedTask.id ? {
                         ...task,
@@ -303,35 +288,37 @@ const Task = () => {
                         <h2>Tâches du jour</h2>
                         <div className="tasks-list">
                             {tasks.length > 0 ? (
-                                tasks.map(task => (
-                                    <div key={task.id} className={`task-item status-${task.status}`}>
-                                        <div className="task-info">
-                                            <h3>{task.title}</h3>
-                                            <div className="task-details">
-                                                <span className={`status-badge ${task.status}`}>
-                                                    {getStatusLabel(task.status)}
-                                                </span>
-                                                <span className={`priority-badge ${task.priority}`}>
-                                                    {getPriorityLabel(task.priority)}
-                                                </span>
+                                tasks
+                                    .filter(task => task.status !== 'done')
+                                    .map(task => (
+                                        <div key={task.id} className={`task-item status-${task.status}`}>
+                                            <div className="task-info">
+                                                <h3>{task.title}</h3>
+                                                <div className="task-details">
+                                <span className={`status-badge ${task.status}`}>
+                                    {getStatusLabel(task.status)}
+                                </span>
+                                                    <span className={`priority-badge ${task.priority}`}>
+                                    {getPriorityLabel(task.priority)}
+                                </span>
+                                                </div>
+                                            </div>
+                                            <div className="task-actions">
+                                                <button
+                                                    className="view-task-button"
+                                                    onClick={() => handleTaskClick(task)}
+                                                >
+                                                    Modifier
+                                                </button>
+                                                <button
+                                                    className="change-status-button"
+                                                    onClick={() => handleStatusChange(task.id)}
+                                                >
+                                                    Changer status
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="task-actions">
-                                            <button
-                                                className="view-task-button"
-                                                onClick={() => handleTaskClick(task)}
-                                            >
-                                                Modifier
-                                            </button>
-                                            <button
-                                                className="change-status-button"
-                                                onClick={() => handleStatusChange(task.id)}
-                                            >
-                                                Changer status
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
+                                    ))
                             ) : (
                                 <p className="no-tasks">Aucune tâche pour aujourd'hui</p>
                             )}
