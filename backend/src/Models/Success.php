@@ -99,4 +99,18 @@ class Success {
 
         return null;
     }
+
+    public function checkLevelAchievements(int $userId, int $newLevel): void {
+        try {
+            if ($newLevel >= 10) {
+                $this->unlockAchievement($userId, 5);
+            }
+
+            if ($newLevel >= 9000) {
+                $this->unlockAchievement($userId, 6);
+            }
+        } catch (\Exception $e) {
+            error_log('Erreur lors de la vérification des succès de niveau : ' . $e->getMessage());
+        }
+    }
 }

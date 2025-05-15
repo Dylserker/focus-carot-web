@@ -120,10 +120,10 @@ class Task {
             }
 
             $sql = "SELECT COUNT(*) as total, 
-                SUM(CASE WHEN status = 'terminée' THEN 1 ELSE 0 END) as completed 
-                FROM tasks 
-                WHERE user_id = :user_id 
-                AND DATE(created_at) = CURDATE()";
+            SUM(CASE WHEN status = 'terminée' THEN 1 ELSE 0 END) as completed 
+            FROM tasks 
+            WHERE user_id = :user_id 
+            AND DATE(created_at) = CURDATE()";
             $this->db->prepare($sql);
             $this->db->bind(':user_id', $userId);
             $result = $this->db->single();
@@ -132,20 +132,20 @@ class Task {
                 $this->successModel->unlockAchievement($userId, 2);
             }
 
-            $sql = "SELECT COUNT(*) as total 
-                FROM tasks 
-                WHERE user_id = :user_id 
-                AND priority = 'haute' 
-                AND status = 'terminée'";
+            $sql = "SELECT COUNT(*) as count 
+            FROM tasks 
+            WHERE user_id = :user_id 
+            AND priority = 'haute' 
+            AND status = 'terminée'";
             $this->db->prepare($sql);
             $this->db->bind(':user_id', $userId);
             $result = $this->db->single();
 
-            if ($result && $result['total'] === 1) {
+            if ($result && $result['count'] >= 1) {
                 $this->successModel->unlockAchievement($userId, 3);
             }
 
-            if ($result && $result['total'] >= 10) {
+            if ($result && $result['count'] >= 10) {
                 $this->successModel->unlockAchievement($userId, 4);
             }
 
