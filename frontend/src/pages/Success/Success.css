@@ -121,3 +121,19 @@
     margin: 8px 0;
     color: #444;
 }
+
+.achievements-table tr.achievement-unlocked {
+    background-color: rgba(75, 181, 67, 0.1);
+}
+
+.achievements-table tr.achievement-unlocked td {
+    color: #4BB543;
+}
+
+.achievements-table tr.achievement-unlocked .view-details-button {
+    background-color: #4BB543;
+}
+
+.achievements-table tr.achievement-unlocked .view-details-button:hover {
+    background-color: #3d9436;
+}

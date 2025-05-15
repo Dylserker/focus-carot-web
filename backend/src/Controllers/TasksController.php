@@ -12,10 +12,23 @@ class TasksController {
     }
 
     public function create(): Response {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $taskId = $this->taskModel->create($data);
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new \Exception('Données invalides');
+            }
 
-        if ($taskId) {
+            if (empty($data['title']) || empty($data['user_id'])) {
+                throw new \Exception('Données manquantes');
+            }
+
+            $taskId = $this->taskModel->create($data);
+            if (!$taskId) {
+                throw new \Exception('Erreur lors de la création de la tâche');
+            }
+
+            $this->taskModel->checkAchievements($data['user_id']);
+
             return (new Response())->setBody([
                 'success' => true,
                 'task' => [
@@ -28,11 +41,12 @@ class TasksController {
                     'user_id' => $data['user_id']
                 ]
             ]);
-        }
 
-        return (new Response())
-            ->setBody(['error' => 'Erreur lors de la création de la tâche'])
-            ->setStatusCode(500);
+        } catch (\Exception $e) {
+            return (new Response())
+                ->setBody(['error' => $e->getMessage()])
+                ->setStatusCode(400);
+        }
     }
 
     private function calculateExperienceReward(string $priority): int {

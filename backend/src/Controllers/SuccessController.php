@@ -38,19 +38,43 @@ class SuccessController
             ->setStatusCode(500);
     }
 
-    public function getAllAchievements(): Response
-    {
-        $achievements = $this->successModel->getAllAchievements();
+    public function getAllAchievements(): Response {
+        try {
+            $achievements = $this->successModel->getAllAchievements();
 
-        if ($achievements) {
             return (new Response())->setBody([
                 'success' => true,
                 'achievements' => $achievements
             ]);
+        } catch (\Exception $e) {
+            return (new Response())
+                ->setBody(['error' => 'Erreur lors de la récupération des succès'])
+                ->setStatusCode(500);
         }
+    }
 
-        return (new Response())
-            ->setBody(['error' => 'Erreur lors de la récupération des succès'])
-            ->setStatusCode(500);
+    public function getUserAchievements(int $userId): Response {
+        try {
+            $unlockedAchievements = $this->successModel->getUnlockedAchievements($userId);
+
+            if ($unlockedAchievements !== null) {
+                $unlockedIds = array_map(function($achievement) {
+                    return $achievement['achievement_id'];
+                }, $unlockedAchievements);
+
+                return (new Response())->setBody([
+                    'success' => true,
+                    'achievements' => $unlockedIds
+                ]);
+            }
+
+            return (new Response())
+                ->setBody(['error' => 'Erreur lors de la récupération des succès'])
+                ->setStatusCode(500);
+        } catch (\Exception $e) {
+            return (new Response())
+                ->setBody(['error' => $e->getMessage()])
+                ->setStatusCode(500);
+        }
     }
 }

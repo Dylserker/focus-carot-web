@@ -5,9 +5,11 @@ use App\Core\Database;
 
 class Task {
     private Database $db;
+    private Success $successModel;
 
     public function __construct() {
         $this->db = new Database();
+        $this->successModel = new Success();
     }
 
     public function create(array $data): ?int {
@@ -24,7 +26,7 @@ class Task {
         ];
 
         $sql = "INSERT INTO tasks (user_id, title, description, status, due_date, priority, experience_reward) 
-            VALUES (:user_id, :title, :description, :status, :due_date, :priority, :experience_reward)";
+        VALUES (:user_id, :title, :description, :status, :due_date, :priority, :experience_reward)";
 
         $this->db->prepare($sql);
         $this->db->bind(':user_id', $data['user_id']);
@@ -35,7 +37,22 @@ class Task {
         $this->db->bind(':priority', $priorityMapping[$data['priority']] ?? 'moyenne');
         $this->db->bind(':experience_reward', $data['experience_reward']);
 
-        return $this->db->execute() ? $this->db->lastInsertId() : null;
+        $success = $this->db->execute();
+        $taskId = $success ? $this->db->lastInsertId() : null;
+
+        if ($taskId) {
+            $sql = "SELECT COUNT(*) as count FROM tasks WHERE user_id = :user_id";
+            $this->db->prepare($sql);
+            $this->db->bind(':user_id', $data['user_id']);
+            $result = $this->db->single();
+
+            if ($result && (int)$result['count'] === 1) {
+                $successModel = new Success();
+                $successModel->unlockAchievement($data['user_id'], 1);
+            }
+        }
+
+        return $taskId;
     }
 
     public function getById(int $id): ?array {
@@ -89,5 +106,51 @@ class Task {
         $this->db->prepare($sql);
         $this->db->bind(':id', $id);
         return $this->db->execute();
+    }
+
+    public function checkAchievements(int $userId): void {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM tasks WHERE user_id = :user_id";
+            $this->db->prepare($sql);
+            $this->db->bind(':user_id', $userId);
+            $result = $this->db->single();
+
+            if ($result && $result['total'] === 1) {
+                $this->successModel->unlockAchievement($userId, 1);
+            }
+
+            $sql = "SELECT COUNT(*) as total, 
+                SUM(CASE WHEN status = 'terminée' THEN 1 ELSE 0 END) as completed 
+                FROM tasks 
+                WHERE user_id = :user_id 
+                AND DATE(created_at) = CURDATE()";
+            $this->db->prepare($sql);
+            $this->db->bind(':user_id', $userId);
+            $result = $this->db->single();
+
+            if ($result && $result['total'] > 0 && $result['total'] === $result['completed']) {
+                $this->successModel->unlockAchievement($userId, 2);
+            }
+
+            $sql = "SELECT COUNT(*) as total 
+                FROM tasks 
+                WHERE user_id = :user_id 
+                AND priority = 'haute' 
+                AND status = 'terminée'";
+            $this->db->prepare($sql);
+            $this->db->bind(':user_id', $userId);
+            $result = $this->db->single();
+
+            if ($result && $result['total'] === 1) {
+                $this->successModel->unlockAchievement($userId, 3);
+            }
+
+            if ($result && $result['total'] >= 10) {
+                $this->successModel->unlockAchievement($userId, 4);
+            }
+
+        } catch (\Exception $e) {
+            error_log('Erreur lors de la vérification des succès : ' . $e->getMessage());
+        }
     }
 }
