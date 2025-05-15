@@ -71,3 +71,53 @@
 .view-details-button:hover {
     background-color: #357ab8;
 }
+
+.achievement-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.achievement-modal {
+    padding: 20px;
+}
+
+.achievement-modal h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.achievement-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.achievement-modal-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.achievement-description {
+    text-align: center;
+    color: #666;
+    font-size: 1.1em;
+    margin: 15px 0;
+}
+
+.achievement-details {
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.achievement-details p {
+    margin: 8px 0;
+    color: #444;
+}
