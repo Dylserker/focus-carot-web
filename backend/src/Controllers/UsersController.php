@@ -103,4 +103,20 @@ class UsersController
             return ['error' => 'Erreur lors de la récupération de la progression'];
         }
     }
+
+    public function delete($id)
+    {
+        try {
+            $result = $this->userModel->delete($id);
+
+            if ($result) {
+                return ['success' => true, 'message' => 'Utilisateur supprimé avec succès'];
+            }
+
+            return ['error' => 'Impossible de supprimer l\'utilisateur'];
+
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la suppression de l\'utilisateur'];
+        }
+    }
 }

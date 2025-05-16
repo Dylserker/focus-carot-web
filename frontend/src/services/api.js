@@ -41,12 +41,12 @@ class ApiService {
         },
         body: JSON.stringify(itemData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erreur lors de la création');
       }
-      
+
       const data = await response.json();
       return data.data;
     } catch (error) {
@@ -64,12 +64,12 @@ class ApiService {
         },
         body: JSON.stringify(itemData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erreur lors de la mise à jour');
       }
-      
+
       const data = await response.json();
       return data.data;
     } catch (error) {
@@ -83,16 +83,38 @@ class ApiService {
       const response = await fetch(`${API_URL}/api/items/${id}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erreur lors de la suppression');
       }
-      
+
       const data = await response.json();
       return data.data;
     } catch (error) {
       console.error(`Erreur lors de la suppression de l'élément ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async deleteUser(userId) {
+    try {
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la suppression');
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
       throw error;
     }
   }

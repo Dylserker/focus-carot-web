@@ -99,16 +99,34 @@ const Admin = () => {
         if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
             return;
         }
+
         try {
-            const response = await fetch(`http://localhost:8000/users/${id}`, {
+            const response = await fetch(`http://localhost:8000/api/users/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
-            if (response.ok) {
-                setUsers(users.filter(user => user.id !== id));
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de la suppression');
             }
-        } catch (err) {
-            console.error('Erreur lors de la suppression:', err);
+
+            // Mettre à jour la liste des utilisateurs
+            setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+
+            // Ajuster la pagination si nécessaire
+            const remainingUsers = users.length - 1;
+            const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
+            if (currentPage > newTotalPages) {
+                setCurrentPage(newTotalPages);
+            }
+
+        } catch (error) {
+            console.error('Erreur lors de la suppression:', error);
+            setError('Erreur lors de la suppression de l\'utilisateur');
         }
     };
 

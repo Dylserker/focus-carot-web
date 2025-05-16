@@ -186,4 +186,17 @@ class User {
             return false;
         }
     }
+
+    public function delete($id): bool
+    {
+        try {
+            $sql = "DELETE FROM users WHERE id = :id";
+            $this->db->prepare($sql);
+            $this->db->bind(':id', $id);
+            return $this->db->execute();
+        } catch (\PDOException $e) {
+            error_log('Erreur lors de la suppression de l\'utilisateur : ' . $e->getMessage());
+            return false;
+        }
+    }
 }
