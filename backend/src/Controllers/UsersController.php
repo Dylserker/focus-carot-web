@@ -125,22 +125,18 @@ class UsersController
         try {
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validation des données requises
             if (!isset($data['email']) || !isset($data['password']) ||
                 !isset($data['nom']) || !isset($data['prenom']) ||
                 !isset($data['pseudo']) || !isset($data['role'])) {
                 return ['error' => 'Tous les champs sont requis'];
             }
 
-            // Vérification si l'email existe déjà
             if ($this->userModel->emailExiste($data['email'])) {
                 return ['error' => 'Cet email est déjà utilisé'];
             }
 
-            // Hachage du mot de passe
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
 
-            // Création de l'utilisateur
             $userId = $this->userModel->creerUtilisateur([
                 'email' => $data['email'],
                 'password' => $data['password'],
@@ -151,7 +147,6 @@ class UsersController
             ]);
 
             if ($userId) {
-                // Récupération de l'utilisateur créé
                 $user = $this->userModel->getUtilisateurParId($userId);
 
                 if ($user) {
@@ -168,6 +163,51 @@ class UsersController
         } catch (\Exception $e) {
             error_log('Erreur lors de la création de l\'utilisateur : ' . $e->getMessage());
             return ['error' => 'Une erreur est survenue lors de la création de l\'utilisateur'];
+        }
+    }
+
+    public function update($id): array
+    {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            if (!isset($data['email']) || !isset($data['nom']) ||
+                !isset($data['prenom']) || !isset($data['pseudo']) ||
+                !isset($data['role'])) {
+                return ['error' => 'Tous les champs sont requis'];
+            }
+
+            if ($this->userModel->emailExisteUpdate($data['email'], $id)) {
+                return ['error' => 'Cet email est déjà utilisé'];
+            }
+
+            $updateData = [
+                'id' => $id,
+                'email' => $data['email'],
+                'nom' => $data['nom'],
+                'prenom' => $data['prenom'],
+                'pseudo' => $data['pseudo'],
+                'role' => $data['role']
+            ];
+
+            if (!empty($data['password'])) {
+                $updateData['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            }
+
+            if ($this->userModel->updateUtilisateur($updateData)) {
+                $user = $this->userModel->getUtilisateurParId($id);
+                return [
+                    'success' => true,
+                    'message' => 'Utilisateur modifié avec succès',
+                    'user' => $user
+                ];
+            }
+
+            return ['error' => 'Erreur lors de la modification de l\'utilisateur'];
+
+        } catch (\Exception $e) {
+            error_log('Erreur lors de la modification de l\'utilisateur : ' . $e->getMessage());
+            return ['error' => 'Une erreur est survenue lors de la modification de l\'utilisateur'];
         }
     }
 }

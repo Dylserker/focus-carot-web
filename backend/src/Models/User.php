@@ -199,4 +199,61 @@ class User {
             return false;
         }
     }
+
+    public function emailExisteUpdate($email, $userId) {
+        try {
+            $stmt = $this->db->getPDO()->prepare('SELECT COUNT(*) FROM users WHERE email = ? AND id != ?');
+            $stmt->execute([$email, $userId]);
+            return $stmt->fetchColumn() > 0;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    public function updateUtilisateur($data) {
+        try {
+            $pdo = $this->db->getPDO();
+            $pdo->beginTransaction();
+
+            $setFields = [
+                'email = :email',
+                'last_name = :last_name',
+                'first_name = :first_name',
+                'username = :username',
+                'role = :role'
+            ];
+
+            $params = [
+                'id' => $data['id'],
+                'email' => $data['email'],
+                'last_name' => $data['nom'],
+                'first_name' => $data['prenom'],
+                'username' => $data['pseudo'],
+                'role' => $data['role']
+            ];
+
+            if (isset($data['password'])) {
+                $setFields[] = 'password = :password';
+                $params['password'] = $data['password'];
+            }
+
+            $sql = "UPDATE users SET " . implode(', ', $setFields) . " WHERE id = :id";
+
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute($params);
+
+            if ($result) {
+                $pdo->commit();
+                return true;
+            }
+
+            $pdo->rollBack();
+            return false;
+        } catch (\PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
 }

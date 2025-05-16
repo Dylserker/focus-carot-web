@@ -78,7 +78,7 @@ const Admin = () => {
             nom: user.nom || '',
             titre: user.titre || '',
             email: user.email || '',
-            password: '', // Garder vide pour l'édition
+            password: '',
             role: user.role || 'user'
         });
         setIsEditModalOpen(true);
@@ -117,10 +117,8 @@ const Admin = () => {
                 throw new Error(errorData.error || 'Erreur lors de la suppression');
             }
 
-            // Mettre à jour la liste des utilisateurs
             setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
 
-            // Ajuster la pagination si nécessaire
             const remainingUsers = users.length - 1;
             const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
             if (currentPage > newTotalPages) {
@@ -136,43 +134,66 @@ const Admin = () => {
     const handleSubmit = async (e, isCreate = false) => {
         e.preventDefault();
         try {
-            const url = isCreate
-                ? 'http://localhost:8000/api/users'
-                : `http://localhost:8000/api/users/${formData.id}`;
-
-            const requestData = {
+            const userData = {
                 email: formData.email,
-                password: formData.password, // Inclus uniquement pour la création
                 nom: formData.nom,
                 prenom: formData.prenom,
                 pseudo: formData.pseudo,
                 role: formData.role
             };
 
-            // Si ce n'est pas une création, on retire le mot de passe
-            if (!isCreate) {
-                delete requestData.password;
+            if (formData.password) {
+                userData.password = formData.password;
             }
 
-            const response = await fetch(url, {
-                method: isCreate ? 'POST' : 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
+            let response;
+
+            if (isCreate) {
+                // Logique existante pour la création
+                response = await fetch('http://localhost:8000/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+            } else {
+                // Nouvelle logique pour la mise à jour
+                response = await fetch(`http://localhost:8000/api/users/${formData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+            }
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Erreur lors de la sauvegarde');
+                throw new Error(errorData.error || 'Erreur lors de l\'opération');
             }
 
-            fetchUsers();
-            setIsEditModalOpen(false);
-            setIsCreateModalOpen(false);
+            const result = await response.json();
+            if (result.success) {
+                await fetchUsers(); // Rafraîchir la liste des utilisateurs
+                setIsEditModalOpen(false);
+                setIsCreateModalOpen(false);
+                setFormData({
+                    id: '',
+                    pseudo: '',
+                    prenom: '',
+                    nom: '',
+                    titre: '',
+                    email: '',
+                    password: '',
+                    role: 'user'
+                });
+            }
+
         } catch (err) {
-            console.error('Erreur lors de la sauvegarde:', err);
+            console.error('Erreur:', err);
             setError(err.message);
         }
     };
