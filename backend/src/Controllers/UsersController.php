@@ -119,4 +119,55 @@ class UsersController
             return ['error' => 'Erreur lors de la suppression de l\'utilisateur'];
         }
     }
+
+    public function create(): array
+    {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            // Validation des données requises
+            if (!isset($data['email']) || !isset($data['password']) ||
+                !isset($data['nom']) || !isset($data['prenom']) ||
+                !isset($data['pseudo']) || !isset($data['role'])) {
+                return ['error' => 'Tous les champs sont requis'];
+            }
+
+            // Vérification si l'email existe déjà
+            if ($this->userModel->emailExiste($data['email'])) {
+                return ['error' => 'Cet email est déjà utilisé'];
+            }
+
+            // Hachage du mot de passe
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+
+            // Création de l'utilisateur
+            $userId = $this->userModel->creerUtilisateur([
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'nom' => $data['nom'],
+                'prenom' => $data['prenom'],
+                'pseudo' => $data['pseudo'],
+                'role' => $data['role']
+            ]);
+
+            if ($userId) {
+                // Récupération de l'utilisateur créé
+                $user = $this->userModel->getUtilisateurParId($userId);
+
+                if ($user) {
+                    return [
+                        'success' => true,
+                        'message' => 'Utilisateur créé avec succès',
+                        'user' => $user
+                    ];
+                }
+            }
+
+            return ['error' => 'Erreur lors de la création de l\'utilisateur'];
+
+        } catch (\Exception $e) {
+            error_log('Erreur lors de la création de l\'utilisateur : ' . $e->getMessage());
+            return ['error' => 'Une erreur est survenue lors de la création de l\'utilisateur'];
+        }
+    }
 }

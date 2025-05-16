@@ -20,6 +20,7 @@ const Admin = () => {
         nom: '',
         titre: '',
         email: '',
+        password: '',
         role: 'user'
     });
 
@@ -71,13 +72,14 @@ const Admin = () => {
     const handleEdit = (user) => {
         setCurrentUser(user);
         setFormData({
-            id: user.id,
-            pseudo: user.pseudo,
-            prenom: user.prenom,
-            nom: user.nom,
+            id: user.id || '',
+            pseudo: user.pseudo || '',
+            prenom: user.prenom || '',
+            nom: user.nom || '',
             titre: user.titre || '',
-            email: user.email,
-            role: user.role
+            email: user.email || '',
+            password: '', // Garder vide pour l'édition
+            role: user.role || 'user'
         });
         setIsEditModalOpen(true);
     };
@@ -90,6 +92,7 @@ const Admin = () => {
             nom: '',
             titre: '',
             email: '',
+            password: '',
             role: 'user'
         });
         setIsCreateModalOpen(true);
@@ -134,8 +137,22 @@ const Admin = () => {
         e.preventDefault();
         try {
             const url = isCreate
-                ? 'http://localhost:8000/users'
-                : `http://localhost:8000/users/${formData.id}`;
+                ? 'http://localhost:8000/api/users'
+                : `http://localhost:8000/api/users/${formData.id}`;
+
+            const requestData = {
+                email: formData.email,
+                password: formData.password, // Inclus uniquement pour la création
+                nom: formData.nom,
+                prenom: formData.prenom,
+                pseudo: formData.pseudo,
+                role: formData.role
+            };
+
+            // Si ce n'est pas une création, on retire le mot de passe
+            if (!isCreate) {
+                delete requestData.password;
+            }
 
             const response = await fetch(url, {
                 method: isCreate ? 'POST' : 'PUT',
@@ -143,16 +160,20 @@ const Admin = () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(requestData)
             });
 
-            if (response.ok) {
-                fetchUsers();
-                setIsEditModalOpen(false);
-                setIsCreateModalOpen(false);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de la sauvegarde');
             }
+
+            fetchUsers();
+            setIsEditModalOpen(false);
+            setIsCreateModalOpen(false);
         } catch (err) {
             console.error('Erreur lors de la sauvegarde:', err);
+            setError(err.message);
         }
     };
 
@@ -273,6 +294,18 @@ const Admin = () => {
                                     required
                                 />
                             </div>
+                            {isCreateModalOpen && ( // Afficher le champ password uniquement lors de la création
+                                <div className="form-group">
+                                    <label>Mot de passe</label>
+                                    <input
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                        required={isCreateModalOpen}
+                                        minLength="6"
+                                    />
+                                </div>
+                            )}
                             <div className="form-group">
                                 <label>Pseudo</label>
                                 <input
@@ -305,6 +338,7 @@ const Admin = () => {
                                 <select
                                     value={formData.role}
                                     onChange={(e) => setFormData({...formData, role: e.target.value})}
+                                    required
                                 >
                                     <option value="user">Utilisateur</option>
                                     <option value="admin">Administrateur</option>
@@ -314,14 +348,15 @@ const Admin = () => {
                             </div>
                             <div className="form-actions">
                                 <Button type="submit" variant="primary">
-                                    {isCreateModalOpen ? "Créer" : "Enregistrer"}
+                                    {isCreateModalOpen ? "Créer" : "Modifier"}
                                 </Button>
                                 <Button
+                                    type="button"
+                                    variant="secondary"
                                     onClick={() => {
                                         setIsEditModalOpen(false);
                                         setIsCreateModalOpen(false);
                                     }}
-                                    variant="secondary"
                                 >
                                     Annuler
                                 </Button>

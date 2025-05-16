@@ -27,5 +27,6 @@ $routeur->addRoute(['GET'], '/api/users/{id}/experience', UsersController::class
 $routeur->addRoute(['GET'], '/api/achievements', SuccessController::class, 'getAllAchievements');
 $routeur->addRoute(['GET'], '/api/users/{id}/achievements', SuccessController::class, 'getUserAchievements');
 $routeur->addRoute(['DELETE'], '/api/users/{id}', UsersController::class, 'delete');
+$routeur->addRoute(['POST'], '/api/users', UsersController::class, 'create');
 
 new Kernel($routeur);
