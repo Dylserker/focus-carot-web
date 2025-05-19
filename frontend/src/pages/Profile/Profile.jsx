@@ -24,7 +24,7 @@ const Profile = () => {
                     throw new Error('Utilisateur non connecté');
                 }
 
-                const response = await fetch(`http://localhost:8000/users/${userData.id}`, {
+                const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -35,17 +35,17 @@ const Profile = () => {
                 }
 
                 const data = await response.json();
-                const user = data.user;
+                const profile = data.profile;
 
                 setProfileData({
-                    username: user.username || '',
-                    firstName: user.first_name || '',
-                    lastName: user.last_name || '',
-                    birthDate: '', // À ajouter dans la base de données
-                    email: user.email || '',
-                    password: '', // Le mot de passe n'est jamais renvoyé
+                    username: profile.username || '',
+                    firstName: profile.first_name || '',
+                    lastName: profile.last_name || '',
+                    birthDate: profile.date_of_birth || '',
+                    email: profile.email || '',
+                    password: '',
                     title: userData.title || 'Novice',
-                    profilePicture: user.avatar_url || null
+                    profilePicture: profile.avatar_url || null
                 });
             } catch (err) {
                 setError(err.message);
@@ -81,7 +81,7 @@ const Profile = () => {
     const handleSaveChanges = async () => {
         try {
             const userData = JSON.parse(localStorage.getItem('user'));
-            const response = await fetch(`http://localhost:8000/api/users/${userData.id}`, {
+            const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ const Profile = () => {
                     prenom: profileData.firstName,
                     nom: profileData.lastName,
                     password: profileData.password || undefined,
-                    role: userData.role
+                    date_of_birth: profileData.birthDate || null
                 })
             });
 
@@ -104,7 +104,6 @@ const Profile = () => {
             const result = await response.json();
             if (result.success) {
                 setIsEditing(false);
-                // Mettre à jour le localStorage avec les nouvelles données
                 localStorage.setItem('user', JSON.stringify({
                     ...userData,
                     email: profileData.email,

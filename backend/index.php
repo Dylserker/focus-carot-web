@@ -29,5 +29,7 @@ $routeur->addRoute(['GET'], '/api/users/{id}/achievements', SuccessController::c
 $routeur->addRoute(['DELETE'], '/api/users/{id}', UsersController::class, 'delete');
 $routeur->addRoute(['POST'], '/api/users', UsersController::class, 'create');
 $routeur->addRoute(['PUT'], '/api/users/{id}', UsersController::class, 'update');
+$routeur->addRoute(['GET'], '/api/users/{id}/profile', UsersController::class, 'getUserProfile');
+$routeur->addRoute(['PUT'], '/api/users/{id}/profile', UsersController::class, 'updateUserProfile');
 
 new Kernel($routeur);

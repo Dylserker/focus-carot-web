@@ -256,4 +256,48 @@ class User {
             throw $e;
         }
     }
+
+    public function getUserProfile($userId) {
+        try {
+            $sql = "SELECT u.*, up.date_of_birth 
+                FROM users u
+                LEFT JOIN user_profiles up ON u.id = up.user_id 
+                WHERE u.id = :id";
+
+            $this->db->prepare($sql);
+            $this->db->bind(':id', $userId);
+            return $this->db->single();
+        } catch (\PDOException $e) {
+            error_log('Erreur lors de la récupération du profil : ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateUserProfile($userId, $data) {
+        try {
+            $pdo = $this->db->getPDO();
+            $pdo->beginTransaction();
+
+            $this->updateUtilisateur($data);
+
+            $sql = "INSERT INTO user_profiles (user_id, date_of_birth) 
+                VALUES (:user_id, :date_of_birth) 
+                ON DUPLICATE KEY UPDATE date_of_birth = :date_of_birth";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                'user_id' => $userId,
+                'date_of_birth' => $data['date_of_birth'] ?? null
+            ]);
+
+            $pdo->commit();
+            return true;
+        } catch (\PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Erreur lors de la mise à jour du profil : ' . $e->getMessage());
+            return false;
+        }
+    }
 }

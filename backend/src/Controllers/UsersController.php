@@ -210,4 +210,31 @@ class UsersController
             return ['error' => 'Une erreur est survenue lors de la modification de l\'utilisateur'];
         }
     }
+
+    public function getUserProfile($id) {
+        $profile = $this->userModel->getUserProfile($id);
+        if ($profile) {
+            return ['success' => true, 'profile' => $profile];
+        }
+        return ['error' => 'Profil non trouvé'];
+    }
+
+    public function updateUserProfile($id) {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            if ($this->userModel->updateUserProfile($id, $data)) {
+                $profile = $this->userModel->getUserProfile($id);
+                return [
+                    'success' => true,
+                    'message' => 'Profil mis à jour avec succès',
+                    'profile' => $profile
+                ];
+            }
+
+            return ['error' => 'Erreur lors de la mise à jour du profil'];
+        } catch (\Exception $e) {
+            return ['error' => 'Une erreur est survenue'];
+        }
+    }
 }
