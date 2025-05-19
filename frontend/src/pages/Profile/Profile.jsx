@@ -81,20 +81,27 @@ const Profile = () => {
     const handleSaveChanges = async () => {
         try {
             const userData = JSON.parse(localStorage.getItem('user'));
+
+            const updatedProfile = {
+                email: profileData.email,
+                pseudo: profileData.username,
+                prenom: profileData.firstName,
+                nom: profileData.lastName,
+                date_of_birth: profileData.birthDate || null,
+                role: userData.role
+            };
+
+            if (profileData.password) {
+                updatedProfile.password = profileData.password;
+            }
+
             const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({
-                    email: profileData.email,
-                    pseudo: profileData.username,
-                    prenom: profileData.firstName,
-                    nom: profileData.lastName,
-                    password: profileData.password || undefined,
-                    date_of_birth: profileData.birthDate || null
-                })
+                body: JSON.stringify(updatedProfile)
             });
 
             if (!response.ok) {
@@ -102,13 +109,21 @@ const Profile = () => {
             }
 
             const result = await response.json();
+
             if (result.success) {
-                setIsEditing(false);
-                localStorage.setItem('user', JSON.stringify({
+                const updatedUserData = {
                     ...userData,
                     email: profileData.email,
-                    username: profileData.username
-                }));
+                    username: profileData.username,
+                    first_name: profileData.firstName,
+                    last_name: profileData.lastName
+                };
+                localStorage.setItem('user', JSON.stringify(updatedUserData));
+
+                setIsEditing(false);
+                setError(null);
+            } else {
+                throw new Error(result.error || 'Erreur lors de la mise à jour');
             }
         } catch (err) {
             setError(err.message);

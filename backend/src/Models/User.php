@@ -278,17 +278,40 @@ class User {
             $pdo = $this->db->getPDO();
             $pdo->beginTransaction();
 
-            $this->updateUtilisateur($data);
+            $userUpdateSql = "UPDATE users SET 
+            email = :email,
+            username = :username,
+            first_name = :first_name,
+            last_name = :last_name
+            WHERE id = :id";
 
-            $sql = "INSERT INTO user_profiles (user_id, date_of_birth) 
-                VALUES (:user_id, :date_of_birth) 
-                ON DUPLICATE KEY UPDATE date_of_birth = :date_of_birth";
+            $stmt = $pdo->prepare($userUpdateSql);
+            $stmt->execute([
+                'email' => $data['email'],
+                'username' => $data['pseudo'],
+                'first_name' => $data['prenom'],
+                'last_name' => $data['nom'],
+                'id' => $userId
+            ]);
 
-            $stmt = $pdo->prepare($sql);
+            $profileSql = "INSERT INTO user_profiles (user_id, date_of_birth) 
+            VALUES (:user_id, :date_of_birth)
+            ON DUPLICATE KEY UPDATE date_of_birth = :date_of_birth";
+
+            $stmt = $pdo->prepare($profileSql);
             $stmt->execute([
                 'user_id' => $userId,
                 'date_of_birth' => $data['date_of_birth'] ?? null
             ]);
+
+            if (!empty($data['password'])) {
+                $passwordSql = "UPDATE users SET password = :password WHERE id = :id";
+                $stmt = $pdo->prepare($passwordSql);
+                $stmt->execute([
+                    'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+                    'id' => $userId
+                ]);
+            }
 
             $pdo->commit();
             return true;

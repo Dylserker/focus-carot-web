@@ -223,17 +223,27 @@ class UsersController
         try {
             $data = json_decode(file_get_contents('php://input'), true);
 
+            if (!isset($data['email']) || !isset($data['pseudo']) ||
+                !isset($data['prenom']) || !isset($data['nom'])) {
+                return ['error' => 'Données incomplètes'];
+            }
+
+            if ($this->userModel->emailExisteUpdate($data['email'], $id)) {
+                return ['error' => 'Cet email est déjà utilisé'];
+            }
+
             if ($this->userModel->updateUserProfile($id, $data)) {
-                $profile = $this->userModel->getUserProfile($id);
+                $updatedProfile = $this->userModel->getUserProfile($id);
                 return [
                     'success' => true,
                     'message' => 'Profil mis à jour avec succès',
-                    'profile' => $profile
+                    'profile' => $updatedProfile
                 ];
             }
 
             return ['error' => 'Erreur lors de la mise à jour du profil'];
         } catch (\Exception $e) {
+            error_log('Erreur : ' . $e->getMessage());
             return ['error' => 'Une erreur est survenue'];
         }
     }
