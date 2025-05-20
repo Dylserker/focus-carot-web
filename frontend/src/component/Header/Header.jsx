@@ -80,10 +80,12 @@ const Header = () => {
                             <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
                             <Link to="/contact">Contact</Link>
                         </li>
-                        <li>
-                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
-                            <Link to="/admin">Admin</Link>
-                        </li>
+                        {currentUser?.role === 'admin' && (
+                            <li>
+                                <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
+                                <Link to="/admin">Admin</Link>
+                            </li>
+                        )}
                         <li>
                             <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
                             <Link onClick={handleLogout} to="#">Fermer</Link>
