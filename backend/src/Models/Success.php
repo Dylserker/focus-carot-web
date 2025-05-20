@@ -100,14 +100,30 @@ class Success {
         return null;
     }
 
-    public function checkLevelAchievements(int $userId, int $newLevel): void {
+    public function checkLevelAchievements(int $userId): void {
         try {
-            if ($newLevel >= 10) {
-                $this->unlockAchievement($userId, 5);
+            $stmt = $this->db->getPDO()->prepare('SELECT level FROM user_progression WHERE user_id = ?');
+            $stmt->execute([$userId]);
+            $userLevel = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if ($userLevel && $userLevel['level'] >= 10) {
+                $stmt = $this->db->getPDO()->prepare('SELECT * FROM user_achievements WHERE user_id = ? AND achievement_id = 5');
+                $stmt->execute([$userId]);
+                $existingAchievement = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                if (!$existingAchievement) {
+                    $this->unlockAchievement($userId, 5);
+                }
             }
 
-            if ($newLevel >= 9000) {
-                $this->unlockAchievement($userId, 6);
+            if ($userLevel && $userLevel['level'] >= 9000) {
+                $stmt = $this->db->getPDO()->prepare('SELECT * FROM user_achievements WHERE user_id = ? AND achievement_id = 6');
+                $stmt->execute([$userId]);
+                $existingAchievement9000 = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                if (!$existingAchievement9000) {
+                    $this->unlockAchievement($userId, 6);
+                }
             }
         } catch (\Exception $e) {
             error_log('Erreur lors de la vérification des succès de niveau : ' . $e->getMessage());

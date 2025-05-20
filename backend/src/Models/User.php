@@ -146,6 +146,8 @@ class User {
         try {
             $pdo = $this->db->getPDO();
             $pdo->beginTransaction();
+            $successModel = new Success();
+            $successModel->checkLevelAchievements($userId);
 
             $stmt = $pdo->prepare('SELECT level, experience_points, total_experience_earned FROM user_progression WHERE user_id = ?');
             $stmt->execute([$userId]);
