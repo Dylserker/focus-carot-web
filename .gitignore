@@ -6,4 +6,4 @@ vendor
 backend/.env
 composer.lock
 backend/src/secret.key
-backend/public/uploads/avatars
+backend/public/uploads
