@@ -247,4 +247,27 @@ class UsersController
             return ['error' => 'Une erreur est survenue'];
         }
     }
+
+    public function updateProfilePicture($id): array {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            if (!isset($data['image'])) {
+                return ['error' => 'Aucune image fournie'];
+            }
+
+            $result = $this->userModel->updateProfilePicture($id, $data['image']);
+
+            if ($result) {
+                return [
+                    'success' => true,
+                    'message' => 'Photo de profil mise à jour avec succès'
+                ];
+            }
+
+            return ['error' => 'Erreur lors de la mise à jour de la photo'];
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

@@ -64,17 +64,41 @@ const Profile = () => {
         }));
     };
 
-    const handleProfilePictureChange = (e) => {
+    const handleProfilePictureChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileData(prev => ({
-                    ...prev,
-                    profilePicture: reader.result
-                }));
-            };
-            reader.readAsDataURL(file);
+            try {
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64Image = reader.result;
+                    const userData = JSON.parse(localStorage.getItem('user'));
+
+                    const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile-picture`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ image: base64Image })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de l\'upload de l\'image');
+                    }
+
+                    const result = await response.json();
+                    if (result.success) {
+                        setProfileData(prev => ({
+                            ...prev,
+                            profilePicture: base64Image
+                        }));
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                setError(err.message);
+                console.error('Erreur:', err);
+            }
         }
     };
 

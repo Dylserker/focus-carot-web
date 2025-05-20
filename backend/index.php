@@ -31,5 +31,6 @@ $routeur->addRoute(['POST'], '/api/users', UsersController::class, 'create');
 $routeur->addRoute(['PUT'], '/api/users/{id}', UsersController::class, 'update');
 $routeur->addRoute(['GET'], '/api/users/{id}/profile', UsersController::class, 'getUserProfile');
 $routeur->addRoute(['PUT'], '/api/users/{id}/profile', UsersController::class, 'updateUserProfile');
+$routeur->addRoute(['POST'], '/api/users/{id}/profile-picture', UsersController::class, 'updateProfilePicture');
 
 new Kernel($routeur);

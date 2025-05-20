@@ -325,4 +325,44 @@ class User {
             return false;
         }
     }
+
+    public function updateProfilePicture($userId, $imageData) {
+        try {
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                $type = strtolower($type[1]);
+
+                if (!in_array($type, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    throw new \Exception('Type d\'image invalide');
+                }
+
+                $imageData = base64_decode($imageData);
+                if ($imageData === false) {
+                    throw new \Exception('Échec du décodage base64');
+                }
+            } else {
+                throw new \Exception('Format d\'image non reconnu');
+            }
+
+            $uploadDir = __DIR__ . '/../../public/uploads/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $fileName = uniqid() . '.' . $type;
+            $filePath = $uploadDir . $fileName;
+
+            file_put_contents($filePath, $imageData);
+
+            $sql = "UPDATE users SET avatar_url = :avatar_url WHERE id = :id";
+            $this->db->prepare($sql);
+            $this->db->bind(':avatar_url', '/uploads/' . $fileName);
+            $this->db->bind(':id', $userId);
+
+            return $this->db->execute();
+        } catch (\Exception $e) {
+            error_log('Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
+            return false;
+        }
+    }
 }
