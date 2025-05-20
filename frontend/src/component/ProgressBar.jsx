@@ -7,7 +7,6 @@ const ProgressBar = ({
                          progressColor = '#4CAF50',
                          showPercentage = true
                      }) => {
-
     const clampedProgress = Math.min(Math.max(progress, 0), 100);
 
     return (
@@ -23,22 +22,23 @@ const ProgressBar = ({
                 height: '100%',
                 width: `${clampedProgress}%`,
                 backgroundColor: progressColor,
-                transition: 'width 0.3s ease-in-out',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                {showPercentage && (
-                    <span className="progress-bar-text" style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-                        fontSize: '0.8rem'
-                    }}>
-            {`${Math.round(clampedProgress)}%`}
-          </span>
-                )}
-            </div>
+                transition: 'width 0.3s ease-in-out'
+            }} />
+            {showPercentage && (
+                <span className="progress-bar-text" style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+                    fontSize: '0.8rem',
+                    zIndex: 1
+                }}>
+                    {`${Math.round(clampedProgress)}%`}
+                </span>
+            )}
         </div>
     );
 };
