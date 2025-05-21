@@ -4,7 +4,6 @@ import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
 import ProgressBar from '../ProgressBar';
 import { useAuth } from '../../contexts/AuthContext';
-import ExperienceService from '../../services/ExperienceService';
 
 const Header = () => {
     const navigate = useNavigate();
