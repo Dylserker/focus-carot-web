@@ -7,7 +7,6 @@ import Login from './pages/Login/Login';
 import Task from './pages/Task/Task';
 import Contact from './pages/Contact/Contact';
 import Success from './pages/Success/Success';
-import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
 import Admin from './pages/Admin/Admin';
 import ItemsPage from './pages/ItemsPage';
@@ -40,11 +39,6 @@ function App() {
                         <Route path="/success" element={
                             <PrivateRoute>
                                 <Success />
-                            </PrivateRoute>
-                        } />
-                        <Route path="/settings" element={
-                            <PrivateRoute>
-                                <Settings />
                             </PrivateRoute>
                         } />
                         <Route path="/profile" element={

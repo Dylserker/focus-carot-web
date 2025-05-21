@@ -82,10 +82,6 @@ const Header = () => {
                         </li>
                         <li>
                             <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
-                            <Link to="/settings">Paramètre</Link>
-                        </li>
-                        <li>
-                            <img src={require('../../assets/img/Carot.png')} alt="background" className="nav-bg" />
                             <Link to="/contact">Contact</Link>
                         </li>
                         {currentUser?.role === 'admin' && (
