@@ -299,4 +299,20 @@ class UsersController
             ];
         }
     }
+
+    private function isAdmin() {
+        $headers = getallheaders();
+        if (!isset($headers['Authorization'])) {
+            return false;
+        }
+
+        try {
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
+            $decoded = JWT::decode($token, $_ENV['JWT_SECRET'], array('HS256'));
+            $user = $this->userModel->getUtilisateurParId($decoded->id);
+            return $user && $user['role'] === 'admin';
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
