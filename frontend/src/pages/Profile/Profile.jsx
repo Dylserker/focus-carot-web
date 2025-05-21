@@ -289,10 +289,6 @@ const Profile = () => {
                             Modifier les informations
                         </button>
                     )}
-
-                    <button className="customize-btn">
-                        Personnalisation
-                    </button>
                 </div>
             </div>
         </div>
