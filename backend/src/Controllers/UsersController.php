@@ -270,4 +270,33 @@ class UsersController
             return ['error' => $e->getMessage()];
         }
     }
+
+    public function getProfilePicture($id)
+    {
+        try {
+            $avatar = $this->userModel->getProfilePicture($id);
+
+            if ($avatar) {
+                $filePath = __DIR__ . '/../../public' . $avatar;
+
+                if (file_exists($filePath)) {
+                    $imageInfo = getimagesize($filePath);
+                    header('Content-Type: ' . $imageInfo['mime']);
+                    header('Content-Length: ' . filesize($filePath));
+                    readfile($filePath);
+                    exit;
+                }
+            }
+
+            return [
+                'error' => 'Image non trouvée',
+                'status' => 404
+            ];
+        } catch (\Exception $e) {
+            return [
+                'error' => 'Erreur lors de la récupération de l\'image',
+                'status' => 500
+            ];
+        }
+    }
 }

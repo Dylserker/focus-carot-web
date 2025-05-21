@@ -165,7 +165,14 @@ const Profile = () => {
                 <div className="profile-picture-section">
                     <div className="profile-picture">
                         {profileData.profilePicture ? (
-                            <img src={profileData.profilePicture} alt="Profil" />
+                            <img
+                                src={`http://localhost:8000/api/users/${JSON.parse(localStorage.getItem('user')).id}/avatar`}
+                                alt="Profil"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'chemin/vers/image/par/defaut.png';
+                                }}
+                            />
                         ) : (
                             <div className="placeholder-image">Photo</div>
                         )}

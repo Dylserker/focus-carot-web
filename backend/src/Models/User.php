@@ -365,4 +365,18 @@ class User {
             return false;
         }
     }
+
+    public function getProfilePicture($userId)
+    {
+        try {
+            $stmt = $this->db->getPDO()->prepare('SELECT avatar_url FROM users WHERE id = ?');
+            $stmt->execute([$userId]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            return $result ? $result['avatar_url'] : null;
+        } catch (\PDOException $e) {
+            error_log('Erreur lors de la récupération de l\'avatar : ' . $e->getMessage());
+            return null;
+        }
+    }
 }
