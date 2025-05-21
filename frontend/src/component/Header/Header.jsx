@@ -38,6 +38,15 @@ const Header = () => {
         fetchUserProgression();
     }, [currentUser?.id, gainExperience]);
 
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            setUserData(user);
+        }
+    }, []);
+
     const handleProfileClick = () => {
         navigate('/profile');
     };
@@ -100,7 +109,23 @@ const Header = () => {
                         <ProgressBar progress={userProgression.progress} />
                     </div>
                     <div className="profile-photo-container">
-                        <div className="profile-photo" onClick={handleProfileClick}></div>
+                        {userData ? (
+                            <img
+                                className="profile-photo"
+                                src={`http://localhost:8000/api/users/${userData.id}/avatar`}
+                                alt="Avatar"
+                                onClick={handleProfileClick}
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/assets/images/default-avatar.png';
+                                }}
+                            />
+                        ) : (
+                            <div
+                                className="profile-photo"
+                                onClick={handleProfileClick}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
