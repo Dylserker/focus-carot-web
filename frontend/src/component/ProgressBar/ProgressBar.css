@@ -1,0 +1,131 @@
+.header-progress-bar-container {
+    width: 400px;
+    position: relative;
+    margin: 5px 0;
+}
+
+.header-progress-bar-background {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ff6b00;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+            inset 0 2px 8px rgba(0, 0, 0, 0.2),
+            0 0 4px rgba(255, 107, 0, 0.4);
+}
+
+.header-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(
+            to right,
+            #ff6b00,
+            #ffa000
+    );
+    position: relative;
+    border-radius: 8px;
+    transition: width 0.5s ease;
+}
+
+.header-progress-bar-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: -15px;
+    bottom: 0;
+    background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%
+    );
+    filter: url('#goo');
+    transform-origin: right;
+    animation: liquidSurface 2s ease-in-out infinite;
+}
+
+.header-progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            radial-gradient(circle at 15% 45%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 4px),
+            radial-gradient(circle at 35% 65%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 4px),
+            radial-gradient(circle at 55% 35%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 2px, transparent 3px),
+            radial-gradient(circle at 75% 55%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 3px, transparent 4px);
+    animation: bubbles1 0.8s linear infinite,
+    bubbles2 1.2s linear infinite,
+    bubbles3 0.9s linear infinite;
+}
+
+.header-progress-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-size: 0.8rem;
+    z-index: 1;
+    font-family: 'Quicksand', sans-serif;
+}
+
+@keyframes liquidSurface {
+    0%, 100% {
+        transform: skewX(-5deg) translateX(5px);
+    }
+    50% {
+        transform: skewX(5deg) translateX(-5px);
+    }
+}
+
+@keyframes bubbles1 {
+    0% {
+        opacity: 0;
+        transform: translate(2px, 20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-1px, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(1px, -20px);
+    }
+}
+
+@keyframes bubbles2 {
+    0% {
+        opacity: 0;
+        transform: translate(-2px, 15px);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(2px, -5px);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-1px, -15px);
+    }
+}
+
+@keyframes bubbles3 {
+    0% {
+        opacity: 0;
+        transform: translate(1px, 10px);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translate(-2px, -8px);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(2px, -18px);
+    }
+}

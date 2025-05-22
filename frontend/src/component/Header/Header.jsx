@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
-import ProgressBar from '../ProgressBar';
+import ProgressBar from '../ProgressBar/ProgressBar';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
