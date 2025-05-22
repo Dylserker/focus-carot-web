@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
 .register-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .register-form-wrapper {
@@ -55,6 +58,9 @@
     text-align: center;
     margin-bottom: 30px;
     color: #333;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
 }
 
 .form-group {
@@ -64,7 +70,9 @@
 .form-group label {
     display: block;
     margin-bottom: 6px;
-    font-weight: 500;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .form-submit {
@@ -85,6 +93,7 @@
     color: #4a90e2;
     text-decoration: none;
     font-weight: 500;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .form-footer a:hover {
