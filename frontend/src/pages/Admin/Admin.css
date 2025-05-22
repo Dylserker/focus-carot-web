@@ -68,24 +68,182 @@
 }
 
 .user-list {
-    background-color: white;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    font-family: 'Quicksand', sans-serif;
+    position: relative;
+    box-shadow:
+            2px 3px 20px rgba(0, 0, 0, 0.2),
+            0 0 60px rgba(0, 0, 0, 0.1) inset;
+    padding: 20px;
+    transform: rotate(-1deg);
+}
+
+.user-list::before,
+.user-list::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #ff4444 30%, #cc0000 100%);
+    border-radius: 50%;
+    top: -10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.user-list::before {
+    left: 20px;
+}
+
+.user-list::after {
+    right: 20px;
 }
 
 .user-list table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.user-list tbody::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 31px,
+            rgba(0, 0, 0, 0.05) 31px,
+            rgba(0, 0, 0, 0.05) 32px
+    );
+    pointer-events: none;
+}
+
+.user-list td {
+    position: relative;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: none;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.1em;
+    color: #2c1810;
+    animation: writeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.user-list td::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+            -45deg,
+            #8b4513,
+            #8b4513 2px,
+            transparent 2px,
+            transparent 4px,
+            #8b4513 4px,
+            #8b4513 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.5;
+    transform: scaleY(0.8) translateY(1px);
+}
+
+.user-list tr:hover td::after {
+    background: repeating-linear-gradient(
+            -45deg,
+            #654321,
+            #654321 2px,
+            transparent 2px,
+            transparent 4px,
+            #654321 4px,
+            #654321 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.7;
+}
+
+@keyframes writeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.user-list th:nth-child(1),
+.user-list td:nth-child(1) {
+    width: 5%;
+}
+
+.user-list th:nth-child(2),
+.user-list td:nth-child(2) {
+    width: 20%;
+}
+
+.user-list th:nth-child(3),
+.user-list td:nth-child(3) {
+    width: 12%;
+}
+
+.user-list th:nth-child(4),
+.user-list td:nth-child(4) {
+    width: 12%;
+}
+
+.user-list th:nth-child(5),
+.user-list td:nth-child(5) {
+    width: 12%;
+}
+
+.user-list th:nth-child(6),
+.user-list td:nth-child(6) {
+    width: 12%;
+}
+
+.user-list th:nth-child(7),
+.user-list td:nth-child(7) {
+    width: 10%;
+}
+
+.user-list th:nth-child(8),
+.user-list td:nth-child(8) {
+    width: 20%;
 }
 
 .user-list th,
 .user-list td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    font-family: 'Quicksand', sans-serif;
+    padding: 12px 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    white-space: nowrap;
+    min-width: max-content;
+}
+
+.actions-cell button {
+    padding: 6px 10px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    min-width: auto;
 }
 
 .user-list th {
