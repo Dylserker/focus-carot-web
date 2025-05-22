@@ -303,17 +303,108 @@
 }
 
 .completion-bar {
-    height: 20px;
-    background-color: #e0e0e0;
-    border-radius: 10px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #ddd;
+    border-radius: 15px;
     overflow: hidden;
     margin-top: 1rem;
+    position: relative;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .completion-progress {
     height: 100%;
-    background-color: #4CAF50;
-    border-radius: 10px;
+    background: linear-gradient(
+            to right,
+            #ff6b00,
+            #ffa000
+    );
+    border-radius: 12px;
+    position: relative;
+    transition: width 0.5s ease;
+}
+
+.completion-progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: -15px;
+    bottom: 0;
+    background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%
+    );
+    filter: url('#goo');
+    transform-origin: right;
+    animation: liquidSurface 2s ease-in-out infinite;
+}
+
+.completion-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            radial-gradient(circle at 15% 45%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 4px),
+            radial-gradient(circle at 35% 65%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 4px, transparent 6px),
+            radial-gradient(circle at 55% 35%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 2px, transparent 3px),
+            radial-gradient(circle at 75% 55%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 3px, transparent 4px),
+            radial-gradient(circle at 90% 40%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 2px, transparent 3px),
+            radial-gradient(circle at 25% 70%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 4px, transparent 5px);
+    animation: bubbles1 0.8s linear infinite,
+    bubbles2 1.2s linear infinite,
+    bubbles3 0.9s linear infinite;
+}
+
+@keyframes bubbles1 {
+    0% {
+        opacity: 0;
+        transform: translate(2px, 20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-1px, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(1px, -20px);
+    }
+}
+
+@keyframes bubbles2 {
+    0% {
+        opacity: 0;
+        transform: translate(-2px, 15px);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(2px, -5px);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-1px, -15px);
+    }
+}
+
+@keyframes bubbles3 {
+    0% {
+        opacity: 0;
+        transform: translate(1px, 10px);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translate(-2px, -8px);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(2px, -18px);
+    }
 }
 
 .task-form {
