@@ -62,7 +62,7 @@
 
 .achievements-table-container {
     width: 100%;
-    overflow-x: auto;
+    margin: 0 auto;
 }
 
 .achievements-table {
@@ -70,15 +70,150 @@
     border-collapse: collapse;
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    box-shadow:
+            2px 3px 20px rgba(0, 0, 0, 0.2),
+            0 0 60px rgba(0, 0, 0, 0.1) inset;
+    padding: 20px;
+    transform: rotate(-1deg);
+    table-layout: fixed;
+}
+
+.achievements-table::before,
+.achievements-table::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #ff4444 30%, #cc0000 100%);
+    border-radius: 50%;
+    top: -10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.achievements-table::before {
+    left: 20px;
+}
+
+.achievements-table::after {
+    right: 20px;
+}
+
+.achievements-table tbody::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 31px,
+            rgba(0, 0, 0, 0.05) 31px,
+            rgba(0, 0, 0, 0.05) 32px
+    );
+    pointer-events: none;
+}
+
+.achievements-table td {
+    position: relative;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: none;
     font-family: 'Quicksand', sans-serif;
+    font-size: 1.1em;
+    color: #2c1810;
+}
+
+.achievements-table td::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+            -45deg,
+            #8b4513,
+            #8b4513 2px,
+            transparent 2px,
+            transparent 4px,
+            #8b4513 4px,
+            #8b4513 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.5;
+    transform: scaleY(0.8) translateY(1px);
+}
+
+.achievements-table tr:hover td::after {
+    background: repeating-linear-gradient(
+            -45deg,
+            #654321,
+            #654321 2px,
+            transparent 2px,
+            transparent 4px,
+            #654321 4px,
+            #654321 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.7;
+}
+
+.achievements-table td {
+    animation: writeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes writeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .achievements-table th,
 .achievements-table td {
     padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.achievements-table th:nth-child(1),
+.achievements-table td:nth-child(1) {
+    width: 80px;
+}
+
+.achievements-table th:nth-child(2),
+.achievements-table td:nth-child(2) {
+    width: 15%;
+}
+
+.achievements-table th:nth-child(3),
+.achievements-table td:nth-child(3) {
+    width: 35%;
+}
+
+.achievements-table th:nth-child(4),
+.achievements-table td:nth-child(4) {
+    width: 15%;
+}
+
+.achievements-table th:nth-child(5),
+.achievements-table td:nth-child(5) {
+    width: 10%;
+}
+
+.achievements-table th:nth-child(6),
+.achievements-table td:nth-child(6) {
+    width: 15%;
 }
 
 .achievements-table th {
