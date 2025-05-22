@@ -6,3 +6,15 @@
 .home-content {
     padding: 2rem;
 }
+
+.gif-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 5rem;
+}
+
+.rabbit-gif {
+    width: 550px;
+    height: auto;
+    image-rendering: pixelated;
+}
