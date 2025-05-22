@@ -67,6 +67,11 @@
     margin-bottom: 20px;
 }
 
+.form-group input {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 6px;
