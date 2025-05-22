@@ -63,6 +63,47 @@
     font-size: 2rem;
 }
 
+button {
+    background: linear-gradient(to bottom, #8b4513, #654321);
+    border: 3px solid #432;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 12px,
+            rgba(255, 255, 255, 0.1) 12px,
+            rgba(255, 255, 255, 0.1) 15px
+    );
+    pointer-events: none;
+}
+
+button:hover {
+    background: linear-gradient(to bottom, #9b5523, #755331);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .form-group {
     margin-bottom: 20px;
 }
