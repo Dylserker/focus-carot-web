@@ -676,3 +676,81 @@ select:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 }
+
+.actions-cell button:first-child,
+.actions-cell button[children="Modifier"] {
+    background: linear-gradient(to bottom, #2e7d32, #1b5e20) !important;
+    border: 2px solid #1b5e20 !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+.actions-cell button:first-child::before,
+.actions-cell button[children="Modifier"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+}
+
+.actions-cell button:first-child:hover,
+.actions-cell button[children="Modifier"]:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #388e3c, #2e7d32) !important;
+}
+
+.actions-cell button:not(:first-child) {
+    background: linear-gradient(to bottom, #8b4513, #654321) !important;
+    border: 3px solid #432 !important;
+}
+
+.modal-content button[type="submit"],
+.modal-content .form-actions button[children="Modifier"] {
+    background: linear-gradient(to bottom, #2e7d32, #1b5e20) !important;
+    border: 2px solid #1b5e20 !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+.modal-content button[type="submit"]::before,
+.modal-content .form-actions button[children="Modifier"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+}
+
+.modal-content button[type="submit"]:hover,
+.modal-content .form-actions button[children="Modifier"]:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #388e3c, #2e7d32) !important;
+}
+
+.modal-content .form-actions button:not([type="submit"]):not([children="Modifier"]) {
+    background: linear-gradient(to bottom, #8b4513, #654321) !important;
+    border: 3px solid #432 !important;
+}
