@@ -485,6 +485,7 @@ select:focus {
 .modal-content .form-group input[type="text"],
 .modal-content .form-group input[type="email"],
 .modal-content .form-group input[type="password"],
+.modal-content .form-group input[type="number"],
 .modal-content .form-group select {
     color: #000 !important;
     font-weight: 600;
@@ -649,4 +650,29 @@ select:focus {
     background: rgba(255, 255, 255, 0.9);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.progress-fields .form-group {
+    margin-bottom: 0;
+}
+
+.progress-fields input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.progress-fields input[type="number"]:focus {
+    border-color: #8b4513;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 }

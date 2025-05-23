@@ -211,6 +211,21 @@ const Admin = () => {
                     },
                     body: JSON.stringify(userData)
                 });
+
+                if (userProgress) {
+                    const experiencePoints = calculateExperiencePoints(userProgress.level, userProgress.progress);
+                    await fetch(`http://localhost:8000/api/users/${formData.id}/progression`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            level: userProgress.level,
+                            experience_points: experiencePoints
+                        })
+                    });
+                }
             }
 
             if (!response.ok) {
@@ -234,7 +249,6 @@ const Admin = () => {
                     role: 'user'
                 });
             }
-
         } catch (err) {
             console.error('Erreur:', err);
             setError(err.message);
@@ -262,6 +276,11 @@ const Admin = () => {
         } catch (error) {
             console.error('Erreur:', error);
         }
+    };
+
+    const calculateExperiencePoints = (level, progressPercent) => {
+        const xpForNextLevel = 10 * Math.pow(2, level - 1);
+        return Math.floor((progressPercent / 100) * xpForNextLevel);
     };
 
     return (
@@ -436,13 +455,35 @@ const Admin = () => {
                             {isEditModalOpen && userProgress && (
                                 <div className="detail-group">
                                     <label>Progression</label>
-                                    <div className="progress-details">
-                                        <p>Niveau : {userProgress.level}</p>
-                                        <p>Progression : {userProgress.progress.toFixed(2)}%</p>
+                                    <div className="progress-fields">
+                                        <div className="form-group">
+                                            <label>Niveau</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={userProgress.level}
+                                                onChange={(e) => setUserProgress({
+                                                    ...userProgress,
+                                                    level: parseInt(e.target.value)
+                                                })}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Progression (%)</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                value={userProgress.progress.toFixed(2)}
+                                                onChange={(e) => setUserProgress({
+                                                    ...userProgress,
+                                                    progress: parseFloat(e.target.value)
+                                                })}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             )}
-
                             {isEditModalOpen && allAchievements.length > 0 && (
                                 <div className="detail-group">
                                     <label>Succès</label>

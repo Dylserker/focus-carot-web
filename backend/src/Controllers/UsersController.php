@@ -315,4 +315,35 @@ class UsersController
             return false;
         }
     }
+
+    public function updateProgression($id) {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            if (!isset($data['level']) || !isset($data['experience_points'])) {
+                return ['error' => 'Données de progression manquantes'];
+            }
+
+            $stmt = $this->db->getPDO()->prepare(
+                'UPDATE user_progression 
+            SET level = :level, 
+                experience_points = :xp 
+            WHERE user_id = :user_id'
+            );
+
+            $result = $stmt->execute([
+                'level' => $data['level'],
+                'xp' => $data['experience_points'],
+                'user_id' => $id
+            ]);
+
+            if ($result) {
+                return ['success' => true, 'message' => 'Progression mise à jour'];
+            }
+
+            return ['error' => 'Erreur lors de la mise à jour de la progression'];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la mise à jour de la progression'];
+        }
+    }
 }
