@@ -183,7 +183,8 @@ const Admin = () => {
                 nom: formData.nom,
                 prenom: formData.prenom,
                 pseudo: formData.pseudo,
-                role: formData.role
+                role: formData.role,
+                achievements: userAchievements
             };
 
             if (formData.password) {
@@ -193,7 +194,6 @@ const Admin = () => {
             let response;
 
             if (isCreate) {
-                // Logique existante pour la création
                 response = await fetch('http://localhost:8000/api/users', {
                     method: 'POST',
                     headers: {
@@ -203,7 +203,6 @@ const Admin = () => {
                     body: JSON.stringify(userData)
                 });
             } else {
-                // Nouvelle logique pour la mise à jour
                 response = await fetch(`http://localhost:8000/api/users/${formData.id}`, {
                     method: 'PUT',
                     headers: {
@@ -221,7 +220,7 @@ const Admin = () => {
 
             const result = await response.json();
             if (result.success) {
-                await fetchUsers(); // Rafraîchir la liste des utilisateurs
+                await fetchUsers();
                 setIsEditModalOpen(false);
                 setIsCreateModalOpen(false);
                 setFormData({
@@ -239,6 +238,29 @@ const Admin = () => {
         } catch (err) {
             console.error('Erreur:', err);
             setError(err.message);
+        }
+    };
+
+    const toggleAchievement = async (achievementId, isUnlocked) => {
+        try {
+            const endpoint = isUnlocked ? 'unlock' : 'lock';
+            const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}/achievements/${achievementId}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Erreur lors de la modification du succès');
+
+            const updatedAchievements = isUnlocked
+                ? [...userAchievements, achievementId]
+                : userAchievements.filter(id => id !== achievementId);
+
+            setUserAchievements(updatedAchievements);
+        } catch (error) {
+            console.error('Erreur:', error);
         }
     };
 
@@ -428,11 +450,21 @@ const Admin = () => {
                                         {allAchievements.map(achievement => (
                                             <div key={achievement.id} className="achievement-item">
                                                 <span>{achievement.name}</span>
-                                                {userAchievements.includes(achievement.id) ? (
-                                                    <span className="achievement-status unlocked">Débloqué</span>
-                                                ) : (
-                                                    <span className="achievement-status locked">Bloqué</span>
-                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        toggleAchievement(
+                                                            achievement.id,
+                                                            !userAchievements.includes(achievement.id)
+                                                        );
+                                                    }}
+                                                    className={`achievement-toggle ${
+                                                        userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
+                                                    }`}
+                                                >
+                                                    {userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
+                                                </button>
                                             </div>
                                         ))}
                                     </div>

@@ -77,4 +77,28 @@ class SuccessController
                 ->setStatusCode(500);
         }
     }
+
+    public function unlockAchievement($userId, $achievementId): array {
+        try {
+            $result = $this->successModel->unlockAchievement($userId, $achievementId);
+            if ($result) {
+                return ['success' => true, 'message' => 'Succès débloqué'];
+            }
+            return ['error' => 'Impossible de débloquer le succès'];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors du déblocage du succès'];
+        }
+    }
+
+    public function lockAchievement($userId, $achievementId): array {
+        try {
+            $result = $this->successModel->lockAchievement($userId, $achievementId);
+            if ($result) {
+                return ['success' => true, 'message' => 'Succès bloqué'];
+            }
+            return ['error' => 'Impossible de bloquer le succès'];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors du blocage du succès'];
+        }
+    }
 }

@@ -129,4 +129,35 @@ class Success {
             error_log('Erreur lors de la vérification des succès de niveau : ' . $e->getMessage());
         }
     }
+
+    public function lockAchievement(int $userId, int $achievementId): bool {
+        try {
+            $sql = "DELETE FROM user_achievements 
+                WHERE user_id = :user_id 
+                AND achievement_id = :achievement_id";
+
+            $this->db->prepare($sql);
+            $this->db->bind(':user_id', $userId);
+            $this->db->bind(':achievement_id', $achievementId);
+
+            if ($this->db->execute()) {
+                // Retirer l'expérience gagnée
+                $sql = "SELECT experience_reward FROM achievements WHERE id = :achievement_id";
+                $this->db->prepare($sql);
+                $this->db->bind(':achievement_id', $achievementId);
+                $achievement = $this->db->single();
+
+                if ($achievement) {
+                    $userModel = new User();
+                    $userModel->updateExperience($userId, -$achievement['experience_reward']);
+                }
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            error_log('Erreur lors du blocage du succès : ' . $e->getMessage());
+            return false;
+        }
+    }
 }

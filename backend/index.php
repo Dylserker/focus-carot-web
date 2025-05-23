@@ -33,5 +33,7 @@ $routeur->addRoute(['GET'], '/api/users/{id}/profile', UsersController::class, '
 $routeur->addRoute(['PUT'], '/api/users/{id}/profile', UsersController::class, 'updateUserProfile');
 $routeur->addRoute(['POST'], '/api/users/{id}/profile-picture', UsersController::class, 'updateProfilePicture');
 $routeur->addRoute(['GET'], '/api/users/{id}/avatar', UsersController::class, 'getProfilePicture');
+$routeur->addRoute(['POST'], '/api/users/{id}/achievements/{achievementId}/unlock', SuccessController::class, 'unlockAchievement');
+$routeur->addRoute(['POST'], '/api/users/{id}/achievements/{achievementId}/lock', SuccessController::class, 'lockAchievement');
 
 new Kernel($routeur);
