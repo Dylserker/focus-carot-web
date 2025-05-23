@@ -9,7 +9,7 @@
     font-family: 'Quicksand', sans-serif;
 }
 
-.register-form-wrapper {
+.register-container .register-form-wrapper {
     max-width: 500px;
     width: 100%;
     padding: 30px;
@@ -29,7 +29,7 @@
             0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.register-form-wrapper::before {
+.register-container .register-form-wrapper::before {
     content: '';
     position: absolute;
     top: -20px;
@@ -47,14 +47,14 @@
     border-radius: 4px;
 }
 
-.register-form-wrapper h2,
-.form-group label,
-.form-footer {
+.register-container .register-form-wrapper h2,
+.register-container .form-group label,
+.register-container .form-footer {
     position: relative;
     z-index: 1;
 }
 
-.register-form-wrapper h2 {
+.register-container .register-form-wrapper h2 {
     text-align: center;
     margin-bottom: 30px;
     color: #333;
@@ -63,7 +63,7 @@
     font-size: 2rem;
 }
 
-button {
+.register-container button {
     background: linear-gradient(to bottom, #8b4513, #654321);
     border: 3px solid #432;
     color: #fff;
@@ -76,7 +76,7 @@ button {
     overflow: hidden;
 }
 
-button::before {
+.register-container button::before {
     content: '';
     position: absolute;
     top: 0;
@@ -93,55 +93,57 @@ button::before {
     pointer-events: none;
 }
 
-button:hover {
+.register-container button:hover {
     background: linear-gradient(to bottom, #9b5523, #755331);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-button:active {
+.register-container button:active {
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.form-group {
+.register-container .form-group {
     margin-bottom: 20px;
 }
 
-.form-group input {
+.register-container .form-group input {
     font-family: 'Quicksand', sans-serif;
     font-size: 1rem;
+    border-color: #2c1810 !important;
 }
 
-.form-group label {
+.register-container .form-group label {
     display: block;
     margin-bottom: 6px;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
     font-size: 1.1rem;
+    color: #000 !important;
 }
 
-.form-submit {
+.register-container .form-submit {
     margin-top: 30px;
 }
 
-.form-submit button {
+.register-container .form-submit button {
     width: 100%;
 }
 
-.form-footer {
+.register-container .form-footer {
     text-align: center;
     margin-top: 20px;
     font-size: 14px;
 }
 
-.form-footer a {
+.register-container .form-footer a {
     color: #4a90e2;
     text-decoration: none;
     font-weight: 500;
     font-family: 'Quicksand', sans-serif;
 }
 
-.form-footer a:hover {
+.register-container .form-footer a:hover {
     text-decoration: underline;
 }
