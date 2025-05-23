@@ -1,40 +1,161 @@
-# Focus Carot Web
+# 🎯 Focus Carot Web
 
-Application web de gestion de tâches avec gamification pour motiver les utilisateurs, particulièrement adaptée aux enfants et à la supervision parentale.
+**Focus Carot** est une application web de gestion de tâches gamifiée, conçue pour motiver les utilisateurs – petits et grands – avec un système de progression ludique. Elle est particulièrement adaptée aux enfants, avec un espace de supervision parentale intégré.
 
-## Fonctionnalités
+---
 
-- **Gestion des tâches** : Créer, modifier et supprimer des tâches
-- **Gamification** : Système de niveaux, points d'expérience et récompenses
-- **Suivi de progression** : Visualiser votre avancement et les statistiques
-- **Supervision parentale** : Permettre aux parents de suivre les progrès de leurs enfants
-- **Système d'authentification** : Inscription et connexion sécurisées
+## ✨ Fonctionnalités
 
-## Structure du projet
+- ✅ **Gestion des tâches** : Création, modification et suppression de tâches
+- 🎮 **Gamification** : Système de niveaux, points d’expérience et récompenses
+- 📊 **Suivi de progression** : Visualisation des statistiques et de l’évolution
+- 👨‍👩‍👧 **Supervision parentale** : Interface dédiée pour le suivi des enfants
+- 🔐 **Authentification sécurisée** : Inscription et connexion avec JSON Web Token (JWT)
 
-Le projet est divisé en deux parties principales :
+---
 
-### Backend (PHP)
+## 🧱 Structure du projet
 
-- API RESTful développée avec PHP
-- Système d'authentification avec JWT
-- Base de données MySQL pour le stockage des données
+### Backend – PHP
 
-### Frontend (React)
+- API RESTful construite avec PHP
+- Authentification JWT
+- Base de données MySQL
 
-- Interface utilisateur développée avec React
+### Frontend – React
+
+- Interface utilisateur moderne avec React
 - Composants réutilisables
-- Communication avec l'API backend
+- Communication avec l’API backend
 
-## Installation
+---
 
-### Prérequis
+## ⚙️ Prérequis
 
-- PHP 8.0 ou supérieur
-- MySQL 5.7 ou supérieur
+- PHP ≥ 8.0
+- MySQL ≥ 5.7
 - Composer
-- Node.js et npm
+- Node.js ≥ 16
+- npm ≥ 8
 
-### Configuration du backend
+---
 
-1. Cloner le dépôt
+## 🚀 Installation
+
+### 📦 Backend
+
+1. **Cloner le projet**
+```bash
+git clone https://github.com/votre-username/focus-carot-web.git
+cd focus-carot-web/backend
+```
+
+2. **Installer les dépendances**
+```bash
+composer install
+```
+
+3. **Configurer l'environnement**
+```bash
+cp .env.example .env
+# Modifier .env avec vos infos :
+DB_HOST=localhost
+DB_DATABASE=focus_carot
+DB_USERNAME=utilisateur
+DB_PASSWORD=motdepasse
+```
+
+4. **Initier la Base de données*
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+5. **Générer la clé JWT**
+```bash
+php artisan jwt:secret
+```
+
+### 💻 Frontend
+
+1. **Aller dans le dossier frontend**
+```bash
+cd ../frontend
+```
+
+2. **Installer les dépendances**
+```bash
+npm install
+```
+
+3. **Démarrer le serveur de développement**
+```bash
+cp .env.example .env
+# Modifier .env avec l’URL de l’API
+REACT_APP_API_URL=http://localhost:8000/api
+```
+
+4. **Lancer l’application**
+```bash
+npm start
+```
+🔗 Accédez à l’application sur : http://localhost:3000
+
+
+## 🔌 API Endpoints
+
+### 🔐 Authentification
+
+POST /api/auth/register → Inscription
+
+POST /api/auth/login → Connexion
+
+POST /api/auth/logout → Déconnexion
+
+### 👤 Utilisateurs
+
+GET /api/users/{id} → Obtenir un utilisateur
+
+PUT /api/users/{id} → Modifier un utilisateur
+
+GET /api/users/{id}/experience → Récupérer l’expérience
+
+### 📝 Tâches
+
+GET /api/tasks → Lister toutes les tâches
+
+POST /api/tasks → Créer une tâche
+
+PUT /api/tasks/{id} → Modifier une tâche
+
+DELETE /api/tasks/{id} → Supprimer une tâche
+
+## 🧪 Tests
+
+### Backend
+```bash
+composer test
+```
+
+### Frontend
+```bash
+npm test
+```
+
+### 🤝 Contribuer
+Fork le projet
+
+Crée ta branche :
+git checkout -b feature/ma-fonctionnalite
+
+Commit tes modifications :
+git commit -am "Ajout : ma fonctionnalité"
+
+Push ta branche :
+git push origin feature/ma-fonctionnalite
+
+Crée une Pull Request 🚀
+
+### 📜 License
+
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d’infos.
