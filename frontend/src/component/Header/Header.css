@@ -128,6 +128,12 @@
     align-items: center;
     margin-left: auto;
     margin-right: 30px;
+    font-family: 'Quicksand', sans-serif;
+    background-color: rgba(38, 38, 38, 0.72);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 107, 0, 0.2);
 }
 
 .profile-photo-container {
@@ -138,25 +144,36 @@
 .profile-photo {
     width: 100px;
     height: 100px;
-    background-color: #e0e0e0;
     border-radius: 50%;
+    border: 3px solid #ff6b00;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.profile-photo:hover {
+    transform: scale(1.05);
 }
 
 .profile-info {
     display: flex;
     flex-direction: column;
+    background: linear-gradient(to bottom, rgba(255, 140, 0, 0.1), rgba(255, 69, 0, 0.1));
+    padding: 10px;
+    border-radius: 8px;
 }
 
 .profile-pseudo {
-    font-weight: bold;
-    font-size: 16px;
-    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #ff6b00;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .profile-level, .profile-title {
     font-size: 14px;
-    color: #666;
-    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    color: #ff8c42;
+    margin-top: 2px;
 }
 
 @media (max-width: 768px) {
