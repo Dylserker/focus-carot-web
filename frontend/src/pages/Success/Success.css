@@ -1,0 +1,389 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
+.success-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.success-content {
+    padding: 2.5rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #fff;
+    border-radius: 8px;
+    position: relative;
+    border: 20px solid;
+    border-image: repeating-linear-gradient(
+            45deg,
+            #8b4513,
+            #8b4513 10px,
+            #a0522d 10px,
+            #a0522d 20px
+    ) 20;
+    box-shadow:
+            inset 0 0 20px rgba(0, 0, 0, 0.2),
+            0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.success-content::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: repeating-linear-gradient(
+            90deg,
+            rgb(139, 69, 19, 0.1),
+            rgb(139, 69, 19, 0.1) 4px,
+            transparent 4px,
+            transparent 8px
+    );
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+.success-content h1 {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.success-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+.achievements-table-container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.achievements-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    position: relative;
+    box-shadow:
+            2px 3px 20px rgba(0, 0, 0, 0.2),
+            0 0 60px rgba(0, 0, 0, 0.1) inset;
+    padding: 20px;
+    transform: rotate(-1deg);
+    table-layout: fixed;
+}
+
+.achievements-table::before,
+.achievements-table::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #ff4444 30%, #cc0000 100%);
+    border-radius: 50%;
+    top: -10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.achievements-table::before {
+    left: 20px;
+}
+
+.achievements-table::after {
+    right: 20px;
+}
+
+.achievements-table tbody::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 31px,
+            rgba(0, 0, 0, 0.05) 31px,
+            rgba(0, 0, 0, 0.05) 32px
+    );
+    pointer-events: none;
+}
+
+.achievements-table td {
+    position: relative;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: none;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.1em;
+    color: #2c1810;
+}
+
+.achievements-table td::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+            -45deg,
+            #8b4513,
+            #8b4513 2px,
+            transparent 2px,
+            transparent 4px,
+            #8b4513 4px,
+            #8b4513 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.5;
+    transform: scaleY(0.8) translateY(1px);
+}
+
+.achievements-table tr:hover td::after {
+    background: repeating-linear-gradient(
+            -45deg,
+            #654321,
+            #654321 2px,
+            transparent 2px,
+            transparent 4px,
+            #654321 4px,
+            #654321 6px,
+            transparent 6px,
+            transparent 8px
+    );
+    opacity: 0.7;
+}
+
+.achievements-table td {
+    animation: writeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes writeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.achievements-table th,
+.achievements-table td {
+    padding: 12px 15px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.achievements-table th:nth-child(1),
+.achievements-table td:nth-child(1) {
+    width: 80px;
+}
+
+.achievements-table th:nth-child(2),
+.achievements-table td:nth-child(2) {
+    width: 15%;
+}
+
+.achievements-table th:nth-child(3),
+.achievements-table td:nth-child(3) {
+    width: 35%;
+}
+
+.achievements-table th:nth-child(4),
+.achievements-table td:nth-child(4) {
+    width: 15%;
+}
+
+.achievements-table th:nth-child(5),
+.achievements-table td:nth-child(5) {
+    width: 10%;
+}
+
+.achievements-table th:nth-child(6),
+.achievements-table td:nth-child(6) {
+    width: 15%;
+}
+
+.achievements-table th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+}
+
+.achievements-table tr:last-child td {
+    border-bottom: none;
+}
+
+.achievements-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.achievement-image-placeholder {
+    width: 60px;
+    height: 60px;
+    background-color: #ccc;
+    border-radius: 8px;
+}
+
+.view-details-button {
+    background: linear-gradient(to bottom, #8b4513, #654321);
+    border: 3px solid #432;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.view-details-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 12px,
+            rgba(255, 255, 255, 0.1) 12px,
+            rgba(255, 255, 255, 0.1) 15px
+    );
+    pointer-events: none;
+}
+
+.view-details-button:hover {
+    background: linear-gradient(to bottom, #9b5523, #755331);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.view-details-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.achievement-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.achievement-modal {
+    padding: 20px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.achievement-modal h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.achievement-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.achievement-modal-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.achievement-description {
+    text-align: center;
+    color: #666;
+    font-size: 1.1em;
+    margin: 15px 0;
+    font-weight: 500;
+}
+
+.achievement-details {
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.achievement-details p {
+    margin: 8px 0;
+    color: #444;
+}
+
+.achievements-table tr.achievement-unlocked {
+    background-color: rgba(75, 181, 67, 0.1);
+}
+
+.achievements-table tr.achievement-unlocked td {
+    color: #4BB543;
+}
+
+.achievements-table tr.achievement-unlocked .view-details-button {
+    background-color: #4BB543;
+}
+
+.achievements-table tr.achievement-unlocked .view-details-button:hover {
+    background-color: #3d9436;
+}
+
+button {
+    background: linear-gradient(to bottom, #8b4513, #654321);
+    border: 3px solid #432;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 12px,
+            rgba(255, 255, 255, 0.1) 12px,
+            rgba(255, 255, 255, 0.1) 15px
+    );
+    pointer-events: none;
+}
+
+button:hover {
+    background: linear-gradient(to bottom, #9b5523, #755331);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

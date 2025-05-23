@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^users$ src/endpoints/users.php [L]
