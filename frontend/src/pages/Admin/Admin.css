@@ -754,3 +754,48 @@ select:focus {
     background: linear-gradient(to bottom, #8b4513, #654321) !important;
     border: 3px solid #432 !important;
 }
+
+.actions-cell button:last-child,
+.actions-cell button[children="Supprimer"],
+.delete-button,
+.modal-content button[title="Supprimer"],
+.modal-content .form-actions button[children="Supprimer"] {
+    background: linear-gradient(to bottom, #d32f2f, #b71c1c) !important;
+    border: 2px solid #b71c1c !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+.actions-cell button:last-child::before,
+.actions-cell button[children="Supprimer"]::before,
+.delete-button::before,
+.modal-content button[title="Supprimer"]::before,
+.modal-content .form-actions button[children="Supprimer"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+    z-index: 1 !important;
+}
+
+.actions-cell button:last-child:hover,
+.actions-cell button[children="Supprimer"]:hover,
+.delete-button:hover,
+.modal-content button[title="Supprimer"]:hover,
+.modal-content .form-actions button[children="Supprimer"]:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #e53935, #c62828) !important;
+}
+
