@@ -799,3 +799,40 @@ select:focus {
     background: linear-gradient(to bottom, #e53935, #c62828) !important;
 }
 
+.admin-tools button,
+button[children="Créer un utilisateur"],
+.admin-container button[children="Créer un utilisateur"] {
+    background: linear-gradient(to bottom, #1976d2, #0d47a1) !important;
+    border: 2px solid #0d47a1 !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+.admin-tools button::before,
+button[children="Créer un utilisateur"]::before,
+.admin-container button[children="Créer un utilisateur"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+    z-index: 1 !important;
+}
+
+.admin-tools button:hover,
+button[children="Créer un utilisateur"]:hover,
+.admin-container button[children="Créer un utilisateur"]:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #2196f3, #1976d2) !important;
+}
