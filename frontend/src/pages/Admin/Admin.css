@@ -552,3 +552,57 @@ select:focus {
 .modal-content {
     animation: modalEnter 0.3s ease-out forwards;
 }
+
+.detail-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+}
+
+.detail-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.progress-details {
+    margin-top: 10px;
+}
+
+.progress-details p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.achievements-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.achievement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+
+.achievement-status {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.achievement-status.unlocked {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.achievement-status.locked {
+    background-color: #f44336;
+    color: white;
+}

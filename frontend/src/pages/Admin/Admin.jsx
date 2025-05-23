@@ -13,6 +13,9 @@ const Admin = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [userProgress, setUserProgress] = useState(null);
+    const [userAchievements, setUserAchievements] = useState([]);
+    const [allAchievements, setAllAchievements] = useState([]);
     const [formData, setFormData] = useState({
         id: '',
         pseudo: '',
@@ -58,6 +61,45 @@ const Admin = () => {
         }
     };
 
+    const fetchUserProgress = async (userId) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/users/${userId}/experience`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUserProgress(data.progression);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération de la progression:', error);
+        }
+    };
+
+    const fetchUserAchievements = async (userId) => {
+        try {
+            const [achievementsResponse, userAchievementsResponse] = await Promise.all([
+                fetch('http://localhost:8000/api/achievements', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }),
+                fetch(`http://localhost:8000/api/users/${userId}/achievements`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            const achievementsData = await achievementsResponse.json();
+            const userAchievementsData = await userAchievementsResponse.json();
+
+            if (achievementsData.success) {
+                setAllAchievements(achievementsData.achievements);
+            }
+            if (userAchievementsData.success) {
+                setUserAchievements(userAchievementsData.achievements);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des succès:', error);
+        }
+    };
+
     const filteredUsers = users.filter(user =>
         Object.values(user).some(value =>
             String(value).toLowerCase().includes(searchTerm.toLowerCase())
@@ -81,6 +123,8 @@ const Admin = () => {
             password: '',
             role: user.role || 'user'
         });
+        fetchUserProgress(user.id);
+        fetchUserAchievements(user.id);
         setIsEditModalOpen(true);
     };
 
@@ -315,7 +359,7 @@ const Admin = () => {
                                     required
                                 />
                             </div>
-                            {isCreateModalOpen && ( // Afficher le champ password uniquement lors de la création
+                            {isCreateModalOpen && (
                                 <div className="form-group">
                                     <label>Mot de passe</label>
                                     <input
@@ -367,6 +411,33 @@ const Admin = () => {
                                     <option value="enfant">Enfant</option>
                                 </select>
                             </div>
+                            {isEditModalOpen && userProgress && (
+                                <div className="detail-group">
+                                    <label>Progression</label>
+                                    <div className="progress-details">
+                                        <p>Niveau : {userProgress.level}</p>
+                                        <p>Progression : {userProgress.progress.toFixed(2)}%</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {isEditModalOpen && allAchievements.length > 0 && (
+                                <div className="detail-group">
+                                    <label>Succès</label>
+                                    <div className="achievements-list">
+                                        {allAchievements.map(achievement => (
+                                            <div key={achievement.id} className="achievement-item">
+                                                <span>{achievement.name}</span>
+                                                {userAchievements.includes(achievement.id) ? (
+                                                    <span className="achievement-status unlocked">Débloqué</span>
+                                                ) : (
+                                                    <span className="achievement-status locked">Bloqué</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                             <div className="form-actions">
                                 <Button type="submit" variant="primary">
                                     {isCreateModalOpen ? "Créer" : "Modifier"}
