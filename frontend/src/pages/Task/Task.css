@@ -681,6 +681,97 @@ button:active {
     font-family: 'Quicksand', sans-serif;
 }
 
+button[title="Modifier"],
+button[children="Modifier"],
+.edit-button,
+button[type="submit"],
+.modal-content button[type="submit"],
+.modal-actions button[type="submit"],
+.form-actions button[type="submit"],
+.save-button {
+    background: linear-gradient(to bottom, #2e7d32, #1b5e20) !important;
+    border: 2px solid #1b5e20 !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+button[title="Modifier"]::before,
+button[children="Modifier"]::before,
+.edit-button::before,
+button[type="submit"]::before,
+.modal-content button[type="submit"]::before,
+.modal-actions button[type="submit"]::before,
+.form-actions button[type="submit"]::before,
+.save-button::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+    z-index: 1 !important;
+}
+
+button[title="Modifier"]:hover,
+button[children="Modifier"]:hover,
+.edit-button:hover,
+button[type="submit"]:hover,
+.modal-content button[type="submit"]:hover,
+.modal-actions button[type="submit"]:hover,
+.form-actions button[type="submit"]:hover,
+.save-button:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #388e3c, #2e7d32) !important;
+}
+
+.view-task-button,
+.task-actions button[title="Voir"],
+.task-actions button[children="Voir"] {
+    background: linear-gradient(to bottom, #2e7d32, #1b5e20) !important;
+    border: 2px solid #1b5e20 !important;
+    padding: 8px 16px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow:
+            2px 2px 5px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+}
+
+.view-task-button::before,
+.task-actions button[title="Voir"]::before,
+.task-actions button[children="Voir"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 30px !important;
+    height: 8px !important;
+    background: #888 !important;
+    border-radius: 3px 3px 0 0 !important;
+    opacity: 0.7 !important;
+    z-index: 1 !important;
+}
+
+.view-task-button:hover,
+.task-actions button[title="Voir"]:hover,
+.task-actions button[children="Voir"]:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+    background: linear-gradient(to bottom, #388e3c, #2e7d32) !important;
+}
+
 @media (max-width: 768px) {
     .task-containers {
         grid-template-columns: 1fr;
