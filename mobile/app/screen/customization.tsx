@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import Footer from '../../components/Footer';
 
 const CustomizationScreen = () => {
     const [selectedTab, setSelectedTab] = useState('chibi');
