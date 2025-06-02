@@ -3,8 +3,19 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ImageBackg
 import { useAuth } from '../context/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 
+interface User {
+    photoUrl?: string;
+    title?: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    birthDate: string | Date;
+    email: string;
+    id: string;
+}
+
 const ProfileScreen = () => {
-    const { user } = useAuth();
+    const { user } = useAuth() as { user: User | null };
 
     return (
         <View style={styles.container}>
