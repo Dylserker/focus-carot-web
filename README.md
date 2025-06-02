@@ -159,3 +159,6 @@ Crée une Pull Request 🚀
 ### 📜 License
 
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d’infos.
+
+
+Petit bonus il y a une version mobile react native SDK 52 qui est en cours de production :)
