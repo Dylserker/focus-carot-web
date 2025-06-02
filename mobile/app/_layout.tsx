@@ -1,29 +1,48 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import React from 'react';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { View, StyleSheet } from 'react-native';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Footer from '../components/Footer';
+import { HeaderBackground, HeaderLeft, HeaderRight } from '../components/Header';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+function AppLayoutContent() {
+    const { user } = useAuth();
+
+    return (
+        <View style={styles.container}>
+            <Stack screenOptions={{
+                headerShown: true,
+                headerTitle: "",
+                headerBackVisible: false,
+                headerStyle: {
+                    backgroundColor: 'transparent',
+                },
+                headerBackground: HeaderBackground,
+                headerLeft: HeaderLeft,
+                headerRight: HeaderRight,
+                gestureEnabled: false,
+            }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="login" />
+                <Stack.Screen name="register" />
+                <Stack.Screen name="settings" />
+            </Stack>
+            {user && <Footer />}
+        </View>
+    );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+    return (
+        <AuthProvider>
+            <AppLayoutContent />
+        </AuthProvider>
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingBottom: 70,
+    },
+});
