@@ -141,7 +141,6 @@ class Success {
             $this->db->bind(':achievement_id', $achievementId);
 
             if ($this->db->execute()) {
-                // Retirer l'expérience gagnée
                 $sql = "SELECT experience_reward FROM achievements WHERE id = :achievement_id";
                 $this->db->prepare($sql);
                 $this->db->bind(':achievement_id', $achievementId);
