@@ -13,7 +13,7 @@ const Admin = () => {
     const [error, setError] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [userProgress, setUserProgress] = useState(null);
@@ -63,7 +63,7 @@ const Admin = () => {
         try {
             const response = await apiService.getAchievements();
             if (response.success) {
-                setAllAchievements(response.achievements);
+                setAllAchievements(response.achievements || []);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des succès:', error);
@@ -104,7 +104,7 @@ const Admin = () => {
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     const handleEdit = (user) => {
-        setCurrentUser(user);
+        setSelectedUser(user);
         setFormData({
             id: user.id,
             username: user.username,
@@ -215,11 +215,11 @@ const Admin = () => {
 
     const toggleAchievement = async (achievementId, isUnlocked) => {
         try {
-            if (!currentUser) return;
+            if (!selectedUser) return;
 
             if (isUnlocked) {
                 // Débloquer l'achievement
-                await apiService.unlockAchievement(currentUser.id, achievementId);
+                await apiService.unlockAchievement(selectedUser.id, achievementId);
             } else {
                 // Bloquer l'achievement (non implémenté dans l'API actuelle)
                 console.log('Bloquage d\'achievement non implémenté');
@@ -227,7 +227,7 @@ const Admin = () => {
             }
 
             // Rafraîchir les achievements de l'utilisateur
-            await fetchUserAchievements(currentUser.id);
+            await fetchUserAchievements(selectedUser.id);
         } catch (error) {
             console.error('Erreur lors de la modification du succès:', error);
         }

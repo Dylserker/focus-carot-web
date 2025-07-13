@@ -25,6 +25,8 @@ export function AuthProvider({ children }) {
             if (response.success) {
                 updateUserProgress(response.progression);
                 await refreshUser();
+                
+
             }
         } catch (error) {
             console.error('Erreur lors de l\'ajout d\'expérience:', error);

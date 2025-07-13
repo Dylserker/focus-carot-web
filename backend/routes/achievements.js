@@ -4,11 +4,138 @@ const UserAchievement = require('../models/UserAchievement');
 const User = require('../models/User');
 const { auth, requireRole } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/validation');
+const AchievementService = require('../services/achievementService');
 
 const router = express.Router();
 
 // Appliquer l'authentification à toutes les routes
 router.use(auth);
+
+// Obtenir tous les succès avec le progrès de l'utilisateur
+router.get('/user-progress', async (req, res) => {
+  try {
+    console.log('User object:', req.user);
+    console.log('User ID:', req.user?._id);
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+    }
+    
+    const achievements = await AchievementService.getUserAchievementsWithProgress(req.user._id);
+    res.json({
+      success: true,
+      data: achievements
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des succès:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des succès'
+    });
+  }
+});
+
+// Obtenir les statistiques des succès de l'utilisateur
+router.get('/stats', async (req, res) => {
+  try {
+    console.log('User object (stats):', req.user);
+    console.log('User ID (stats):', req.user?._id);
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+    }
+    
+    const stats = await AchievementService.getUserAchievementStats(req.user._id);
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des statistiques'
+    });
+  }
+});
+
+// Vérifier et débloquer tous les succès pour l'utilisateur
+router.post('/check-all', async (req, res) => {
+  try {
+    const result = await AchievementService.checkAllAchievements(req.user._id);
+    res.json({
+      success: true,
+      data: result,
+      message: `${result.total} nouveau(x) succès débloqué(s) !`
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification des succès:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification des succès'
+    });
+  }
+});
+
+// Vérifier spécifiquement les succès de tâches
+router.post('/check-tasks', async (req, res) => {
+  try {
+    const achievements = await AchievementService.checkTaskCompletionAchievements(req.user._id);
+    res.json({
+      success: true,
+      data: achievements,
+      message: `${achievements.length} succès de tâches débloqué(s) !`
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification des succès de tâches:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification des succès de tâches'
+    });
+  }
+});
+
+// Vérifier spécifiquement les succès de niveau
+router.post('/check-levels', async (req, res) => {
+  try {
+    const achievements = await AchievementService.checkLevelAchievements(req.user._id);
+    res.json({
+      success: true,
+      data: achievements,
+      message: `${achievements.length} succès de niveau débloqué(s) !`
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification des succès de niveau:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification des succès de niveau'
+    });
+  }
+});
+
+// Vérifier spécifiquement les succès de streak
+router.post('/check-streaks', async (req, res) => {
+  try {
+    const achievements = await AchievementService.checkStreakAchievements(req.user._id);
+    res.json({
+      success: true,
+      data: achievements,
+      message: `${achievements.length} succès de streak débloqué(s) !`
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification des succès de streak:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification des succès de streak'
+    });
+  }
+});
 
 // Obtenir tous les achievements disponibles
 router.get('/', async (req, res) => {

@@ -1,150 +1,221 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../component/Header/Header';
-import Modal from '../../component/Modal';
-import { getAchievements, getUserAchievements } from '../../services/achievementService';
 import { useAuth } from '../../contexts/AuthContext';
+import AchievementService from '../../services/achievementService';
+import Header from '../../component/Header/Header';
 import './Success.css';
 
 const Success = () => {
-    const [achievements, setAchievements] = useState([]);
-    const [unlockedAchievements, setUnlockedAchievements] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedAchievement, setSelectedAchievement] = useState(null);
-    const { currentUser } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
+  const [achievements, setAchievements] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('all');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [achievementsResponse, unlockedResponse] = await Promise.all([
-                    getAchievements(),
-                    getUserAchievements(currentUser._id)
-                ]);
-
-                if (achievementsResponse.success) {
-                    setAchievements(achievementsResponse.achievements);
-                }
-
-                if (unlockedResponse.success) {
-                    setUnlockedAchievements(unlockedResponse.userAchievements);
-                }
-            } catch (error) {
-                console.error("Erreur lors de la récupération des succès:", error);
-            }
-        };
-
-        fetchData();
-    }, [currentUser._id]);
-
-    const handleAchievementClick = (achievement) => {
-        setSelectedAchievement(achievement);
-        setIsModalOpen(true);
-    };
-
-    const isAchievementUnlocked = (achievementId) => {
-        return unlockedAchievements.some(ua => ua.achievementId._id === achievementId);
-    };
-
-    const formatAchievementType = (type) => {
-        const typeMap = {
-            'taches_completees': 'Tâches complétées',
-            'niveau_atteint': 'Niveau atteint',
-            'jours_consecutifs': 'Jours consécutifs',
-            'special': 'Spécial'
-        };
-        return typeMap[type] || type;
-    };
-
-    function getAchievementTypeLabel(type) {
-        const types = {
-            'taches_completees': 'Tâches complétées',
-            'niveau_atteint': 'Niveau atteint',
-            'jours_consecutifs': 'Jours consécutifs',
-            'special': 'Spécial'
-        };
-        return types[type] || type;
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAchievements();
+    } else {
+      setLoading(false);
     }
+  }, [isAuthenticated]);
 
+  const loadAchievements = async () => {
+    try {
+      setLoading(true);
+      const [achievementsResponse, statsResponse] = await Promise.all([
+        AchievementService.getUserAchievementsWithProgress(),
+        AchievementService.getUserAchievementStats()
+      ]);
+      if (achievementsResponse.success) setAchievements(achievementsResponse.data || []);
+      if (statsResponse.success) setStats(statsResponse.data || {});
+    } catch (error) {
+      setError('Erreur lors du chargement des succès');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkAllAchievements = async () => {
+    try {
+      const response = await AchievementService.checkAllAchievements();
+      if (response.success && response.data.total > 0) {
+        alert(`🎉 ${response.message}`);
+        loadAchievements(); // Recharger les succès
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification des succès:', error);
+    }
+  };
+
+  const getFilteredAchievements = () => {
+    if (filter === 'all') return achievements;
+    return achievements.filter(achievement => achievement.type === filter);
+  };
+
+  const getAchievementCardClass = (achievement) => {
+    let baseClass = 'achievement-card';
+    if (achievement.isUnlocked) {
+      baseClass += ' unlocked';
+    }
+    if (achievement.rarity) {
+      baseClass += ` rarity-${achievement.rarity}`;
+    }
+    return baseClass;
+  };
+
+  const getProgressBarColor = (achievement) => {
+    if (achievement.isUnlocked) return '#28a745';
+    if (achievement.percentage >= 75) return '#ffc107';
+    if (achievement.percentage >= 50) return '#17a2b8';
+    return '#6c757d';
+  };
+
+  if (loading) {
     return (
-        <div className="success-container">
-            <Header />
-            <div className="success-content">
-                <h1>Succès</h1>
-                <div className="achievements-table-container">
-                    <table className="achievements-table">
-                        <thead>
-                        <tr>
-                            <th>Icône</th>
-                            <th>Nom</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>XP</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {achievements.map((achievement) => (
-                            <tr key={achievement._id}
-                                className={isAchievementUnlocked(achievement._id) ? 'achievement-unlocked' : ''}>
-                                <td>
-                                    {achievement.iconUrl ? (
-                                        <img src={achievement.iconUrl} alt="" className="achievement-icon" />
-                                    ) : (
-                                        <div className="achievement-image-placeholder" />
-                                    )}
-                                </td>
-                                <td>{achievement.name}</td>
-                                <td>{achievement.description}</td>
-                                <td>{getAchievementTypeLabel(achievement.achievementType)}</td>
-                                <td>{achievement.experienceReward} XP</td>
-                                <td>
-                                    <button
-                                        className="view-details-button"
-                                        onClick={() => handleAchievementClick(achievement)}
-                                    >
-                                        Voir détails
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => {
-                    setIsModalOpen(false);
-                    setSelectedAchievement(null);
-                }}
-                title="Détails du succès"
-            >
-                {selectedAchievement && (
-                    <div className="achievement-modal">
-                        <div className="achievement-modal-content">
-                            {selectedAchievement.iconUrl ? (
-                                <img
-                                    src={selectedAchievement.iconUrl}
-                                    alt={selectedAchievement.name}
-                                    className="achievement-modal-icon"
-                                />
-                            ) : (
-                                <div className="achievement-image-placeholder" />
-                            )}
-                            <h2>{selectedAchievement.name}</h2>
-                            <p className="achievement-description">{selectedAchievement.description}</p>
-                            <div className="achievement-details">
-                                                            <p>Type: {formatAchievementType(selectedAchievement.achievementType)}</p>
-                            <p>Récompense: {selectedAchievement.experienceReward} XP</p>
-                            <p>Valeur requise: {selectedAchievement.requiredValue}</p>
-                            <p>Statut: {isAchievementUnlocked(selectedAchievement._id) ? 'Débloqué' : 'Non débloqué'}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </Modal>
+      <div className="success-page-wrapper">
+        <Header />
+        <div className="success-page">
+          <div className="loading">Chargement...</div>
         </div>
+      </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="success-page-wrapper">
+        <Header />
+        <div className="success-page">
+          <div className="info">Connecte-toi pour voir tes succès !</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="success-page-wrapper">
+        <Header />
+        <div className="success-page">
+          <div className="error">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="success-page-wrapper">
+      <Header />
+      <div className="success-page">
+        <div className="success-header">
+          <h1>🏆 Succès</h1>
+          <div className="stats-overview">
+            <div className="stat-item">
+              <span className="stat-number">{stats.unlocked || 0}</span>
+              <span className="stat-label">Débloqués</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{stats.totalAchievements || 0}</span>
+              <span className="stat-label">Total</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{stats.completionRate || 0}%</span>
+              <span className="stat-label">Complétion</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="success-controls">
+          <div className="filter-buttons">
+            <button 
+              className={filter === 'all' ? 'active' : ''} 
+              onClick={() => setFilter('all')}
+            >
+              Tous
+            </button>
+            <button 
+              className={filter === 'taches_completees' ? 'active' : ''} 
+              onClick={() => setFilter('taches_completees')}
+            >
+              📝 Tâches
+            </button>
+            <button 
+              className={filter === 'niveau_atteint' ? 'active' : ''} 
+              onClick={() => setFilter('niveau_atteint')}
+            >
+              ⭐ Niveaux
+            </button>
+            <button 
+              className={filter === 'jours_consecutifs' ? 'active' : ''} 
+              onClick={() => setFilter('jours_consecutifs')}
+            >
+              🔥 Streaks
+            </button>
+            <button 
+              className={filter === 'special' ? 'active' : ''} 
+              onClick={() => setFilter('special')}
+            >
+              🎯 Spéciaux
+            </button>
+          </div>
+        </div>
+
+        <div className="achievements-grid">
+          {achievements.filter(a => filter === 'all' || a.type === filter).map((achievement) => (
+            <div key={achievement._id} className={`achievement-card${achievement.isUnlocked ? ' unlocked' : ''} rarity-${achievement.rarity}`}>
+              <div className="achievement-header">
+                <div className="achievement-icon">
+                  {AchievementService.getAchievementIcon(achievement.type, achievement.rarity)}
+                </div>
+                <div className="achievement-info">
+                  <h3 className="achievement-name">{achievement.name}</h3>
+                  <p className="achievement-type">
+                    {AchievementService.getTypeName(achievement.type)}
+                  </p>
+                  <span className={`rarity-badge rarity-${achievement.rarity}`}>
+                    {achievement.rarity}
+                  </span>
+                </div>
+                {achievement.isUnlocked && (
+                  <div className="unlocked-badge">✅</div>
+                )}
+              </div>
+
+              <p className="achievement-description">
+                {AchievementService.formatDescription(achievement)}
+              </p>
+
+              <div className="achievement-progress">
+                <div className="progress-info">
+                  <span className="progress-text">
+                    {achievement.progress} / {achievement.maxProgress}
+                  </span>
+                  <span className="progress-percentage">
+                    {achievement.percentage}%
+                  </span>
+                </div>
+                <div className="progress-bar-container">
+                  <div 
+                    className="progress-bar"
+                    style={{
+                      width: `${achievement.percentage}%`,
+                      backgroundColor: achievement.isUnlocked ? '#28a745' : '#6c757d'
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="achievement-reward">
+                <span className="reward-label">Récompense:</span>
+                <span className="reward-value">+{achievement.experienceReward} XP</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Success;

@@ -2,6 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const Task = require('../models/Task');
 const User = require('../models/User');
+const AchievementService = require('../services/achievementService');
 const { auth, requireOwnership } = require('../middleware/auth');
 const { handleValidationErrors, validateObjectId } = require('../middleware/validation');
 
@@ -53,7 +54,7 @@ router.post('/', taskValidation, async (req, res) => {
     await task.save();
 
     // Vérifier les achievements après création
-    await checkTaskAchievements(req.user._id);
+    await AchievementService.checkTaskCompletionAchievements(req.user._id);
 
     res.status(201).json({
       success: true,
@@ -211,7 +212,7 @@ router.put('/:id', validateObjectId('id'), taskValidation, async (req, res) => {
         await user.updateStreak();
         
         // Vérifier les achievements
-        await checkTaskAchievements(task.userId);
+        await AchievementService.checkTaskCompletionAchievements(task.userId);
       }
     }
 
@@ -304,7 +305,7 @@ router.patch('/:id/complete', validateObjectId('id'), async (req, res) => {
       await user.updateStreak();
       
       // Vérifier les achievements
-      await checkTaskAchievements(task.userId);
+      await AchievementService.checkTaskCompletionAchievements(task.userId);
     }
 
     res.json({
@@ -339,26 +340,6 @@ router.get('/stats/my-tasks', async (req, res) => {
   }
 });
 
-// Fonction pour vérifier les achievements liés aux tâches
-async function checkTaskAchievements(userId) {
-  try {
-    const UserAchievement = require('../models/UserAchievement');
-    const Achievement = require('../models/Achievement');
-    
-    // Obtenir les statistiques des tâches
-    const taskStats = await Task.getUserTaskStats(userId);
-    
-    // Obtenir les achievements liés aux tâches
-    const taskAchievements = await Achievement.getByType('taches_completees');
-    
-    for (const achievement of taskAchievements) {
-      if (taskStats.completed >= achievement.requiredValue) {
-        await UserAchievement.unlockAchievement(userId, achievement._id);
-      }
-    }
-  } catch (error) {
-    console.error('Erreur lors de la vérification des achievements:', error);
-  }
-}
+
 
 module.exports = router; 

@@ -213,6 +213,39 @@ class ApiService {
     return this.request(`/achievements/user/${userId}/stats`);
   }
 
+  // ===== NOUVELLES MÉTHODES SUCCÈS =====
+  async getUserAchievementsWithProgress() {
+    return this.request('/achievements/user-progress');
+  }
+
+  async getAchievementStats() {
+    return this.request('/achievements/stats');
+  }
+
+  async checkAllAchievements() {
+    return this.request('/achievements/check-all', {
+      method: 'POST'
+    });
+  }
+
+  async checkTaskAchievements() {
+    return this.request('/achievements/check-tasks', {
+      method: 'POST'
+    });
+  }
+
+  async checkLevelAchievements() {
+    return this.request('/achievements/check-levels', {
+      method: 'POST'
+    });
+  }
+
+  async checkStreakAchievements() {
+    return this.request('/achievements/check-streaks', {
+      method: 'POST'
+    });
+  }
+
   // ===== ADMIN ACHIEVEMENTS =====
   async createAchievement(achievementData) {
     return this.request('/achievements', {
@@ -235,4 +268,5 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+const apiService = new ApiService();
+export default apiService;

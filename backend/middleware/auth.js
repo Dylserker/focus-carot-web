@@ -13,7 +13,10 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Token décodé:', decoded);
+    
     const user = await User.findById(decoded.id).select('-password');
+    console.log('Utilisateur trouvé:', user ? 'Oui' : 'Non');
     
     if (!user) {
       return res.status(401).json({
@@ -23,6 +26,7 @@ const auth = async (req, res, next) => {
     }
 
     req.user = user;
+    console.log('User défini dans req:', req.user._id);
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
