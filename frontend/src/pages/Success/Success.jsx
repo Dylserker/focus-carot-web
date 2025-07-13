@@ -162,6 +162,7 @@ const Success = () => {
         </div>
 
         <div className="achievements-grid">
+          <div className="red-dot-right"></div>
           {achievements.filter(a => filter === 'all' || a.type === filter).map((achievement) => (
             <div key={achievement._id} className={`achievement-card${achievement.isUnlocked ? ' unlocked' : ''} rarity-${achievement.rarity}`}>
               <div className="achievement-header">
