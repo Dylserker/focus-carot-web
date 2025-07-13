@@ -129,4 +129,65 @@ userAchievementSchema.statics.getUserAchievementStats = async function(userId) {
   };
 };
 
+// Méthode statique pour valider un achievement et donner l'XP
+userAchievementSchema.statics.validateAchievement = async function(userId, achievementId) {
+  const User = require('./User');
+  
+  // Vérifier si l'achievement existe
+  const Achievement = require('./Achievement');
+  const achievement = await Achievement.findById(achievementId);
+  if (!achievement) {
+    throw new Error('Achievement non trouvé');
+  }
+  
+  // Vérifier si l'utilisateur existe
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('Utilisateur non trouvé');
+  }
+  
+  // Vérifier si l'achievement est déjà débloqué
+  let userAchievement = await this.findOne({ userId, achievementId });
+  
+  if (userAchievement && userAchievement.isUnlocked) {
+    throw new Error('Achievement déjà débloqué');
+  }
+  
+  // Utiliser le service pour calculer les vraies statistiques
+  const AchievementService = require('../services/achievementService');
+  const userStats = await AchievementService.calculateUserStats(userId);
+  
+  if (!achievement.canUnlock(userStats)) {
+    throw new Error('Conditions non remplies pour débloquer cet achievement');
+  }
+  
+  // Débloquer l'achievement
+  if (!userAchievement) {
+    userAchievement = new this({
+      userId,
+      achievementId,
+      isUnlocked: true,
+      unlockedAt: new Date(),
+      progress: 1,
+      maxProgress: 1
+    });
+  } else {
+    userAchievement.isUnlocked = true;
+    userAchievement.unlockedAt = new Date();
+    userAchievement.progress = userAchievement.maxProgress;
+  }
+  
+  await userAchievement.save();
+  
+  // Donner l'XP à l'utilisateur
+  await user.addExperience(achievement.experienceReward);
+  
+  return {
+    userAchievement: await userAchievement.populate('achievementId'),
+    experienceGained: achievement.experienceReward,
+    newLevel: user.progression.level,
+    totalExperience: user.progression.experiencePoints
+  };
+};
+
 module.exports = mongoose.model('UserAchievement', userAchievementSchema); 

@@ -144,6 +144,17 @@ class AchievementService {
 
     return description;
   }
+
+  // Valider un succès spécifique
+  static async validateAchievement(achievementId) {
+    try {
+      const response = await apiService.validateAchievement(achievementId);
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la validation du succès:', error);
+      throw error;
+    }
+  }
 }
 
 export default AchievementService;

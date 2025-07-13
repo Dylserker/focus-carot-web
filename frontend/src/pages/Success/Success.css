@@ -105,6 +105,11 @@
   gap: 15px;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 .filter-buttons {
   display: flex;
   gap: 10px;
@@ -131,6 +136,25 @@
   background: #ffd700;
   color: #333;
   font-weight: bold;
+}
+
+.check-all-button {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.check-all-button:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .achievements-grid {
@@ -413,6 +437,58 @@
 .reward-value {
   font-weight: bold;
   color: #28a745;
+}
+
+/* Styles pour les actions des succès */
+.achievement-actions {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.validate-button {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.validate-button:hover {
+  background: linear-gradient(135deg, #218838, #1ea085);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.validate-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.already-unlocked {
+  color: #28a745;
+  font-weight: bold;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.conditions-not-met {
+  color: #6c757d;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  background: rgba(108, 117, 125, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+  font-style: italic;
 }
 
 .loading {

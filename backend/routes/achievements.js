@@ -335,6 +335,65 @@ router.post('/user/:userId/unlock/:achievementId', validateObjectId('userId'), v
   }
 });
 
+// Valider un succès spécifique (vérifier les conditions et donner l'XP)
+router.post('/validate/:achievementId', validateObjectId('achievementId'), async (req, res) => {
+  try {
+    const { achievementId } = req.params;
+    const userId = req.user._id;
+
+    console.log(`Tentative de validation du succès ${achievementId} pour l'utilisateur ${userId}`);
+
+    // Valider l'achievement et donner l'XP
+    const result = await UserAchievement.validateAchievement(userId, achievementId);
+
+    res.json({
+      success: true,
+      message: 'Succès validé avec succès !',
+      data: {
+        achievement: result.userAchievement,
+        experienceGained: result.experienceGained,
+        newLevel: result.newLevel,
+        totalExperience: result.totalExperience
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la validation du succès:', error);
+    
+    if (error.message === 'Achievement non trouvé') {
+      return res.status(404).json({
+        success: false,
+        message: 'Succès non trouvé'
+      });
+    }
+    
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    
+    if (error.message === 'Achievement déjà débloqué') {
+      return res.status(400).json({
+        success: false,
+        message: 'Ce succès est déjà débloqué'
+      });
+    }
+    
+    if (error.message === 'Conditions non remplies pour débloquer cet achievement') {
+      return res.status(400).json({
+        success: false,
+        message: 'Vous ne remplissez pas encore les conditions pour débloquer ce succès'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la validation du succès'
+    });
+  }
+});
+
 // Mettre à jour le progrès d'un achievement
 router.put('/user/:userId/progress/:achievementId', validateObjectId('userId'), validateObjectId('achievementId'), async (req, res) => {
   try {

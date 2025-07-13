@@ -5,12 +5,14 @@ import Header from '../../component/Header/Header';
 import './Success.css';
 
 const Success = () => {
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, gainExperience } = useAuth();
   const [achievements, setAchievements] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [validatingAchievement, setValidatingAchievement] = useState(null);
+  const [checkingAll, setCheckingAll] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -38,13 +40,52 @@ const Success = () => {
 
   const checkAllAchievements = async () => {
     try {
+      setCheckingAll(true);
       const response = await AchievementService.checkAllAchievements();
-      if (response.success && response.data.total > 0) {
-        alert(`🎉 ${response.message}`);
-        loadAchievements(); // Recharger les succès
+      if (response.success) {
+        const total = response.data?.total || 0;
+        const achievements = response.data?.achievements || [];
+        const xpTotal = achievements.reduce((sum, a) => sum + (a.experienceGained || 0), 0);
+        if (total > 0) {
+          alert(`🎉 ${total} succès validé(s) automatiquement ! +${xpTotal} XP gagnée(s)`);
+        } else {
+          alert('Aucun succès supplémentaire à valider.');
+        }
+        // Rafraîchir la liste
+        loadAchievements();
+      } else {
+        alert('Erreur lors de la vérification des succès.');
       }
     } catch (error) {
       console.error('Erreur lors de la vérification des succès:', error);
+      alert(error.message || 'Erreur lors de la vérification des succès');
+    } finally {
+      setCheckingAll(false);
+    }
+  };
+
+  const validateAchievement = async (achievementId) => {
+    try {
+      setValidatingAchievement(achievementId);
+      const response = await AchievementService.validateAchievement(achievementId);
+      
+      if (response.success) {
+        // Ajouter l'XP gagné au contexte
+        if (response.data.experienceGained > 0) {
+          gainExperience(response.data.experienceGained);
+        }
+        
+        // Afficher un message de succès
+        alert(`🎉 Succès validé ! +${response.data.experienceGained} XP gagné !`);
+        
+        // Recharger les succès pour mettre à jour l'affichage
+        loadAchievements();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la validation du succès:', error);
+      alert(error.message || 'Erreur lors de la validation du succès');
+    } finally {
+      setValidatingAchievement(null);
     }
   };
 
@@ -159,6 +200,16 @@ const Success = () => {
               🎯 Spéciaux
             </button>
           </div>
+          
+          <div className="action-buttons">
+            <button 
+              className="check-all-button"
+              onClick={checkAllAchievements}
+              disabled={checkingAll}
+            >
+              {checkingAll ? 'Vérification...' : '🔍 Vérifier tous les succès'}
+            </button>
+          </div>
         </div>
 
         <div className="achievements-grid">
@@ -211,6 +262,35 @@ const Success = () => {
                 <span className="reward-label">Récompense:</span>
                 <span className="reward-value">+{achievement.experienceReward} XP</span>
               </div>
+
+              {/* Bouton de validation */}
+              {!achievement.isUnlocked && achievement.percentage >= 100 && (
+                <div className="achievement-actions">
+                  <button
+                    className="validate-button"
+                    onClick={() => validateAchievement(achievement._id)}
+                    disabled={validatingAchievement === achievement._id}
+                  >
+                    {validatingAchievement === achievement._id ? 'Validation...' : 'Valider le succès'}
+                  </button>
+                </div>
+              )}
+
+              {/* Message si déjà débloqué */}
+              {achievement.isUnlocked && (
+                <div className="achievement-actions">
+                  <span className="already-unlocked">✅ Déjà débloqué</span>
+                </div>
+              )}
+
+              {/* Message si conditions non remplies */}
+              {!achievement.isUnlocked && achievement.percentage < 100 && (
+                <div className="achievement-actions">
+                  <span className="conditions-not-met">
+                    Conditions non remplies ({achievement.percentage}%)
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>

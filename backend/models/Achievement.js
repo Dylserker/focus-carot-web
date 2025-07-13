@@ -78,6 +78,32 @@ achievementSchema.methods.canUnlock = function(userStats) {
   }
 };
 
+// Méthode pour obtenir le progrès actuel d'un utilisateur pour cet achievement
+achievementSchema.methods.getUserProgress = function(userStats) {
+  switch (this.type) {
+    case 'taches_completees':
+      return Math.min(userStats.completedTasks, this.criteria.requiredTasks);
+    
+    case 'niveau_atteint':
+      return Math.min(userStats.level, this.criteria.requiredLevel);
+    
+    case 'jours_consecutifs':
+      return Math.min(userStats.currentStreak, this.criteria.requiredDays);
+    
+    case 'special':
+      return this.getSpecialProgress(userStats);
+    
+    default:
+      return 0;
+  }
+};
+
+// Méthode pour obtenir le progrès spécial
+achievementSchema.methods.getSpecialProgress = function(userStats) {
+  // Logique personnalisée selon les critères spéciaux
+  return 0; // À implémenter selon les besoins
+};
+
 // Méthode pour vérifier les critères spéciaux
 achievementSchema.methods.checkSpecialCriteria = function(userStats) {
   // Logique personnalisée selon les critères

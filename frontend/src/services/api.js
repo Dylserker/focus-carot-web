@@ -21,9 +21,20 @@ class ApiService {
 
   // Méthode utilitaire pour gérer les réponses
   async handleResponse(response) {
-    const data = await response.json();
+    let data;
+    const text = await response.text();
+    
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      // Si ce n'est pas du JSON, on retourne le texte brut
+      data = { message: text };
+    }
     
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Trop de requêtes. Veuillez attendre quelques minutes avant de réessayer.');
+      }
       throw new Error(data.message || `Erreur ${response.status}: ${response.statusText}`);
     }
     
@@ -242,6 +253,13 @@ class ApiService {
 
   async checkStreakAchievements() {
     return this.request('/achievements/check-streaks', {
+      method: 'POST'
+    });
+  }
+
+  // Valider un succès spécifique
+  async validateAchievement(achievementId) {
+    return this.request(`/achievements/validate/${achievementId}`, {
       method: 'POST'
     });
   }
