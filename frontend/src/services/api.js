@@ -71,6 +71,13 @@ class ApiService {
     return this.request('/users');
   }
 
+  async createUser(userData) {
+    return this.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+  }
+
   async getUser(userId) {
     return this.request(`/users/${userId}`);
   }
@@ -182,7 +189,7 @@ class ApiService {
   }
 
   async getUserAchievements(userId) {
-    return this.request(`/achievements/user/${userId}`);
+    return this.request(`/users/${userId}/achievements`);
   }
 
   async getCompletedAchievements(userId) {

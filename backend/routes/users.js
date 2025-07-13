@@ -2,6 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const User = require('../models/User');
 const Task = require('../models/Task');
+const UserAchievement = require('../models/UserAchievement');
 const { auth, requireRole, requireOwnership } = require('../middleware/auth');
 const { handleValidationErrors, validateObjectId } = require('../middleware/validation');
 
@@ -47,6 +48,64 @@ router.get('/', requireRole(['admin']), async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des utilisateurs'
+    });
+  }
+});
+
+// Créer un nouvel utilisateur (admin seulement)
+router.post('/', requireRole(['admin']), async (req, res) => {
+  try {
+    const { email, username, firstName, lastName, password, role } = req.body;
+
+    // Validation des champs requis
+    if (!email || !username || !firstName || !lastName || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tous les champs sont requis'
+      });
+    }
+
+    // Vérifier si l'email existe déjà
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({
+        success: false,
+        message: 'Cet email est déjà utilisé'
+      });
+    }
+
+    // Vérifier si le nom d'utilisateur existe déjà
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(409).json({
+        success: false,
+        message: 'Ce nom d\'utilisateur est déjà utilisé'
+      });
+    }
+
+    // Créer le nouvel utilisateur
+    const user = new User({
+      email,
+      username,
+      firstName,
+      lastName,
+      password,
+      role: role || 'user'
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Utilisateur créé avec succès',
+      user: user.toPublicJSON()
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'utilisateur:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la création de l\'utilisateur'
     });
   }
 });
@@ -279,11 +338,12 @@ router.get('/:id/stats', validateObjectId('id'), requireOwnership('id'), async (
   }
 });
 
-// Supprimer un utilisateur (admin seulement)
-router.delete('/:id', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
+// Mettre à jour un utilisateur (admin seulement)
+router.put('/:id', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const { email, username, firstName, lastName, role } = req.body;
     
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -291,8 +351,71 @@ router.delete('/:id', validateObjectId('id'), requireRole(['admin']), async (req
       });
     }
 
-    // Supprimer toutes les tâches de l'utilisateur
-    await Task.deleteMany({ userId: req.params.id });
+    // Vérifier si l'email existe déjà (sauf pour cet utilisateur)
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ email, _id: { $ne: req.params.id } });
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message: 'Cet email est déjà utilisé'
+        });
+      }
+    }
+
+    // Vérifier si le nom d'utilisateur existe déjà (sauf pour cet utilisateur)
+    if (username && username !== user.username) {
+      const existingUsername = await User.findOne({ username, _id: { $ne: req.params.id } });
+      if (existingUsername) {
+        return res.status(409).json({
+          success: false,
+          message: 'Ce nom d\'utilisateur est déjà utilisé'
+        });
+      }
+    }
+
+    // Mettre à jour l'utilisateur
+    if (email) user.email = email;
+    if (username) user.username = username;
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (role) user.role = role;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Utilisateur mis à jour avec succès',
+      user: user.toPublicJSON()
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour de l\'utilisateur'
+    });
+  }
+});
+
+// Supprimer un utilisateur (admin seulement)
+router.delete('/:id', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    // Empêcher la suppression de son propre compte
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vous ne pouvez pas supprimer votre propre compte'
+      });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
 
     res.json({
       success: true,
@@ -303,6 +426,24 @@ router.delete('/:id', validateObjectId('id'), requireRole(['admin']), async (req
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la suppression de l\'utilisateur'
+    });
+  }
+});
+
+// Obtenir les achievements d'un utilisateur
+router.get('/:id/achievements', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
+  try {
+    const userAchievements = await UserAchievement.getUserAchievements(req.params.id);
+    
+    res.json({
+      success: true,
+      userAchievements
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des achievements:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des achievements'
     });
   }
 });

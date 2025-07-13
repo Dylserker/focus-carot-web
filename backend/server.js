@@ -33,6 +33,15 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Route de santé
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Serveur backend opérationnel',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

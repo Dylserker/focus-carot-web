@@ -24,13 +24,39 @@ const Task = () => {
         date: new Date().toISOString().split('T')[0],
         priority: 'medium',
     });
-    const { currentUser } = useAuth();
+    const { currentUser, gainExperience } = useAuth();
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Récupérer les tâches
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await getTasks();
+                if (response.success) {
+                    const formattedTasks = response.tasks.map(task => ({
+                        ...task,
+                        id: task._id,
+                        status: task.status === 'à_faire' ? 'todo' : 
+                               task.status === 'en_cours' ? 'in_progress' : 
+                               task.status === 'terminée' ? 'done' : task.status,
+                        priority: task.priority === 'basse' ? 'low' : 
+                                 task.priority === 'moyenne' ? 'medium' : 
+                                 task.priority === 'haute' ? 'high' : task.priority
+                    }));
+                    setTasks(formattedTasks);
+                    updateStats(formattedTasks);
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des tâches:', error);
+            }
+        };
+        fetchTasks();
+    }, []);
 
     const updateStats = (currentTasks) => {
         const completed = currentTasks.filter(task => task.status === 'done').length;
         const total = currentTasks.length;
         const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
         setStats({
             totalCompleted: completed,
             totalCreated: total,
@@ -38,78 +64,34 @@ const Task = () => {
         });
     };
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                            const response = await getTasks();
-            if (response.success) {
-                const formattedTasks = response.tasks.map(task => ({
-                    ...task,
-                    id: task._id, // Utiliser _id de MongoDB
-                    status: formatStatus(task.status),
-                    priority: formatPriority(task.priority)
-                }));
-                setTasks(formattedTasks);
-
-                updateStats(formattedTasks);
-            }
-            } catch (error) {
-                console.error("Erreur lors de la récupération des tâches:", error);
-            }
-        };
-
-        const formatStatus = (status) => {
-            const statusMap = {
-                'à_faire': 'todo',
-                'en_cours': 'in_progress',
-                'terminée': 'done'
-            };
-            return statusMap[status] || status;
-        };
-
-        const formatPriority = (priority) => {
-            const priorityMap = {
-                'basse': 'low',
-                'moyenne': 'medium',
-                'haute': 'high'
-            };
-            return priorityMap[priority] || priority;
-        };
-
-        fetchTasks();
-    }, []);
-
-    const handleCreateTask = () => {
-        setIsModalOpen(true);
-    };
-
+    // CRUD
+    const handleCreateTask = () => setIsModalOpen(true);
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const taskData = {
                 title: newTask.title,
                 description: newTask.description,
-                status: newTask.status,
+                status: newTask.status === 'todo' ? 'à_faire' : 
+                       newTask.status === 'in_progress' ? 'en_cours' : 
+                       newTask.status === 'done' ? 'terminée' : newTask.status,
                 dueDate: newTask.date,
-                priority: newTask.priority
+                priority: newTask.priority === 'low' ? 'basse' : 
+                         newTask.priority === 'medium' ? 'moyenne' : 
+                         newTask.priority === 'high' ? 'haute' : newTask.priority
             };
-
             const response = await createTask(taskData);
-
             if (response.success && response.task) {
                 const newTaskWithId = {
                     ...newTask,
-                    id: response.task._id, // Utiliser _id de MongoDB
-                    status: formatStatus(response.task.status),
-                    priority: formatPriority(response.task.priority)
+                    id: response.task._id,
+                    status: newTask.status,
+                    priority: newTask.priority
                 };
-
                 const updatedTasks = [...tasks, newTaskWithId];
                 setTasks(updatedTasks);
-
                 updateStats(updatedTasks);
-
                 setIsModalOpen(false);
                 setNewTask({
                     title: '',
@@ -131,77 +113,51 @@ const Task = () => {
         setIsTaskDetailModalOpen(true);
     };
 
-    const { gainExperience } = useAuth();
-
     const handleStatusChange = async (taskId) => {
         try {
             const currentTask = tasks.find(task => task.id === taskId);
-            if (!currentTask) {
-                console.error("Tâche non trouvée:", taskId);
-                return;
-            }
-
+            if (!currentTask) return;
+            
             const nextStatus = {
                 'todo': 'in_progress',
                 'in_progress': 'done',
                 'done': 'todo'
             };
-
-            const statusMapForBackend = {
-                'todo': 'à_faire',
-                'in_progress': 'en_cours',
-                'done': 'terminée'
-            };
-
-            const priorityMapForBackend = {
-                'low': 'basse',
-                'medium': 'moyenne',
-                'high': 'haute'
-            };
-
+            
             const newStatus = nextStatus[currentTask.status];
-
             const updateData = {
                 title: currentTask.title,
                 description: currentTask.description,
-                status: statusMapForBackend[newStatus],
+                status: newStatus === 'todo' ? 'à_faire' : 
+                       newStatus === 'in_progress' ? 'en_cours' : 
+                       newStatus === 'done' ? 'terminée' : newStatus,
                 dueDate: currentTask.dueDate || currentTask.date,
-                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority
+                priority: currentTask.priority === 'low' ? 'basse' : 
+                         currentTask.priority === 'medium' ? 'moyenne' : 
+                         currentTask.priority === 'high' ? 'haute' : currentTask.priority
             };
-
+            
             const response = await updateTask(taskId, updateData);
-
             if (response.success) {
                 const updatedTasks = tasks.map(task => {
                     if (task.id === taskId) {
-                        return {
-                            ...task,
-                            status: newStatus
-                        };
+                        return { ...task, status: newStatus };
                     }
                     return task;
                 });
-
                 setTasks(updatedTasks);
-
                 updateStats(updatedTasks);
-
+                
+                // Gain d'XP quand une tâche est terminée
                 if (newStatus === 'done') {
-                    const xpRewards = {
-                        'low': 10,
-                        'medium': 25,
-                        'high': 50
-                    };
-
-                    const xpGain = xpRewards[currentTask.priority] || 10;
-
+                    const xpGain = response.task?.experienceReward || 10;
                     await gainExperience(xpGain);
-
-                    alert(`Félicitations ! Vous avez gagné ${xpGain} points d'expérience.`);
+                    setSuccessMessage(`Félicitations ! Vous avez gagné ${xpGain} XP.`);
+                    setTimeout(() => setSuccessMessage(''), 3000);
                 }
             }
         } catch (error) {
-            console.error("Erreur lors de la mise à jour du statut:", error);
+            console.error('Erreur lors de la mise à jour du statut:', error);
         }
     };
 
@@ -216,338 +172,264 @@ const Task = () => {
             if (response.success) {
                 const updatedTasks = tasks.filter(task => task.id !== selectedTask.id);
                 setTasks(updatedTasks);
-
                 updateStats(updatedTasks);
-
                 setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
                 setIsEditing(false);
             }
         } catch (error) {
-            console.error("Erreur lors de la suppression de la tâche:", error);
+            console.error('Erreur lors de la suppression de la tâche:', error);
         }
     };
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            const statusMap = {
-                'todo': 'à_faire',
-                'in_progress': 'en_cours',
-                'done': 'terminée'
-            };
-
-            const priorityMap = {
-                'low': 'basse',
-                'medium': 'moyenne',
-                'high': 'haute'
-            };
-
             const response = await updateTask(selectedTask.id, {
                 title: editedTask.title,
                 description: editedTask.description,
-                status: statusMap[editedTask.status],
+                status: editedTask.status === 'todo' ? 'à_faire' : 
+                       editedTask.status === 'in_progress' ? 'en_cours' : 
+                       editedTask.status === 'done' ? 'terminée' : editedTask.status,
                 dueDate: editedTask.date,
-                priority: priorityMap[editedTask.priority]
+                priority: editedTask.priority === 'low' ? 'basse' : 
+                         editedTask.priority === 'medium' ? 'moyenne' : 
+                         editedTask.priority === 'high' ? 'haute' : editedTask.priority
             });
-
             if (response.success) {
                 const updatedTasks = tasks.map(task =>
-                    task.id === selectedTask.id ? {
-                        ...task,
-                        title: editedTask.title,
-                        description: editedTask.description,
-                        status: editedTask.status,
-                        due_date: editedTask.date,
-                        priority: editedTask.priority
-                    } : task
+                    task.id === selectedTask.id
+                        ? { ...task, ...editedTask }
+                        : task
                 );
                 setTasks(updatedTasks);
-
                 updateStats(updatedTasks);
-
-                setIsTaskDetailModalOpen(false);
                 setIsEditing(false);
+                setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
-                setEditedTask(null);
             }
         } catch (error) {
-            console.error("Erreur lors de la mise à jour de la tâche:", error);
+            console.error('Erreur lors de la modification de la tâche:', error);
         }
     };
 
+    // Affichage des stats
     const getStatusLabel = (status) => {
-        const labels = {
-            'todo': 'À faire',
-            'in_progress': 'En cours',
-            'done': 'Terminé'
-        };
-        return labels[status];
+        switch (status) {
+            case 'todo': return 'À faire';
+            case 'in_progress': return 'En cours';
+            case 'done': return 'Terminée';
+            default: return status;
+        }
     };
 
     const getPriorityLabel = (priority) => {
-        const labels = {
-            'low': 'Basse',
-            'medium': 'Moyenne',
-            'high': 'Haute'
-        };
-        return labels[priority];
+        switch (priority) {
+            case 'low': return 'Basse';
+            case 'medium': return 'Moyenne';
+            case 'high': return 'Haute';
+            default: return priority;
+        }
     };
 
     return (
         <div className="task-page-wrapper">
             <Header />
             <div className="task-page">
-                <header className="task-page-header">
+                <div className="task-page-header">
                     <h1>Gestion des Tâches</h1>
                     <button className="create-task-button" onClick={handleCreateTask}>
-                        Créer une nouvelle tâche
+                        Créer une tâche
                     </button>
-                </header>
+                </div>
+
+                {successMessage && <div className="success-message">{successMessage}</div>}
 
                 <div className="task-containers">
-                    <div className="task-container today-tasks">
-                        <h2>Tâches du jour</h2>
+                    {/* Conteneur des tâches */}
+                    <div className="task-container">
+                        <h2>Mes Tâches</h2>
                         <div className="tasks-list">
-                            {tasks.length > 0 ? (
-                                tasks
-                                    .filter(task => task.status !== 'done')
-                                    .map(task => (
-                                        <div key={task.id} className={`task-item status-${task.status}`}>
-                                            <div className="task-info">
-                                                <h3>{task.title}</h3>
-                                                <div className="task-details">
-                                <span className={`status-badge ${task.status}`}>
-                                    {getStatusLabel(task.status)}
-                                </span>
-                                                    <span className={`priority-badge ${task.priority}`}>
-                                    {getPriorityLabel(task.priority)}
-                                </span>
-                                                </div>
-                                            </div>
-                                            <div className="task-actions">
-                                                <button
-                                                    className="view-task-button"
-                                                    onClick={() => handleTaskClick(task)}
-                                                >
-                                                    Modifier
-                                                </button>
-                                                <button
-                                                    className="change-status-button"
-                                                    onClick={() => handleStatusChange(task.id)}
-                                                >
-                                                    Changer status
-                                                </button>
-                                            </div>
+                            {tasks.map(task => (
+                                <div key={task.id} className="task-item">
+                                    <div className="task-info">
+                                        <h3>{task.title}</h3>
+                                        <div className="task-details">
+                                            <span className={`status-badge ${task.status}`}>
+                                                {getStatusLabel(task.status)}
+                                            </span>
+                                            <span className={`priority-badge ${task.priority}`}>
+                                                {getPriorityLabel(task.priority)}
+                                            </span>
                                         </div>
-                                    ))
-                            ) : (
-                                <p className="no-tasks">Aucune tâche pour aujourd'hui</p>
+                                    </div>
+                                    <div className="task-actions">
+                                        <button 
+                                            className="change-status-button"
+                                            onClick={() => handleStatusChange(task.id)}
+                                        >
+                                            Changer d'état
+                                        </button>
+                                        <button 
+                                            className="view-task-button"
+                                            onClick={() => handleTaskClick(task)}
+                                        >
+                                            Voir
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            {tasks.length === 0 && (
+                                <p>Aucune tâche pour le moment. Créez votre première tâche !</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="task-container task-stats">
-                        <h2>Statistiques générales</h2>
+                    {/* Conteneur des statistiques */}
+                    <div className="task-container">
+                        <h2>Statistiques</h2>
                         <div className="stats-content">
                             <div className="stat-item">
-                                <span className="stat-label">Tâches créées :</span>
-                                <span className="stat-value">{stats.totalCreated}</span>
+                                <div className="stat-label">Tâches créées</div>
+                                <div className="stat-value">{stats.totalCreated}</div>
                             </div>
                             <div className="stat-item">
-                                <span className="stat-label">Tâches complétées :</span>
-                                <span className="stat-value">{stats.totalCompleted}</span>
+                                <div className="stat-label">Tâches terminées</div>
+                                <div className="stat-value">{stats.totalCompleted}</div>
                             </div>
                             <div className="stat-item">
-                                <span className="stat-label">Taux de complétion :</span>
-                                <span className="stat-value">{stats.completionRate}%</span>
-                            </div>
-                            <div className="completion-bar">
-                                <div
-                                    className="completion-progress"
-                                    style={{ width: `${stats.completionRate}%` }}
-                                ></div>
+                                <div className="stat-label">Taux de complétion</div>
+                                <div className="stat-value">{stats.completionRate}%</div>
+                                <div className="completion-bar">
+                                    <div 
+                                        className="completion-progress" 
+                                        style={{ width: `${stats.completionRate}%` }}
+                                    ></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Créer une nouvelle tâche">
+            {/* Modal de création */}
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Créer une tâche">
                 <form className="task-form" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Titre</label>
-                        <input
-                            type="text"
-                            value={newTask.title}
-                            onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-                            required
+                        <input 
+                            type="text" 
+                            value={newTask.title} 
+                            onChange={e => setNewTask({ ...newTask, title: e.target.value })} 
+                            required 
                         />
                     </div>
-
                     <div className="form-group">
                         <label>Description</label>
-                        <textarea
-                            value={newTask.description}
-                            onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                            required
+                        <textarea 
+                            value={newTask.description} 
+                            onChange={e => setNewTask({ ...newTask, description: e.target.value })} 
                         />
                     </div>
-
                     <div className="form-group">
-                        <label>Statut</label>
-                        <select
-                            value={newTask.status}
-                            onChange={(e) => setNewTask({...newTask, status: e.target.value})}
-                        >
-                            <option value="todo">À faire</option>
-                            <option value="in_progress">En cours</option>
-                            <option value="done">Terminé</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                        <label>Date</label>
-                        <input
-                            type="date"
-                            value={newTask.date}
-                            onChange={(e) => setNewTask({...newTask, date: e.target.value})}
-                            required
+                        <label>Échéance</label>
+                        <input 
+                            type="date" 
+                            value={newTask.date} 
+                            onChange={e => setNewTask({ ...newTask, date: e.target.value })} 
                         />
                     </div>
-
                     <div className="form-group">
                         <label>Priorité</label>
-                        <select
-                            value={newTask.priority}
-                            onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                        <select 
+                            value={newTask.priority} 
+                            onChange={e => setNewTask({ ...newTask, priority: e.target.value })}
                         >
-                            <option value="low">Basse (10 XP)</option>
-                            <option value="medium">Moyenne (25 XP)</option>
-                            <option value="high">Haute (50 XP)</option>
+                            <option value="low">Basse</option>
+                            <option value="medium">Moyenne</option>
+                            <option value="high">Haute</option>
                         </select>
                     </div>
-
                     <div className="form-actions">
                         <button type="submit" className="create-button">Créer</button>
                     </div>
                 </form>
             </Modal>
 
-            <Modal
-                isOpen={isTaskDetailModalOpen}
-                onClose={() => {
-                    setIsTaskDetailModalOpen(false);
-                    setIsEditing(false);
-                }}
-                title={selectedTask?.title}
-            >
-                {selectedTask && (
-                    isEditing ? (
-                        <form className="task-form" onSubmit={handleEditSubmit}>
-                            <div className="form-group">
-                                <label>Titre</label>
-                                <input
-                                    type="text"
-                                    value={editedTask.title}
-                                    onChange={(e) => setEditedTask({...editedTask, title: e.target.value})}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Description</label>
-                                <textarea
-                                    value={editedTask.description}
-                                    onChange={(e) => setEditedTask({...editedTask, description: e.target.value})}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Statut</label>
-                                <select
-                                    value={editedTask.status}
-                                    onChange={(e) => setEditedTask({...editedTask, status: e.target.value})}
-                                >
-                                    <option value="todo">À faire</option>
-                                    <option value="in_progress">En cours</option>
-                                    <option value="done">Terminé</option>
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Date</label>
-                                <input
-                                    type="date"
-                                    value={editedTask.date}
-                                    onChange={(e) => setEditedTask({...editedTask, date: e.target.value})}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Priorité</label>
-                                <select
-                                    value={editedTask.priority}
-                                    onChange={(e) => setEditedTask({...editedTask, priority: e.target.value})}
-                                >
-                                    <option value="low">Basse (10 XP)</option>
-                                    <option value="medium">Moyenne (25 XP)</option>
-                                    <option value="high">Haute (50 XP)</option>
-                                </select>
-                            </div>
-
-                            <div className="modal-actions">
-                                <button type="submit" className="save-button">Sauvegarder</button>
-                                <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>
-                                    Annuler
-                                </button>
-                            </div>
-                        </form>
-                    ) : (
-                        <div className="task-details-modal">
-                            <div className="detail-group">
-                                <label>Description</label>
-                                <p>{selectedTask.description}</p>
-                            </div>
-                            <div className="detail-group">
-                                <label>Status</label>
-                                <p>{getStatusLabel(selectedTask.status)}</p>
-                            </div>
-                            <div className="detail-group">
-                                <label>Priorité</label>
-                                <p>{getPriorityLabel(selectedTask.priority)}</p>
-                            </div>
-                            <div className="detail-group">
-                                <label>Date</label>
-                                <p>{selectedTask.due_date}</p>
-                            </div>
-                            <div className="modal-actions">
-                                <button className="edit-button" onClick={handleEditClick}>Modifier</button>
-                                <button className="delete-button" onClick={handleDeleteClick}>Supprimer</button>
-                            </div>
+            {/* Modal de détail/édition */}
+            <Modal isOpen={isTaskDetailModalOpen} onClose={() => setIsTaskDetailModalOpen(false)} title="Détail de la tâche">
+                {selectedTask && !isEditing && (
+                    <div className="task-details-modal">
+                        <div className="detail-group">
+                            <label>Titre</label>
+                            <p>{selectedTask.title}</p>
                         </div>
-                    )
+                        <div className="detail-group">
+                            <label>Description</label>
+                            <p>{selectedTask.description}</p>
+                        </div>
+                        <div className="detail-group">
+                            <label>Échéance</label>
+                            <p>{selectedTask.dueDate ? new Date(selectedTask.dueDate).toLocaleDateString() : 'Aucune'}</p>
+                        </div>
+                        <div className="detail-group">
+                            <label>Priorité</label>
+                            <p>{getPriorityLabel(selectedTask.priority)}</p>
+                        </div>
+                        <div className="detail-group">
+                            <label>Statut</label>
+                            <p>{getStatusLabel(selectedTask.status)}</p>
+                        </div>
+                        <div className="modal-actions">
+                            <button className="edit-button" onClick={handleEditClick}>Modifier</button>
+                            <button className="delete-button" onClick={handleDeleteClick}>Supprimer</button>
+                        </div>
+                    </div>
+                )}
+                {selectedTask && isEditing && (
+                    <form className="task-form" onSubmit={handleEditSubmit}>
+                        <div className="form-group">
+                            <label>Titre</label>
+                            <input 
+                                type="text" 
+                                value={editedTask.title} 
+                                onChange={e => setEditedTask({ ...editedTask, title: e.target.value })} 
+                                required 
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea 
+                                value={editedTask.description} 
+                                onChange={e => setEditedTask({ ...editedTask, description: e.target.value })} 
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Échéance</label>
+                            <input 
+                                type="date" 
+                                value={editedTask.date || ''} 
+                                onChange={e => setEditedTask({ ...editedTask, date: e.target.value })} 
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Priorité</label>
+                            <select 
+                                value={editedTask.priority} 
+                                onChange={e => setEditedTask({ ...editedTask, priority: e.target.value })}
+                            >
+                                <option value="low">Basse</option>
+                                <option value="medium">Moyenne</option>
+                                <option value="high">Haute</option>
+                            </select>
+                        </div>
+                        <div className="modal-actions">
+                            <button type="submit" className="save-button">Enregistrer</button>
+                            <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>Annuler</button>
+                        </div>
+                    </form>
                 )}
             </Modal>
-            <svg style={{position: 'absolute', width: 0, height: 0}}>
-                <defs>
-                    <filter id="goo">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-                        <feColorMatrix
-                            in="blur"
-                            mode="matrix"
-                            values="1 0 0 0 0
-                        0 1 0 0 0
-                        0 0 1 0 0
-                        0 0 0 30 -15"
-                            result="goo"
-                        />
-                        <feBlend in="SourceGraphic" in2="goo" />
-                    </filter>
-                </defs>
-            </svg>
         </div>
     );
 };

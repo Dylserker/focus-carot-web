@@ -24,7 +24,6 @@ const Admin = () => {
         username: '',
         firstName: '',
         lastName: '',
-        title: '',
         email: '',
         password: '',
         role: 'user'
@@ -34,6 +33,7 @@ const Admin = () => {
 
     useEffect(() => {
         fetchUsers();
+        fetchAchievements();
     }, []);
 
     const fetchUsers = async () => {
@@ -46,7 +46,7 @@ const Admin = () => {
                     username: user.username,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    title: `Niveau ${user.progression?.level || 1}`,
+                    level: user.progression?.level || 1,
                     role: user.role
                 }));
 
@@ -56,6 +56,17 @@ const Admin = () => {
             setError('Erreur lors du chargement des utilisateurs');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchAchievements = async () => {
+        try {
+            const response = await apiService.getAchievements();
+            if (response.success) {
+                setAllAchievements(response.achievements);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des succès:', error);
         }
     };
 
@@ -72,19 +83,12 @@ const Admin = () => {
 
     const fetchUserAchievements = async (userId) => {
         try {
-            const [achievementsResponse, userAchievementsResponse] = await Promise.all([
-                apiService.getAchievements(),
-                apiService.getUserAchievements(userId)
-            ]);
-
-            if (achievementsResponse.success) {
-                setAllAchievements(achievementsResponse.achievements);
-            }
-            if (userAchievementsResponse.success) {
-                setUserAchievements(userAchievementsResponse.userAchievements);
+            const response = await apiService.getUserAchievements(userId);
+            if (response.success) {
+                setUserAchievements(response.userAchievements);
             }
         } catch (error) {
-            console.error('Erreur lors de la récupération des succès:', error);
+            console.error('Erreur lors de la récupération des succès utilisateur:', error);
         }
     };
 
@@ -102,14 +106,13 @@ const Admin = () => {
     const handleEdit = (user) => {
         setCurrentUser(user);
         setFormData({
-            id: user.id || '',
-            pseudo: user.pseudo || '',
-            prenom: user.prenom || '',
-            nom: user.nom || '',
-            titre: user.titre || '',
-            email: user.email || '',
+            id: user.id,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
             password: '',
-            role: user.role || 'user'
+            role: user.role
         });
         fetchUserProgress(user.id);
         fetchUserAchievements(user.id);
@@ -119,10 +122,9 @@ const Admin = () => {
     const handleCreate = () => {
         setFormData({
             id: '',
-            pseudo: '',
-            prenom: '',
-            nom: '',
-            titre: '',
+            username: '',
+            firstName: '',
+            lastName: '',
             email: '',
             password: '',
             role: 'user'
@@ -161,11 +163,10 @@ const Admin = () => {
         try {
             const userData = {
                 email: formData.email,
-                nom: formData.nom,
-                prenom: formData.prenom,
-                pseudo: formData.pseudo,
-                role: formData.role,
-                achievements: userAchievements
+                username: formData.username,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                role: formData.role
             };
 
             if (formData.password) {
@@ -175,14 +176,16 @@ const Admin = () => {
             let response;
 
             if (isCreate) {
+                // Créer un nouvel utilisateur
                 response = await apiService.createUser(userData);
             } else {
+                // Mettre à jour un utilisateur existant
                 response = await apiService.updateUser(formData.id, userData);
 
+                // Mettre à jour la progression si nécessaire
                 if (userProgress) {
-                    const experiencePoints = calculateExperiencePoints(userProgress.level, userProgress.progress);
                     await apiService.updateUserProgression(formData.id, {
-                        experiencePoints: experiencePoints
+                        experiencePoints: userProgress.experiencePoints || 0
                     });
                 }
             }
@@ -196,11 +199,13 @@ const Admin = () => {
                     username: '',
                     firstName: '',
                     lastName: '',
-                    title: '',
                     email: '',
                     password: '',
                     role: 'user'
                 });
+                setError(null);
+            } else {
+                throw new Error(response.message || 'Erreur lors de l\'opération');
             }
         } catch (err) {
             console.error('Erreur:', err);
@@ -210,30 +215,30 @@ const Admin = () => {
 
     const toggleAchievement = async (achievementId, isUnlocked) => {
         try {
-            const endpoint = isUnlocked ? 'unlock' : 'lock';
-            const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}/achievements/${achievementId}/${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            if (!currentUser) return;
 
-            if (!response.ok) throw new Error('Erreur lors de la modification du succès');
+            if (isUnlocked) {
+                // Débloquer l'achievement
+                await apiService.unlockAchievement(currentUser.id, achievementId);
+            } else {
+                // Bloquer l'achievement (non implémenté dans l'API actuelle)
+                console.log('Bloquage d\'achievement non implémenté');
+                return;
+            }
 
-            const updatedAchievements = isUnlocked
-                ? [...userAchievements, achievementId]
-                : userAchievements.filter(id => id !== achievementId);
-
-            setUserAchievements(updatedAchievements);
+            // Rafraîchir les achievements de l'utilisateur
+            await fetchUserAchievements(currentUser.id);
         } catch (error) {
-            console.error('Erreur:', error);
+            console.error('Erreur lors de la modification du succès:', error);
         }
     };
 
-    const calculateExperiencePoints = (level, progressPercent) => {
-        const xpForNextLevel = 10 * Math.pow(2, level - 1);
-        return Math.floor((progressPercent / 100) * xpForNextLevel);
+    const isAchievementUnlocked = (achievementId) => {
+        return userAchievements.some(ua => 
+            ua.achievementId && 
+            (ua.achievementId._id === achievementId || ua.achievementId === achievementId) && 
+            ua.isUnlocked
+        );
     };
 
     return (
@@ -259,10 +264,10 @@ const Admin = () => {
                     </Button>
                 </div>
 
+                {error && <p className="error-message">{error}</p>}
+
                 {isLoading ? (
                     <p>Chargement en cours...</p>
-                ) : error ? (
-                    <p className="error-message">{error}</p>
                 ) : (
                     <>
                         <div className="user-list">
@@ -272,9 +277,9 @@ const Admin = () => {
                                     <th>ID</th>
                                     <th>Email</th>
                                     <th>Pseudo</th>
-                                    <th>Nom</th>
                                     <th>Prénom</th>
-                                    <th>Titre</th>
+                                    <th>Nom</th>
+                                    <th>Niveau</th>
                                     <th>Rôle</th>
                                     <th>Actions</th>
                                 </tr>
@@ -284,10 +289,10 @@ const Admin = () => {
                                     <tr key={user.id}>
                                         <td>{user.id}</td>
                                         <td>{user.email}</td>
-                                        <td>{user.pseudo}</td>
-                                        <td>{user.nom}</td>
-                                        <td>{user.prenom}</td>
-                                        <td>{user.titre}</td>
+                                        <td>{user.username}</td>
+                                        <td>{user.firstName}</td>
+                                        <td>{user.lastName}</td>
+                                        <td>{user.level}</td>
                                         <td>{user.role}</td>
                                         <td className="actions-cell">
                                             <Button
@@ -369,8 +374,8 @@ const Admin = () => {
                                 <label>Pseudo</label>
                                 <input
                                     type="text"
-                                    value={formData.pseudo}
-                                    onChange={(e) => setFormData({...formData, pseudo: e.target.value})}
+                                    value={formData.username}
+                                    onChange={(e) => setFormData({...formData, username: e.target.value})}
                                     required
                                 />
                             </div>
@@ -378,8 +383,8 @@ const Admin = () => {
                                 <label>Prénom</label>
                                 <input
                                     type="text"
-                                    value={formData.prenom}
-                                    onChange={(e) => setFormData({...formData, prenom: e.target.value})}
+                                    value={formData.firstName}
+                                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                                     required
                                 />
                             </div>
@@ -387,8 +392,8 @@ const Admin = () => {
                                 <label>Nom</label>
                                 <input
                                     type="text"
-                                    value={formData.nom}
-                                    onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                                    value={formData.lastName}
+                                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                                     required
                                 />
                             </div>
@@ -422,15 +427,14 @@ const Admin = () => {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Progression (%)</label>
+                                            <label>Expérience</label>
                                             <input
                                                 type="number"
                                                 min="0"
-                                                max="100"
-                                                value={userProgress.progress.toFixed(2)}
+                                                value={userProgress.experiencePoints || 0}
                                                 onChange={(e) => setUserProgress({
                                                     ...userProgress,
-                                                    progress: parseFloat(e.target.value)
+                                                    experiencePoints: parseInt(e.target.value)
                                                 })}
                                             />
                                         </div>
@@ -442,22 +446,22 @@ const Admin = () => {
                                     <label>Succès</label>
                                     <div className="achievements-list">
                                         {allAchievements.map(achievement => (
-                                            <div key={achievement.id} className="achievement-item">
-                                                <span>{achievement.name}</span>
+                                            <div key={achievement._id} className="achievement-item">
+                                                <span>{achievement.icon} {achievement.name}</span>
                                                 <button
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         toggleAchievement(
-                                                            achievement.id,
-                                                            !userAchievements.includes(achievement.id)
+                                                            achievement._id,
+                                                            !isAchievementUnlocked(achievement._id)
                                                         );
                                                     }}
                                                     className={`achievement-toggle ${
-                                                        userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
+                                                        isAchievementUnlocked(achievement._id) ? 'unlocked' : 'locked'
                                                     }`}
                                                 >
-                                                    {userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
+                                                    {isAchievementUnlocked(achievement._id) ? 'Débloqué' : 'Bloqué'}
                                                 </button>
                                             </div>
                                         ))}
