@@ -67,6 +67,28 @@ const Task = () => {
     // CRUD
     const handleCreateTask = () => setIsModalOpen(true);
     
+    const fetchAndUpdateTasks = async () => {
+        try {
+            const response = await getTasks();
+            if (response.success) {
+                const formattedTasks = response.tasks.map(task => ({
+                    ...task,
+                    id: task._id,
+                    status: task.status === 'à_faire' ? 'todo' : 
+                           task.status === 'en_cours' ? 'in_progress' : 
+                           task.status === 'terminée' ? 'done' : task.status,
+                    priority: task.priority === 'basse' ? 'low' : 
+                             task.priority === 'moyenne' ? 'medium' : 
+                             task.priority === 'haute' ? 'high' : task.priority
+                }));
+                setTasks(formattedTasks);
+                updateStats(formattedTasks);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des tâches:', error);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -83,15 +105,7 @@ const Task = () => {
             };
             const response = await createTask(taskData);
             if (response.success && response.task) {
-                const newTaskWithId = {
-                    ...newTask,
-                    id: response.task._id,
-                    status: newTask.status,
-                    priority: newTask.priority
-                };
-                const updatedTasks = [...tasks, newTaskWithId];
-                setTasks(updatedTasks);
-                updateStats(updatedTasks);
+                await fetchAndUpdateTasks();
                 setIsModalOpen(false);
                 setNewTask({
                     title: '',
@@ -139,22 +153,14 @@ const Task = () => {
             
             const response = await updateTask(taskId, updateData);
             if (response.success) {
-                const updatedTasks = tasks.map(task => {
-                    if (task.id === taskId) {
-                        return { ...task, status: newStatus };
-                    }
-                    return task;
-                });
-                setTasks(updatedTasks);
-                updateStats(updatedTasks);
-                
-                // Gain d'XP quand une tâche est terminée
+                // Si la tâche est terminée, ajouter l'XP côté contexte
                 if (newStatus === 'done') {
                     const xpGain = response.task?.experienceReward || 10;
                     await gainExperience(xpGain);
                     setSuccessMessage(`Félicitations ! Vous avez gagné ${xpGain} XP.`);
                     setTimeout(() => setSuccessMessage(''), 3000);
                 }
+                await fetchAndUpdateTasks();
             }
         } catch (error) {
             console.error('Erreur lors de la mise à jour du statut:', error);
@@ -170,9 +176,7 @@ const Task = () => {
         try {
             const response = await deleteTask(selectedTask.id);
             if (response.success) {
-                const updatedTasks = tasks.filter(task => task.id !== selectedTask.id);
-                setTasks(updatedTasks);
-                updateStats(updatedTasks);
+                await fetchAndUpdateTasks();
                 setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
                 setIsEditing(false);
@@ -197,13 +201,7 @@ const Task = () => {
                          editedTask.priority === 'high' ? 'haute' : editedTask.priority
             });
             if (response.success) {
-                const updatedTasks = tasks.map(task =>
-                    task.id === selectedTask.id
-                        ? { ...task, ...editedTask }
-                        : task
-                );
-                setTasks(updatedTasks);
-                updateStats(updatedTasks);
+                await fetchAndUpdateTasks();
                 setIsEditing(false);
                 setIsTaskDetailModalOpen(false);
                 setSelectedTask(null);
@@ -232,6 +230,12 @@ const Task = () => {
         }
     };
 
+    // Affichage des tâches non terminées uniquement
+    const tasksToShow = tasks.filter(task => task.status !== 'done');
+
+    // Stat XP totale
+    const totalXP = currentUser?.progression?.experiencePoints || 0;
+
     return (
         <div className="task-page-wrapper">
             <Header />
@@ -250,7 +254,7 @@ const Task = () => {
                     <div className="task-container">
                         <h2>Mes Tâches</h2>
                         <div className="tasks-list">
-                            {tasks.map(task => (
+                            {tasksToShow.map(task => (
                                 <div key={task.id} className="task-item">
                                     <div className="task-info">
                                         <h3>{task.title}</h3>
@@ -279,7 +283,7 @@ const Task = () => {
                                     </div>
                                 </div>
                             ))}
-                            {tasks.length === 0 && (
+                            {tasksToShow.length === 0 && (
                                 <p>Aucune tâche pour le moment. Créez votre première tâche !</p>
                             )}
                         </div>
@@ -306,6 +310,10 @@ const Task = () => {
                                         style={{ width: `${stats.completionRate}%` }}
                                     ></div>
                                 </div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-label">XP totale</div>
+                                <div className="stat-value">{totalXP} XP</div>
                             </div>
                         </div>
                     </div>

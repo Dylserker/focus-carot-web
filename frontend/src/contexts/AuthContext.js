@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
             const response = await apiService.addUserExperience(currentUser._id, amount);
             if (response.success) {
                 updateUserProgress(response.progression);
+                await refreshUser();
             }
         } catch (error) {
             console.error('Erreur lors de l\'ajout d\'expérience:', error);

@@ -7,35 +7,24 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { currentUser, logout, gainExperience } = useAuth();
-    const [userProgression, setUserProgression] = useState({
-        level: currentUser?.level || 1,
-        progress: currentUser?.progress || 0
-    });
-    const updateUserProgress = (progression) => {
-        setUserProgression({
-            level: progression.level,
-            progress: progression.progress
-        });
+    const { currentUser, logout } = useAuth();
+
+    // Utiliser la progression du contexte
+    const progression = currentUser?.progression || { level: 1, experiencePoints: 0 };
+    // Calcul du pourcentage d'XP du niveau courant
+    const level = progression.level || 1;
+    const exp = progression.experiencePoints || 0;
+    const expForCurrentLevel = 100 * Math.pow(level - 1, 2);
+    const expForNextLevel = 100 * Math.pow(level, 2);
+    const progressPercent = expForNextLevel > expForCurrentLevel
+        ? ((exp - expForCurrentLevel) / (expForNextLevel - expForCurrentLevel)) * 100
+        : 0;
+    const userInfo = {
+        pseudo: currentUser?.username || "Invité",
+        level: level,
+        title: currentUser?.title || "Débutant",
+        progress: Math.max(0, Math.min(100, progressPercent))
     };
-
-    useEffect(() => {
-        const fetchUserProgression = async () => {
-            if (currentUser?.id) {
-                try {
-                    const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}/experience`);
-                    const data = await response.json();
-                    if (data.success) {
-                        updateUserProgress(data.progression);
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la récupération de la progression:', error);
-                }
-            }
-        };
-
-        fetchUserProgression();
-    }, [currentUser?.id, gainExperience]);
 
     const [userData, setUserData] = useState(null);
 
@@ -53,13 +42,6 @@ const Header = () => {
     const handleLogout = () => {
         logout();
         navigate('/login');
-    };
-
-    const userInfo = {
-        pseudo: currentUser?.username || "Invité",
-        level: currentUser?.level || 1,
-        title: currentUser?.title || "Débutant",
-        progress: userProgression.progress
     };
 
     return (
@@ -99,9 +81,9 @@ const Header = () => {
                 <div className="user-profile">
                     <div className="profile-info">
                         <div className="profile-pseudo">{userInfo.pseudo}</div>
-                        <div className="profile-level">Niveau {userProgression.level}</div>
+                        <div className="profile-level">Niveau {userInfo.level}</div>
                         <div className="profile-title">{userInfo.title}</div>
-                        <ProgressBar progress={userProgression.progress} />
+                        <ProgressBar progress={userInfo.progress} />
                     </div>
                     <div className="profile-photo-container">
                         {userData ? (
