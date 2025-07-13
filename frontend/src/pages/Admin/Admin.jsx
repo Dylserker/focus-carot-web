@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Button from '../../component/Button';
 import Modal from '../../component/Modal';
+import { useAuth } from '../../contexts/AuthContext';
+import apiService from '../../services/api';
 import './Admin.css';
 
 const Admin = () => {
+    const { currentUser: authUser } = useAuth();
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,42 +21,37 @@ const Admin = () => {
     const [allAchievements, setAllAchievements] = useState([]);
     const [formData, setFormData] = useState({
         id: '',
-        pseudo: '',
-        prenom: '',
-        nom: '',
-        titre: '',
+        username: '',
+        firstName: '',
+        lastName: '',
+        title: '',
         email: '',
         password: '',
         role: 'user'
     });
 
-    const token = localStorage.getItem('token');
     const usersPerPage = 10;
 
     useEffect(() => {
         fetchUsers();
-    }, [token]);
+    }, []);
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://localhost:8000/users', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error('Erreur réseau');
+            const response = await apiService.getUsers();
+            if (response.success) {
+                const formattedUsers = response.users.map(user => ({
+                    id: user._id,
+                    email: user.email,
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    title: `Niveau ${user.progression?.level || 1}`,
+                    role: user.role
+                }));
 
-            const data = await response.json();
-            const usersArray = data.users || [];
-            const formattedUsers = usersArray.map(user => ({
-                id: user.id,
-                email: user.email,
-                pseudo: user.username,
-                prenom: user.first_name,
-                nom: user.last_name,
-                titre: user.titre || '',
-                role: user.role
-            }));
-
-            setUsers(formattedUsers);
+                setUsers(formattedUsers);
+            }
         } catch (err) {
             setError('Erreur lors du chargement des utilisateurs');
         } finally {
@@ -63,12 +61,9 @@ const Admin = () => {
 
     const fetchUserProgress = async (userId) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/users/${userId}/experience`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.success) {
-                setUserProgress(data.progression);
+            const response = await apiService.getUserProgression(userId);
+            if (response.success) {
+                setUserProgress(response.progression);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération de la progression:', error);
@@ -78,22 +73,15 @@ const Admin = () => {
     const fetchUserAchievements = async (userId) => {
         try {
             const [achievementsResponse, userAchievementsResponse] = await Promise.all([
-                fetch('http://localhost:8000/api/achievements', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch(`http://localhost:8000/api/users/${userId}/achievements`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
+                apiService.getAchievements(),
+                apiService.getUserAchievements(userId)
             ]);
 
-            const achievementsData = await achievementsResponse.json();
-            const userAchievementsData = await userAchievementsResponse.json();
-
-            if (achievementsData.success) {
-                setAllAchievements(achievementsData.achievements);
+            if (achievementsResponse.success) {
+                setAllAchievements(achievementsResponse.achievements);
             }
-            if (userAchievementsData.success) {
-                setUserAchievements(userAchievementsData.achievements);
+            if (userAchievementsResponse.success) {
+                setUserAchievements(userAchievementsResponse.userAchievements);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des succès:', error);
@@ -148,25 +136,18 @@ const Admin = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8000/api/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            const response = await apiService.deleteUser(id);
+
+            if (response.success) {
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+
+                const remainingUsers = users.length - 1;
+                const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
+                if (currentPage > newTotalPages) {
+                    setCurrentPage(newTotalPages);
                 }
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Erreur lors de la suppression');
-            }
-
-            setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
-
-            const remainingUsers = users.length - 1;
-            const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
-            if (currentPage > newTotalPages) {
-                setCurrentPage(newTotalPages);
+            } else {
+                throw new Error(response.message || 'Erreur lors de la suppression');
             }
 
         } catch (error) {
@@ -194,56 +175,28 @@ const Admin = () => {
             let response;
 
             if (isCreate) {
-                response = await fetch('http://localhost:8000/api/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(userData)
-                });
+                response = await apiService.createUser(userData);
             } else {
-                response = await fetch(`http://localhost:8000/api/users/${formData.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(userData)
-                });
+                response = await apiService.updateUser(formData.id, userData);
 
                 if (userProgress) {
                     const experiencePoints = calculateExperiencePoints(userProgress.level, userProgress.progress);
-                    await fetch(`http://localhost:8000/api/users/${formData.id}/progression`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            level: userProgress.level,
-                            experience_points: experiencePoints
-                        })
+                    await apiService.updateUserProgression(formData.id, {
+                        experiencePoints: experiencePoints
                     });
                 }
             }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Erreur lors de l\'opération');
-            }
-
-            const result = await response.json();
-            if (result.success) {
+            if (response.success) {
                 await fetchUsers();
                 setIsEditModalOpen(false);
                 setIsCreateModalOpen(false);
                 setFormData({
                     id: '',
-                    pseudo: '',
-                    prenom: '',
-                    nom: '',
-                    titre: '',
+                    username: '',
+                    firstName: '',
+                    lastName: '',
+                    title: '',
                     email: '',
                     password: '',
                     role: 'user'

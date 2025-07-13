@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Modal from '../../component/Modal';
-import { getAllAchievements, getUserAchievements } from '../../services/achievementService';
+import { getAchievements, getUserAchievements } from '../../services/achievementService';
 import { useAuth } from '../../contexts/AuthContext';
 import './Success.css';
 
@@ -16,8 +16,8 @@ const Success = () => {
         const fetchData = async () => {
             try {
                 const [achievementsResponse, unlockedResponse] = await Promise.all([
-                    getAllAchievements(),
-                    getUserAchievements(currentUser.id)
+                    getAchievements(),
+                    getUserAchievements(currentUser._id)
                 ]);
 
                 if (achievementsResponse.success) {
@@ -25,7 +25,7 @@ const Success = () => {
                 }
 
                 if (unlockedResponse.success) {
-                    setUnlockedAchievements(unlockedResponse.achievements);
+                    setUnlockedAchievements(unlockedResponse.userAchievements);
                 }
             } catch (error) {
                 console.error("Erreur lors de la récupération des succès:", error);
@@ -33,7 +33,7 @@ const Success = () => {
         };
 
         fetchData();
-    }, [currentUser.id]);
+    }, [currentUser._id]);
 
     const handleAchievementClick = (achievement) => {
         setSelectedAchievement(achievement);
@@ -41,7 +41,7 @@ const Success = () => {
     };
 
     const isAchievementUnlocked = (achievementId) => {
-        return unlockedAchievements.includes(achievementId);
+        return unlockedAchievements.some(ua => ua.achievementId._id === achievementId);
     };
 
     const formatAchievementType = (type) => {
@@ -83,19 +83,19 @@ const Success = () => {
                         </thead>
                         <tbody>
                         {achievements.map((achievement) => (
-                            <tr key={achievement.id}
-                                className={unlockedAchievements.includes(achievement.id) ? 'achievement-unlocked' : ''}>
+                            <tr key={achievement._id}
+                                className={isAchievementUnlocked(achievement._id) ? 'achievement-unlocked' : ''}>
                                 <td>
-                                    {achievement.icon_url ? (
-                                        <img src={achievement.icon_url} alt="" className="achievement-icon" />
+                                    {achievement.iconUrl ? (
+                                        <img src={achievement.iconUrl} alt="" className="achievement-icon" />
                                     ) : (
                                         <div className="achievement-image-placeholder" />
                                     )}
                                 </td>
                                 <td>{achievement.name}</td>
                                 <td>{achievement.description}</td>
-                                <td>{getAchievementTypeLabel(achievement.achievement_type)}</td>
-                                <td>{achievement.experience_reward} XP</td>
+                                <td>{getAchievementTypeLabel(achievement.achievementType)}</td>
+                                <td>{achievement.experienceReward} XP</td>
                                 <td>
                                     <button
                                         className="view-details-button"
@@ -122,9 +122,9 @@ const Success = () => {
                 {selectedAchievement && (
                     <div className="achievement-modal">
                         <div className="achievement-modal-content">
-                            {selectedAchievement.icon_url ? (
+                            {selectedAchievement.iconUrl ? (
                                 <img
-                                    src={selectedAchievement.icon_url}
+                                    src={selectedAchievement.iconUrl}
                                     alt={selectedAchievement.name}
                                     className="achievement-modal-icon"
                                 />
@@ -134,10 +134,10 @@ const Success = () => {
                             <h2>{selectedAchievement.name}</h2>
                             <p className="achievement-description">{selectedAchievement.description}</p>
                             <div className="achievement-details">
-                                <p>Type: {formatAchievementType(selectedAchievement.achievement_type)}</p>
-                                <p>Récompense: {selectedAchievement.experience_reward} XP</p>
-                                <p>Valeur requise: {selectedAchievement.required_value}</p>
-                                <p>Statut: {isAchievementUnlocked(selectedAchievement.id) ? 'Débloqué' : 'Non débloqué'}</p>
+                                                            <p>Type: {formatAchievementType(selectedAchievement.achievementType)}</p>
+                            <p>Récompense: {selectedAchievement.experienceReward} XP</p>
+                            <p>Valeur requise: {selectedAchievement.requiredValue}</p>
+                            <p>Statut: {isAchievementUnlocked(selectedAchievement._id) ? 'Débloqué' : 'Non débloqué'}</p>
                             </div>
                         </div>
                     </div>

@@ -41,17 +41,18 @@ const Task = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await getTasks();
-                if (response.success) {
-                    const formattedTasks = response.tasks.map(task => ({
-                        ...task,
-                        status: formatStatus(task.status),
-                        priority: formatPriority(task.priority)
-                    }));
-                    setTasks(formattedTasks);
+                            const response = await getTasks();
+            if (response.success) {
+                const formattedTasks = response.tasks.map(task => ({
+                    ...task,
+                    id: task._id, // Utiliser _id de MongoDB
+                    status: formatStatus(task.status),
+                    priority: formatPriority(task.priority)
+                }));
+                setTasks(formattedTasks);
 
-                    updateStats(formattedTasks);
-                }
+                updateStats(formattedTasks);
+            }
             } catch (error) {
                 console.error("Erreur lors de la récupération des tâches:", error);
             }
@@ -90,10 +91,8 @@ const Task = () => {
                 title: newTask.title,
                 description: newTask.description,
                 status: newTask.status,
-                due_date: newTask.date,
-                priority: newTask.priority,
-                user_id: currentUser.id,
-                experience_reward: 10
+                dueDate: newTask.date,
+                priority: newTask.priority
             };
 
             const response = await createTask(taskData);
@@ -101,7 +100,9 @@ const Task = () => {
             if (response.success && response.task) {
                 const newTaskWithId = {
                     ...newTask,
-                    id: response.task.id
+                    id: response.task._id, // Utiliser _id de MongoDB
+                    status: formatStatus(response.task.status),
+                    priority: formatPriority(response.task.priority)
                 };
 
                 const updatedTasks = [...tasks, newTaskWithId];
@@ -118,7 +119,7 @@ const Task = () => {
                     priority: 'medium',
                 });
             } else {
-                throw new Error(response.error || 'Erreur lors de la création de la tâche');
+                throw new Error(response.message || 'Erreur lors de la création de la tâche');
             }
         } catch (error) {
             console.error('Erreur lors de la création de la tâche:', error);
@@ -164,9 +165,8 @@ const Task = () => {
                 title: currentTask.title,
                 description: currentTask.description,
                 status: statusMapForBackend[newStatus],
-                due_date: currentTask.due_date || currentTask.date,
-                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority,
-                user_id: currentUser.id
+                dueDate: currentTask.dueDate || currentTask.date,
+                priority: priorityMapForBackend[currentTask.priority] || currentTask.priority
             };
 
             const response = await updateTask(taskId, updateData);
@@ -247,9 +247,8 @@ const Task = () => {
                 title: editedTask.title,
                 description: editedTask.description,
                 status: statusMap[editedTask.status],
-                due_date: editedTask.date,
-                priority: priorityMap[editedTask.priority],
-                user_id: currentUser.id
+                dueDate: editedTask.date,
+                priority: priorityMap[editedTask.priority]
             });
 
             if (response.success) {

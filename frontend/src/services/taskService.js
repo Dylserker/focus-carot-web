@@ -1,115 +1,81 @@
-const API_URL = 'http://localhost:8000';
+import apiService from './api';
 
 export const createTask = async (taskData) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    if (!user || !user.token) {
-        throw new Error('Non authentifié');
-    }
-
     try {
-        const response = await fetch(`${API_URL}/api/tasks`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-            body: JSON.stringify({
-                ...taskData,
-                user_id: user.id
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erreur lors de la création de la tâche');
-        }
-
-        return await response.json();
+        const response = await apiService.createTask(taskData);
+        return response;
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur lors de la création de la tâche:', error);
         throw error;
     }
 };
 
-export const getTasks = async () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    if (!user || !user.token) {
-        throw new Error('Non authentifié');
-    }
-
+export const getTasks = async (filters = {}) => {
     try {
-        const response = await fetch(`${API_URL}/api/tasks/user/${user.id}`, {
-            headers: {
-                'Authorization': `Bearer ${user.token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des tâches');
-        }
-
-        const data = await response.json();
-        return {
-            success: true,
-            tasks: data.tasks || []
-        };
+        const response = await apiService.getMyTasks(filters);
+        return response;
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur lors de la récupération des tâches:', error);
+        throw error;
+    }
+};
+
+export const getUserTasks = async (userId, filters = {}) => {
+    try {
+        const response = await apiService.getUserTasks(userId, filters);
+        return response;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des tâches utilisateur:', error);
+        throw error;
+    }
+};
+
+export const getTask = async (taskId) => {
+    try {
+        const response = await apiService.getTask(taskId);
+        return response;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de la tâche:', error);
         throw error;
     }
 };
 
 export const updateTask = async (taskId, taskData) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    if (!user || !user.token) {
-        throw new Error('Non authentifié');
-    }
-
     try {
-        const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-            body: JSON.stringify(taskData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Erreur lors de la mise à jour de la tâche');
-        }
-
-        return await response.json();
+        const response = await apiService.updateTask(taskId, taskData);
+        return response;
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur lors de la mise à jour de la tâche:', error);
         throw error;
     }
 };
 
 export const deleteTask = async (taskId) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user || !user.token) {
-        throw new Error('Non authentifié');
-    }
-
     try {
-        const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${user.token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Erreur lors de la suppression de la tâche');
-        }
-
-        return await response.json();
+        const response = await apiService.deleteTask(taskId);
+        return response;
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur lors de la suppression de la tâche:', error);
+        throw error;
+    }
+};
+
+export const completeTask = async (taskId) => {
+    try {
+        const response = await apiService.completeTask(taskId);
+        return response;
+    } catch (error) {
+        console.error('Erreur lors de la finalisation de la tâche:', error);
+        throw error;
+    }
+};
+
+export const getTaskStats = async () => {
+    try {
+        const response = await apiService.getTaskStats();
+        return response;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des statistiques des tâches:', error);
         throw error;
     }
 };

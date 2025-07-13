@@ -7,9 +7,9 @@ import './Register.css';
 
 const Register = () => {
     const [formData, setFormData] = useState({
-        nom: '',
-        prenom: '',
-        pseudo: '',
+        lastName: '',
+        firstName: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -37,9 +37,9 @@ const Register = () => {
 
         try {
             const userData = {
-                nom: formData.nom,
-                prenom: formData.prenom,
-                pseudo: formData.pseudo,
+                lastName: formData.lastName,
+                firstName: formData.firstName,
+                username: formData.username,
                 email: formData.email,
                 password: formData.password
             };
@@ -61,12 +61,12 @@ const Register = () => {
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="nom">Nom</label>
+                        <label htmlFor="lastName">Nom</label>
                         <Input
                             type="text"
-                            id="nom"
-                            name="nom"
-                            value={formData.nom}
+                            id="lastName"
+                            name="lastName"
+                            value={formData.lastName}
                             onChange={handleChange}
                             placeholder="Entrez votre nom"
                             required
@@ -74,12 +74,12 @@ const Register = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="prenom">Prénom</label>
+                        <label htmlFor="firstName">Prénom</label>
                         <Input
                             type="text"
-                            id="prenom"
-                            name="prenom"
-                            value={formData.prenom}
+                            id="firstName"
+                            name="firstName"
+                            value={formData.firstName}
                             onChange={handleChange}
                             placeholder="Entrez votre prénom"
                             required
@@ -87,12 +87,12 @@ const Register = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="pseudo">Pseudo</label>
+                        <label htmlFor="username">Pseudo</label>
                         <Input
                             type="text"
-                            id="pseudo"
-                            name="pseudo"
-                            value={formData.pseudo}
+                            id="username"
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             placeholder="Choisissez un pseudo"
                             required

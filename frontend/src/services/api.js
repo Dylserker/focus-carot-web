@@ -1,145 +1,230 @@
 /**
- * Service API qui gère les communications avec le backend PHP
+ * Service API qui gère les communications avec le backend Express.js
  */
-const API_URL = 'http://localhost/focus-carot-web/backend';
+import API_CONFIG from '../config/api';
+
+const API_URL = API_CONFIG.BASE_URL;
 
 class ApiService {
-  async getItems() {
+  constructor() {
+    this.baseURL = API_URL;
+  }
+
+  // Méthode utilitaire pour obtenir le token d'authentification
+  getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+  }
+
+  // Méthode utilitaire pour gérer les réponses
+  async handleResponse(response) {
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `Erreur ${response.status}: ${response.statusText}`);
+    }
+    
+    return data;
+  }
+
+  // Méthode utilitaire pour faire des requêtes
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: this.getAuthHeaders(),
+      ...options
+    };
+
     try {
-      const response = await fetch(`${API_URL}/api/items`);
-      if (!response.ok) {
-        throw new Error('Erreur réseau');
-      }
-      const data = await response.json();
-      return data.data;
+      const response = await fetch(url, config);
+      return await this.handleResponse(response);
     } catch (error) {
-      console.error('Erreur lors de la récupération des éléments:', error);
+      console.error(`Erreur API (${endpoint}):`, error);
       throw error;
     }
   }
 
-  async getItem(id) {
-    try {
-      const response = await fetch(`${API_URL}/api/items/${id}`);
-      if (!response.ok) {
-        throw new Error('Élément non trouvé');
-      }
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      console.error(`Erreur lors de la récupération de l'élément ${id}:`, error);
-      throw error;
-    }
+  // ===== AUTHENTIFICATION =====
+  async login(credentials) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    });
   }
 
-  async createItem(itemData) {
-    try {
-      const response = await fetch(`${API_URL}/api/items`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(itemData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la création');
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'élément:', error);
-      throw error;
-    }
+  async register(userData) {
+    return this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
   }
 
-  async updateItem(id, itemData) {
-    try {
-      const response = await fetch(`${API_URL}/api/items/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(itemData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la mise à jour');
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      console.error(`Erreur lors de la mise à jour de l'élément ${id}:`, error);
-      throw error;
-    }
+  async verifyToken() {
+    return this.request('/auth/verify');
   }
 
-  async deleteItem(id) {
-    try {
-      const response = await fetch(`${API_URL}/api/items/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la suppression');
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      console.error(`Erreur lors de la suppression de l'élément ${id}:`, error);
-      throw error;
-    }
+  // ===== UTILISATEURS =====
+  async getUsers() {
+    return this.request('/users');
   }
 
-  async deleteUser(userId) {
-    try {
-      const response = await fetch(`${API_URL}/api/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
+  async getUser(userId) {
+    return this.request(`/users/${userId}`);
+  }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la suppression');
-      }
+  async getUserProfile(userId) {
+    return this.request(`/users/${userId}/profile`);
+  }
 
-      return true;
-    } catch (error) {
-      console.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
-      throw error;
-    }
+  async updateUserProfile(userId, profileData) {
+    return this.request(`/users/${userId}/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
+  }
+
+  async getUserProgression(userId) {
+    return this.request(`/users/${userId}/progression`);
+  }
+
+  async updateUserProgression(userId, progressionData) {
+    return this.request(`/users/${userId}/progression`, {
+      method: 'PUT',
+      body: JSON.stringify(progressionData)
+    });
+  }
+
+  async addUserExperience(userId, amount) {
+    return this.request(`/users/${userId}/experience`, {
+      method: 'POST',
+      body: JSON.stringify({ amount })
+    });
+  }
+
+  async getUserStats(userId) {
+    return this.request(`/users/${userId}/stats`);
   }
 
   async updateUser(userId, userData) {
-    try {
-      const response = await fetch(`${API_URL}/api/users/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(userData)
-      });
+    return this.request(`/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+  }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la mise à jour');
-      }
+  async deleteUser(userId) {
+    return this.request(`/users/${userId}`, {
+      method: 'DELETE'
+    });
+  }
 
-      return await response.json();
-    } catch (error) {
-      console.error(`Erreur lors de la mise à jour de l'utilisateur ${userId}:`, error);
-      throw error;
-    }
+  // ===== TÂCHES =====
+  async createTask(taskData) {
+    return this.request('/tasks', {
+      method: 'POST',
+      body: JSON.stringify(taskData)
+    });
+  }
+
+  async getMyTasks(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    const endpoint = queryParams ? `/tasks/my-tasks?${queryParams}` : '/tasks/my-tasks';
+    return this.request(endpoint);
+  }
+
+  async getUserTasks(userId, filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    const endpoint = queryParams ? `/tasks/user/${userId}?${queryParams}` : `/tasks/user/${userId}`;
+    return this.request(endpoint);
+  }
+
+  async getTask(taskId) {
+    return this.request(`/tasks/${taskId}`);
+  }
+
+  async updateTask(taskId, taskData) {
+    return this.request(`/tasks/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify(taskData)
+    });
+  }
+
+  async deleteTask(taskId) {
+    return this.request(`/tasks/${taskId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async completeTask(taskId) {
+    return this.request(`/tasks/${taskId}/complete`, {
+      method: 'PATCH'
+    });
+  }
+
+  async getTaskStats() {
+    return this.request('/tasks/stats/my-tasks');
+  }
+
+  // ===== ACHIEVEMENTS =====
+  async getAchievements() {
+    return this.request('/achievements');
+  }
+
+  async getAchievementsByType(type) {
+    return this.request(`/achievements/type/${type}`);
+  }
+
+  async getAchievement(achievementId) {
+    return this.request(`/achievements/${achievementId}`);
+  }
+
+  async getUserAchievements(userId) {
+    return this.request(`/achievements/user/${userId}`);
+  }
+
+  async getCompletedAchievements(userId) {
+    return this.request(`/achievements/user/${userId}/completed`);
+  }
+
+  async unlockAchievement(userId, achievementId) {
+    return this.request(`/achievements/user/${userId}/unlock/${achievementId}`, {
+      method: 'POST'
+    });
+  }
+
+  async updateAchievementProgress(userId, achievementId, progress) {
+    return this.request(`/achievements/user/${userId}/progress/${achievementId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ progress })
+    });
+  }
+
+  async getAchievementStats(userId) {
+    return this.request(`/achievements/user/${userId}/stats`);
+  }
+
+  // ===== ADMIN ACHIEVEMENTS =====
+  async createAchievement(achievementData) {
+    return this.request('/achievements', {
+      method: 'POST',
+      body: JSON.stringify(achievementData)
+    });
+  }
+
+  async updateAchievement(achievementId, achievementData) {
+    return this.request(`/achievements/${achievementId}`, {
+      method: 'PUT',
+      body: JSON.stringify(achievementData)
+    });
+  }
+
+  async deleteAchievement(achievementId) {
+    return this.request(`/achievements/${achievementId}`, {
+      method: 'DELETE'
+    });
   }
 }
 

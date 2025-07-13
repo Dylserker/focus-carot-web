@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
+import { useAuth } from '../../contexts/AuthContext';
+import apiService from '../../services/api';
 import './Profile.css';
 
 const Profile = () => {
+    const { currentUser, updateUser } = useAuth();
     const [profileData, setProfileData] = useState({
         username: '',
         firstName: '',
@@ -19,42 +22,35 @@ const Profile = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                if (!userData || !userData.id) {
+                if (!currentUser || !currentUser._id) {
                     throw new Error('Utilisateur non connecté');
                 }
 
-                const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
+                const response = await apiService.getUserProfile(currentUser._id);
 
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la récupération des données');
+                if (response.success) {
+                    const user = response.user;
+                    setProfileData({
+                        username: user.username || '',
+                        firstName: user.firstName || '',
+                        lastName: user.lastName || '',
+                        birthDate: user.profile?.dateOfBirth ? new Date(user.profile.dateOfBirth).toISOString().split('T')[0] : '',
+                        email: user.email || '',
+                        password: '',
+                        title: `Niveau ${user.progression?.level || 1}`,
+                        profilePicture: user.avatarUrl || null
+                    });
                 }
-
-                const data = await response.json();
-                const profile = data.profile;
-
-                setProfileData({
-                    username: profile.username || '',
-                    firstName: profile.first_name || '',
-                    lastName: profile.last_name || '',
-                    birthDate: profile.date_of_birth || '',
-                    email: profile.email || '',
-                    password: '',
-                    title: userData.title || 'Novice',
-                    profilePicture: profile.avatar_url || null
-                });
             } catch (err) {
                 setError(err.message);
                 console.error('Erreur:', err);
             }
         };
 
-        fetchUserData();
-    }, []);
+        if (currentUser) {
+            fetchUserData();
+        }
+    }, [currentUser]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -104,50 +100,42 @@ const Profile = () => {
 
     const handleSaveChanges = async () => {
         try {
-            const userData = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser || !currentUser._id) {
+                throw new Error('Utilisateur non connecté');
+            }
 
             const updatedProfile = {
                 email: profileData.email,
-                pseudo: profileData.username,
-                prenom: profileData.firstName,
-                nom: profileData.lastName,
-                date_of_birth: profileData.birthDate || null,
-                role: userData.role
+                username: profileData.username,
+                firstName: profileData.firstName,
+                lastName: profileData.lastName,
+                profile: {
+                    dateOfBirth: profileData.birthDate ? new Date(profileData.birthDate) : null
+                }
             };
 
             if (profileData.password) {
                 updatedProfile.password = profileData.password;
             }
 
-            const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(updatedProfile)
-            });
+            const response = await apiService.updateUserProfile(currentUser._id, updatedProfile);
 
-            if (!response.ok) {
-                throw new Error('Erreur lors de la mise à jour du profil');
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
-                const updatedUserData = {
-                    ...userData,
+            if (response.success) {
+                // Mettre à jour le contexte utilisateur
+                updateUser({
                     email: profileData.email,
                     username: profileData.username,
-                    first_name: profileData.firstName,
-                    last_name: profileData.lastName
-                };
-                localStorage.setItem('user', JSON.stringify(updatedUserData));
+                    firstName: profileData.firstName,
+                    lastName: profileData.lastName,
+                    profile: {
+                        dateOfBirth: profileData.birthDate ? new Date(profileData.birthDate) : null
+                    }
+                });
 
                 setIsEditing(false);
                 setError(null);
             } else {
-                throw new Error(result.error || 'Erreur lors de la mise à jour');
+                throw new Error(response.message || 'Erreur lors de la mise à jour');
             }
         } catch (err) {
             setError(err.message);
