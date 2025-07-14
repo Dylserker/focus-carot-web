@@ -476,9 +476,9 @@ router.get('/user/:userId/stats', validateObjectId('userId'), async (req, res) =
 // Créer un nouvel achievement (admin seulement)
 router.post('/', requireRole(['admin']), async (req, res) => {
   try {
-    const { name, description, iconUrl, experienceReward, requiredValue, achievementType } = req.body;
+    const { name, description, iconUrl, experienceReward, requiredValue, type } = req.body;
 
-    if (!name || !description || !achievementType) {
+    if (!name || !description || !type) {
       return res.status(400).json({
         success: false,
         message: 'Nom, description et type d\'achievement requis'
@@ -491,7 +491,8 @@ router.post('/', requireRole(['admin']), async (req, res) => {
       iconUrl,
       experienceReward: experienceReward || 0,
       requiredValue: requiredValue || 1,
-      achievementType
+      type,
+      achievementType: type
     });
 
     await achievement.save();
@@ -513,7 +514,7 @@ router.post('/', requireRole(['admin']), async (req, res) => {
 // Mettre à jour un achievement (admin seulement)
 router.put('/:id', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
   try {
-    const { name, description, iconUrl, experienceReward, requiredValue, achievementType, isActive } = req.body;
+    const { name, description, iconUrl, experienceReward, requiredValue, type, isActive } = req.body;
 
     const updateData = {};
     if (name) updateData.name = name;
@@ -521,7 +522,10 @@ router.put('/:id', validateObjectId('id'), requireRole(['admin']), async (req, r
     if (iconUrl !== undefined) updateData.iconUrl = iconUrl;
     if (experienceReward !== undefined) updateData.experienceReward = experienceReward;
     if (requiredValue !== undefined) updateData.requiredValue = requiredValue;
-    if (achievementType) updateData.achievementType = achievementType;
+    if (type) {
+      updateData.type = type;
+      updateData.achievementType = type;
+    }
     if (isActive !== undefined) updateData.isActive = isActive;
 
     const achievement = await Achievement.findByIdAndUpdate(

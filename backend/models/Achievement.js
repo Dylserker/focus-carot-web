@@ -18,6 +18,11 @@ const achievementSchema = new mongoose.Schema({
     enum: ['taches_completees', 'niveau_atteint', 'jours_consecutifs', 'special'],
     required: true
   },
+  achievementType: {
+    type: String,
+    enum: ['taches_completees', 'niveau_atteint', 'jours_consecutifs', 'special'],
+    required: true
+  },
   icon: {
     type: String,
     default: '🏆'

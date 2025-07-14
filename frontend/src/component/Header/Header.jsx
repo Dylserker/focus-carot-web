@@ -86,10 +86,10 @@ const Header = () => {
                         <ProgressBar progress={userInfo.progress} />
                     </div>
                     <div className="profile-photo-container">
-                        {userData ? (
+                        {userData && userData.id ? (
                             <img
                                 className="profile-photo"
-                                src={`http://localhost:8000/api/users/${userData.id}/avatar`}
+                                src={`http://localhost:5000/api/users/${userData.id}/avatar`}
                                 alt="Avatar"
                                 onClick={handleProfileClick}
                                 onError={(e) => {
@@ -98,8 +98,10 @@ const Header = () => {
                                 }}
                             />
                         ) : (
-                            <div
+                            <img
                                 className="profile-photo"
+                                src={'/assets/images/default-avatar.png'}
+                                alt="Avatar"
                                 onClick={handleProfileClick}
                             />
                         )}

@@ -836,3 +836,149 @@ button[children="Créer un utilisateur"]:hover,
     transform: rotate(0deg) scale(1.05) !important;
     background: linear-gradient(to bottom, #2196f3, #1976d2) !important;
 }
+
+/* Section Administration */
+.admin-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+/* Grille des succès */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.achievement-card {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.achievement-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.achievement-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.achievement-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.achievement-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+    flex: 1;
+}
+
+.achievement-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.achievement-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.achievement-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.achievement-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.achievement-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.achievement-type {
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.achievement-xp {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.achievement-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.edit-achievement-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.edit-achievement-btn:hover {
+    background: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievement-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .achievement-details {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

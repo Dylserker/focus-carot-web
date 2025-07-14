@@ -8,7 +8,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const taskRoutes = require('./routes/tasks');
-const achievementRoutes = require('./routes/achievementRoutes');
+const achievementRoutes = require('./routes/achievements');
 
 const app = express();
 const PORT = 5000;

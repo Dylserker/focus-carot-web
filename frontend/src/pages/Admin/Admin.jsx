@@ -2,18 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../component/Header/Header';
 import Button from '../../component/Button';
 import Modal from '../../component/Modal';
-import { useAuth } from '../../contexts/AuthContext';
-import apiService from '../../services/api';
 import './Admin.css';
 
 const Admin = () => {
-    const { currentUser: authUser } = useAuth();
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [userProgress, setUserProgress] = useState(null);
@@ -21,37 +18,42 @@ const Admin = () => {
     const [allAchievements, setAllAchievements] = useState([]);
     const [formData, setFormData] = useState({
         id: '',
-        username: '',
-        firstName: '',
-        lastName: '',
+        pseudo: '',
+        prenom: '',
+        nom: '',
+        titre: '',
         email: '',
         password: '',
         role: 'user'
     });
 
+    const token = localStorage.getItem('token');
     const usersPerPage = 10;
 
     useEffect(() => {
         fetchUsers();
-        fetchAchievements();
-    }, []);
+    }, [token]);
 
     const fetchUsers = async () => {
         try {
-            const response = await apiService.getUsers();
-            if (response.success) {
-                const formattedUsers = response.users.map(user => ({
-                    id: user._id,
-                    email: user.email,
-                    username: user.username,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    level: user.progression?.level || 1,
-                    role: user.role
-                }));
+            const response = await fetch('http://localhost:5000/api/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Erreur réseau');
 
-                setUsers(formattedUsers);
-            }
+            const data = await response.json();
+            const usersArray = data.users || [];
+            const formattedUsers = usersArray.map(user => ({
+                id: user._id,
+                email: user.email,
+                pseudo: user.username,
+                prenom: user.firstName,
+                nom: user.lastName,
+                titre: user.titre || '',
+                role: user.role
+            }));
+
+            setUsers(formattedUsers);
         } catch (err) {
             setError('Erreur lors du chargement des utilisateurs');
         } finally {
@@ -59,22 +61,14 @@ const Admin = () => {
         }
     };
 
-    const fetchAchievements = async () => {
-        try {
-            const response = await apiService.getAchievements();
-            if (response.success) {
-                setAllAchievements(response.achievements || []);
-            }
-        } catch (error) {
-            console.error('Erreur lors de la récupération des succès:', error);
-        }
-    };
-
     const fetchUserProgress = async (userId) => {
         try {
-            const response = await apiService.getUserProgression(userId);
-            if (response.success) {
-                setUserProgress(response.progression);
+            const response = await fetch(`http://localhost:5000/api/users/${userId}/experience`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUserProgress(data.progression);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération de la progression:', error);
@@ -83,12 +77,26 @@ const Admin = () => {
 
     const fetchUserAchievements = async (userId) => {
         try {
-            const response = await apiService.getUserAchievements(userId);
-            if (response.success) {
-                setUserAchievements(response.userAchievements);
+            const [achievementsResponse, userAchievementsResponse] = await Promise.all([
+                fetch('http://localhost:5000/api/achievements', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }),
+                fetch(`http://localhost:5000/api/users/${userId}/achievements`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            const achievementsData = await achievementsResponse.json();
+            const userAchievementsData = await userAchievementsResponse.json();
+
+            if (achievementsData.success) {
+                setAllAchievements(achievementsData.achievements);
+            }
+            if (userAchievementsData.success) {
+                setUserAchievements(userAchievementsData.achievements);
             }
         } catch (error) {
-            console.error('Erreur lors de la récupération des succès utilisateur:', error);
+            console.error('Erreur lors de la récupération des succès:', error);
         }
     };
 
@@ -104,15 +112,16 @@ const Admin = () => {
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     const handleEdit = (user) => {
-        setSelectedUser(user);
+        setCurrentUser(user);
         setFormData({
-            id: user.id,
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
+            id: user.id || '',
+            pseudo: user.pseudo || '',
+            prenom: user.prenom || '',
+            nom: user.nom || '',
+            titre: user.titre || '',
+            email: user.email || '',
             password: '',
-            role: user.role
+            role: user.role || 'user'
         });
         fetchUserProgress(user.id);
         fetchUserAchievements(user.id);
@@ -122,9 +131,10 @@ const Admin = () => {
     const handleCreate = () => {
         setFormData({
             id: '',
-            username: '',
-            firstName: '',
-            lastName: '',
+            pseudo: '',
+            prenom: '',
+            nom: '',
+            titre: '',
             email: '',
             password: '',
             role: 'user'
@@ -138,18 +148,25 @@ const Admin = () => {
         }
 
         try {
-            const response = await apiService.deleteUser(id);
-
-            if (response.success) {
-                setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
-
-                const remainingUsers = users.length - 1;
-                const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
-                if (currentPage > newTotalPages) {
-                    setCurrentPage(newTotalPages);
+            const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            } else {
-                throw new Error(response.message || 'Erreur lors de la suppression');
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de la suppression');
+            }
+
+            setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+
+            const remainingUsers = users.length - 1;
+            const newTotalPages = Math.ceil(remainingUsers / usersPerPage);
+            if (currentPage > newTotalPages) {
+                setCurrentPage(newTotalPages);
             }
 
         } catch (error) {
@@ -163,10 +180,11 @@ const Admin = () => {
         try {
             const userData = {
                 email: formData.email,
-                username: formData.username,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                role: formData.role
+                nom: formData.nom,
+                prenom: formData.prenom,
+                pseudo: formData.pseudo,
+                role: formData.role,
+                achievements: userAchievements
             };
 
             if (formData.password) {
@@ -176,36 +194,60 @@ const Admin = () => {
             let response;
 
             if (isCreate) {
-                // Créer un nouvel utilisateur
-                response = await apiService.createUser(userData);
+                response = await fetch('http://localhost:5000/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(userData)
+                });
             } else {
-                // Mettre à jour un utilisateur existant
-                response = await apiService.updateUser(formData.id, userData);
+                response = await fetch(`http://localhost:5000/api/users/${formData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(userData)
+                });
 
-                // Mettre à jour la progression si nécessaire
                 if (userProgress) {
-                    await apiService.updateUserProgression(formData.id, {
-                        experiencePoints: userProgress.experiencePoints || 0
+                    const experiencePoints = calculateExperiencePoints(userProgress.level, userProgress.progress);
+                    await fetch(`http://localhost:5000/api/users/${formData.id}/progression`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            level: userProgress.level,
+                            experience_points: experiencePoints
+                        })
                     });
                 }
             }
 
-            if (response.success) {
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de l\'opération');
+            }
+
+            const result = await response.json();
+            if (result.success) {
                 await fetchUsers();
                 setIsEditModalOpen(false);
                 setIsCreateModalOpen(false);
                 setFormData({
                     id: '',
-                    username: '',
-                    firstName: '',
-                    lastName: '',
+                    pseudo: '',
+                    prenom: '',
+                    nom: '',
+                    titre: '',
                     email: '',
                     password: '',
                     role: 'user'
                 });
-                setError(null);
-            } else {
-                throw new Error(response.message || 'Erreur lors de l\'opération');
             }
         } catch (err) {
             console.error('Erreur:', err);
@@ -215,30 +257,30 @@ const Admin = () => {
 
     const toggleAchievement = async (achievementId, isUnlocked) => {
         try {
-            if (!selectedUser) return;
+            const endpoint = isUnlocked ? 'unlock' : 'lock';
+            const response = await fetch(`http://localhost:5000/api/users/${currentUser.id}/achievements/${achievementId}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            if (isUnlocked) {
-                // Débloquer l'achievement
-                await apiService.unlockAchievement(selectedUser.id, achievementId);
-            } else {
-                // Bloquer l'achievement (non implémenté dans l'API actuelle)
-                console.log('Bloquage d\'achievement non implémenté');
-                return;
-            }
+            if (!response.ok) throw new Error('Erreur lors de la modification du succès');
 
-            // Rafraîchir les achievements de l'utilisateur
-            await fetchUserAchievements(selectedUser.id);
+            const updatedAchievements = isUnlocked
+                ? [...userAchievements, achievementId]
+                : userAchievements.filter(id => id !== achievementId);
+
+            setUserAchievements(updatedAchievements);
         } catch (error) {
-            console.error('Erreur lors de la modification du succès:', error);
+            console.error('Erreur:', error);
         }
     };
 
-    const isAchievementUnlocked = (achievementId) => {
-        return userAchievements.some(ua => 
-            ua.achievementId && 
-            (ua.achievementId._id === achievementId || ua.achievementId === achievementId) && 
-            ua.isUnlocked
-        );
+    const calculateExperiencePoints = (level, progressPercent) => {
+        const xpForNextLevel = 10 * Math.pow(2, level - 1);
+        return Math.floor((progressPercent / 100) * xpForNextLevel);
     };
 
     return (
@@ -264,10 +306,10 @@ const Admin = () => {
                     </Button>
                 </div>
 
-                {error && <p className="error-message">{error}</p>}
-
                 {isLoading ? (
                     <p>Chargement en cours...</p>
+                ) : error ? (
+                    <p className="error-message">{error}</p>
                 ) : (
                     <>
                         <div className="user-list">
@@ -277,9 +319,9 @@ const Admin = () => {
                                     <th>ID</th>
                                     <th>Email</th>
                                     <th>Pseudo</th>
-                                    <th>Prénom</th>
                                     <th>Nom</th>
-                                    <th>Niveau</th>
+                                    <th>Prénom</th>
+                                    <th>Titre</th>
                                     <th>Rôle</th>
                                     <th>Actions</th>
                                 </tr>
@@ -289,10 +331,10 @@ const Admin = () => {
                                     <tr key={user.id}>
                                         <td>{user.id}</td>
                                         <td>{user.email}</td>
-                                        <td>{user.username}</td>
-                                        <td>{user.firstName}</td>
-                                        <td>{user.lastName}</td>
-                                        <td>{user.level}</td>
+                                        <td>{user.pseudo}</td>
+                                        <td>{user.nom}</td>
+                                        <td>{user.prenom}</td>
+                                        <td>{user.titre}</td>
                                         <td>{user.role}</td>
                                         <td className="actions-cell">
                                             <Button
@@ -374,8 +416,8 @@ const Admin = () => {
                                 <label>Pseudo</label>
                                 <input
                                     type="text"
-                                    value={formData.username}
-                                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                    value={formData.pseudo}
+                                    onChange={(e) => setFormData({...formData, pseudo: e.target.value})}
                                     required
                                 />
                             </div>
@@ -383,8 +425,8 @@ const Admin = () => {
                                 <label>Prénom</label>
                                 <input
                                     type="text"
-                                    value={formData.firstName}
-                                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                                    value={formData.prenom}
+                                    onChange={(e) => setFormData({...formData, prenom: e.target.value})}
                                     required
                                 />
                             </div>
@@ -392,8 +434,8 @@ const Admin = () => {
                                 <label>Nom</label>
                                 <input
                                     type="text"
-                                    value={formData.lastName}
-                                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                                    value={formData.nom}
+                                    onChange={(e) => setFormData({...formData, nom: e.target.value})}
                                     required
                                 />
                             </div>
@@ -427,14 +469,15 @@ const Admin = () => {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Expérience</label>
+                                            <label>Progression (%)</label>
                                             <input
                                                 type="number"
                                                 min="0"
-                                                value={userProgress.experiencePoints || 0}
+                                                max="100"
+                                                value={userProgress.progress.toFixed(2)}
                                                 onChange={(e) => setUserProgress({
                                                     ...userProgress,
-                                                    experiencePoints: parseInt(e.target.value)
+                                                    progress: parseFloat(e.target.value)
                                                 })}
                                             />
                                         </div>
@@ -446,22 +489,22 @@ const Admin = () => {
                                     <label>Succès</label>
                                     <div className="achievements-list">
                                         {allAchievements.map(achievement => (
-                                            <div key={achievement._id} className="achievement-item">
-                                                <span>{achievement.icon} {achievement.name}</span>
+                                            <div key={achievement.id} className="achievement-item">
+                                                <span>{achievement.name}</span>
                                                 <button
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         toggleAchievement(
-                                                            achievement._id,
-                                                            !isAchievementUnlocked(achievement._id)
+                                                            achievement.id,
+                                                            !userAchievements.includes(achievement.id)
                                                         );
                                                     }}
                                                     className={`achievement-toggle ${
-                                                        isAchievementUnlocked(achievement._id) ? 'unlocked' : 'locked'
+                                                        userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
                                                     }`}
                                                 >
-                                                    {isAchievementUnlocked(achievement._id) ? 'Débloqué' : 'Bloqué'}
+                                                    {userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
                                                 </button>
                                             </div>
                                         ))}
