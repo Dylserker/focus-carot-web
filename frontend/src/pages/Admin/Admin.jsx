@@ -63,7 +63,7 @@ const Admin = () => {
 
     const fetchUserProgress = async (userId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${userId}/experience`, {
+            const response = await fetch(`http://localhost:5000/api/users/${userId}/progression`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -180,9 +180,9 @@ const Admin = () => {
         try {
             const userData = {
                 email: formData.email,
-                nom: formData.nom,
-                prenom: formData.prenom,
-                pseudo: formData.pseudo,
+                username: formData.pseudo,
+                firstName: formData.prenom,
+                lastName: formData.nom,
                 role: formData.role,
                 achievements: userAchievements
             };
@@ -474,7 +474,7 @@ const Admin = () => {
                                                 type="number"
                                                 min="0"
                                                 max="100"
-                                                value={userProgress.progress.toFixed(2)}
+                                                value={userProgress.progress !== undefined && userProgress.progress !== null ? userProgress.progress.toFixed(2) : ''}
                                                 onChange={(e) => setUserProgress({
                                                     ...userProgress,
                                                     progress: parseFloat(e.target.value)
@@ -488,8 +488,8 @@ const Admin = () => {
                                 <div className="detail-group">
                                     <label>Succès</label>
                                     <div className="achievements-list">
-                                        {allAchievements.map(achievement => (
-                                            <div key={achievement.id} className="achievement-item">
+                                        {allAchievements.map((achievement, idx) => (
+                                            <div key={achievement.id || idx} className="achievement-item">
                                                 <span>{achievement.name}</span>
                                                 <button
                                                     type="button"
@@ -497,14 +497,14 @@ const Admin = () => {
                                                         e.preventDefault();
                                                         toggleAchievement(
                                                             achievement.id,
-                                                            !userAchievements.includes(achievement.id)
+                                                            !(Array.isArray(userAchievements) && userAchievements.includes(achievement.id))
                                                         );
                                                     }}
                                                     className={`achievement-toggle ${
-                                                        userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
+                                                        Array.isArray(userAchievements) && userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
                                                     }`}
                                                 >
-                                                    {userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
+                                                    {Array.isArray(userAchievements) && userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
                                                 </button>
                                             </div>
                                         ))}
