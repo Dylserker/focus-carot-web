@@ -34,7 +34,7 @@ const Profile = () => {
                 if (response.success) {
                     const user = response.profile;
                     setProfileData({
-                        username: user.firstName || '',
+                        username: currentUser.username || '',
                         firstName: user.firstName || '',
                         lastName: user.lastName || '',
                         birthDate: user.profile?.dateOfBirth ? new Date(user.profile.dateOfBirth).toISOString().split('T')[0] : '',
@@ -128,10 +128,10 @@ const Profile = () => {
             }
 
             const updatedProfile = {
-                email: profileData.email,
                 username: profileData.username,
                 firstName: profileData.firstName,
                 lastName: profileData.lastName,
+                email: profileData.email,
                 profile: {
                     dateOfBirth: profileData.birthDate ? new Date(profileData.birthDate) : null
                 }
@@ -147,8 +147,8 @@ const Profile = () => {
                 // Mettre à jour le contexte utilisateur
                 updateUser({
                     ...currentUser,
-                    email: profileData.email,
                     username: profileData.username,
+                    email: profileData.email,
                     firstName: profileData.firstName,
                     lastName: profileData.lastName,
                     profile: {
@@ -183,7 +183,7 @@ const Profile = () => {
         if (currentUser) {
             setProfileData(prev => ({
                 ...prev,
-                username: currentUser.firstName || '',
+                username: currentUser.username || '',
                 firstName: currentUser.firstName || '',
                 lastName: currentUser.lastName || '',
                 birthDate: currentUser.profile?.dateOfBirth ? new Date(currentUser.profile.dateOfBirth).toISOString().split('T')[0] : '',
@@ -270,6 +270,7 @@ const Profile = () => {
                             value={profileData.username}
                             onChange={handleInputChange}
                             disabled={!isEditing}
+                            placeholder="Votre pseudo"
                         />
                     </div>
 
@@ -282,6 +283,7 @@ const Profile = () => {
                             value={profileData.firstName}
                             onChange={handleInputChange}
                             disabled={!isEditing}
+                            placeholder="Votre prénom"
                         />
                     </div>
 
@@ -294,6 +296,7 @@ const Profile = () => {
                             value={profileData.lastName}
                             onChange={handleInputChange}
                             disabled={!isEditing}
+                            placeholder="Votre nom"
                         />
                     </div>
 
@@ -318,6 +321,7 @@ const Profile = () => {
                             value={profileData.email}
                             onChange={handleInputChange}
                             disabled={!isEditing}
+                            placeholder="votre.email@exemple.com"
                         />
                     </div>
 
