@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { login, isLoading } = useAuth();
     const router = useRouter();
 
     const handleLogin = async () => {
         if (!email || !password) {
-            alert('Veuillez remplir tous les champs');
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
 
-        const success = await login(email, password);
-        if (success) {
-            router.replace('/screen/home');
-        } else {
-            alert('Échec de la connexion. Veuillez vérifier vos identifiants.');
+        setIsSubmitting(true);
+        try {
+            const result = await login(email, password);
+            if (result.success) {
+                router.replace('/screen/home');
+            } else {
+                Alert.alert('Erreur de connexion', result.message || 'Veuillez vérifier vos identifiants');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Une erreur inattendue s\'est produite');
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    const isButtonDisabled = isLoading || isSubmitting;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -35,7 +45,7 @@ export default function Login() {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TextInput
@@ -44,15 +54,15 @@ export default function Login() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TouchableOpacity
-                    style={[styles.button, isLoading && styles.buttonDisabled]}
+                    style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
                     onPress={handleLogin}
-                    disabled={isLoading}
+                    disabled={isButtonDisabled}
                 >
-                    {isLoading ? (
+                    {isButtonDisabled ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
                         <Text style={styles.buttonText}>Se connecter</Text>

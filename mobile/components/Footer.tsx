@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { useAuth } from '../app/context/AuthContext';
-import { router } from 'expo-router';
+import { useAuth } from '../src/context/AuthContext';
+import { useRouter } from 'expo-router';
 
 const Footer = () => {
     const { logout } = useAuth();
+    const router = useRouter();
 
     const navigateToHome = () => {
         router.push('/');

@@ -16,16 +16,16 @@ const PORT = 5000;
 // Configuration de sécurité
 app.use(helmet());
 
-// Configuration CORS
+// Configuration CORS - Plus permissive pour le développement
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: true, // Autorise toutes les origines en développement
   credentials: true
 }));
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limite chaque IP à 100 requêtes par fenêtre
+  max: 1000 // limite chaque IP à 100 requêtes par fenêtre
 });
 app.use(limiter);
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import Footer from '../components/Footer';
 import { HeaderBackground, HeaderLeft, HeaderRight } from '../components/Header';
 
@@ -23,8 +23,12 @@ function AppLayoutContent() {
                 gestureEnabled: false,
             }}>
                 <Stack.Screen name="index" />
-                <Stack.Screen name="login" />
-                <Stack.Screen name="register" />
+                <Stack.Screen name="screen/login" />
+                <Stack.Screen name="screen/register" />
+                <Stack.Screen name="screen/home" />
+                <Stack.Screen name="screen/tasks" />
+                <Stack.Screen name="screen/achievements" />
+                <Stack.Screen name="screen/profile" />
                 <Stack.Screen name="settings" />
             </Stack>
             {user && <Footer />}

@@ -1,50 +1,188 @@
-# Welcome to your Expo app 👋
+# Focus Carot - Application Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile React Native/Expo pour Focus Carot, connectée au backend Node.js.
 
-## Get started
+## 🚀 Configuration
 
-1. Install dependencies
+### Prérequis
 
+- Node.js (version 18 ou supérieure)
+- Expo CLI
+- Backend Focus Carot en cours d'exécution
+
+### Installation
+
+1. **Installer les dépendances :**
    ```bash
    npm install
    ```
 
-2. Start the app
+2. **Configurer l'API :**
+   - Ouvrir `app/config/config.ts`
+   - Modifier `API_BASE_URL` selon votre configuration :
+     - Développement local : `http://localhost:5000/api`
+     - Production : `https://votre-domaine.com/api`
 
+3. **Démarrer l'application :**
    ```bash
-    npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+## 🔧 Configuration de l'API
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Variables d'environnement
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+L'application utilise une configuration centralisée dans `app/config/config.ts` :
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```typescript
+export const CONFIG = {
+    API_BASE_URL: __DEV__ 
+        ? 'http://localhost:5000/api'  // Développement
+        : 'https://votre-domaine.com/api', // Production
+    // ... autres configurations
+};
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Services disponibles
 
-## Learn more
+- **`apiService`** : Service principal pour les appels API
+- **`taskService`** : Gestion des tâches
+- **`achievementService`** : Gestion des succès
+- **`AuthContext`** : Contexte d'authentification
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📱 Fonctionnalités
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Authentification
+- Connexion/Inscription
+- Gestion des tokens JWT
+- Persistance de session
 
-## Join the community
+### Tâches
+- Création, modification, suppression
+- Marquage comme complétée
+- Synchronisation avec le backend
 
-Join our community of developers creating universal apps.
+### Succès
+- Affichage des succès disponibles
+- Succès débloqués par l'utilisateur
+- Statistiques de progression
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Profil utilisateur
+- Modification des informations
+- Upload d'avatar
+- Gestion des préférences
+
+## 🔌 Connexion au Backend
+
+### Endpoints utilisés
+
+- **Authentification :**
+  - `POST /api/auth/login`
+  - `POST /api/auth/register`
+  - `POST /api/auth/logout`
+
+- **Utilisateurs :**
+  - `GET /api/users/profile`
+  - `PUT /api/users/profile`
+  - `PUT /api/users/avatar`
+
+- **Tâches :**
+  - `GET /api/tasks`
+  - `POST /api/tasks`
+  - `PUT /api/tasks/:id`
+  - `DELETE /api/tasks/:id`
+  - `PUT /api/tasks/:id/toggle`
+
+- **Succès :**
+  - `GET /api/achievements`
+  - `GET /api/achievements/user`
+
+### Gestion des erreurs
+
+L'application gère automatiquement :
+- Erreurs de réseau
+- Tokens expirés
+- Erreurs de validation
+- Erreurs serveur
+
+## 🛠️ Développement
+
+### Structure des dossiers
+
+```
+mobile/
+├── app/
+│   ├── config/          # Configuration
+│   ├── context/         # Contextes React
+│   ├── screen/          # Écrans de l'application
+│   ├── services/        # Services API
+│   └── types/           # Types TypeScript
+├── assets/              # Images et ressources
+└── components/          # Composants réutilisables
+```
+
+### Ajouter un nouveau service
+
+1. Créer un fichier dans `app/services/`
+2. Importer `apiService` depuis `./api`
+3. Utiliser les types définis dans `./api`
+
+Exemple :
+```typescript
+import { apiService, ApiResponse } from './api';
+
+export class MonService {
+    async maMethode(): Promise<ApiResponse<MonType>> {
+        return apiService.apiCall<MonType>('/mon-endpoint');
+    }
+}
+```
+
+## 🚨 Dépannage
+
+### Erreur de connexion à l'API
+
+1. Vérifier que le backend est démarré
+2. Vérifier l'URL dans `config.ts`
+3. Vérifier les paramètres réseau (proxy, firewall)
+
+### Erreur d'authentification
+
+1. Vérifier que les tokens sont correctement stockés
+2. Vérifier la validité du token côté serveur
+3. Redémarrer l'application si nécessaire
+
+### Erreur de synchronisation
+
+1. Vérifier la connectivité réseau
+2. Vérifier les permissions de l'application
+3. Vider le cache de l'application
+
+## 📦 Build et Déploiement
+
+### Build pour Android
+```bash
+expo build:android
+```
+
+### Build pour iOS
+```bash
+expo build:ios
+```
+
+### Publication sur les stores
+```bash
+expo publish
+```
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créer une branche feature
+3. Commiter les changements
+4. Pousser vers la branche
+5. Ouvrir une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT.

@@ -1,86 +1,56 @@
 # 🎯 Focus Carot Web
 
-**Focus Carot** est une application web de gestion de tâches gamifiée, conçue pour motiver les utilisateurs – petits et grands – avec un système de progression ludique. Elle est particulièrement adaptée aux enfants, avec un espace de supervision parentale intégré.
+**Focus Carot** est une application web et mobile de gestion de tâches gamifiée, conçue pour motiver les utilisateurs – petits et grands – avec un système de progression ludique. Elle est particulièrement adaptée aux enfants, avec un espace de supervision parentale intégré.
 
 ---
 
 ## ✨ Fonctionnalités
 
 - ✅ **Gestion des tâches** : Création, modification et suppression de tâches
-- 🎮 **Gamification** : Système de niveaux, points d’expérience et récompenses
-- 📊 **Suivi de progression** : Visualisation des statistiques et de l’évolution
+- 🎮 **Gamification** : Système de succès, points d'expérience et récompenses
+- 📊 **Suivi de progression** : Visualisation des statistiques et de l'évolution
 - 👨‍👩‍👧 **Supervision parentale** : Interface dédiée pour le suivi des enfants
 - 🔐 **Authentification sécurisée** : Inscription et connexion avec JSON Web Token (JWT)
+- 📱 **Application mobile** : Version React Native avec Expo
 
 ---
 
-## 🧱 Structure du projet
+## 🧱 Architecture du projet
 
-### Backend – PHP
-
-- API RESTful construite avec PHP
+### Backend – Node.js/Express
+- API RESTful construite avec Node.js et Express
+- Base de données MongoDB avec Mongoose
 - Authentification JWT
-- Base de données MySQL
+- Gestion des succès et tâches
 
-### Frontend – React
-
+### Frontend Web – React
 - Interface utilisateur moderne avec React
 - Composants réutilisables
-- Communication avec l’API backend
+- Communication avec l'API backend
+
+### Mobile – React Native/Expo
+- Application mobile native avec React Native
+- Framework Expo pour le développement
+- Synchronisation avec le backend
 
 ---
 
 ## ⚙️ Prérequis
 
-- PHP ≥ 8.0
-- MySQL ≥ 5.7
-- Composer
-- Node.js ≥ 16
-- npm ≥ 8
+- Node.js ≥ 18.0
+- npm ≥ 8.0
+- MongoDB ≥ 5.0
+- Expo CLI (pour le mobile)
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation et démarrage
 
-### 📦 Backend
+### 📦 Backend (Port 5000)
 
-1. **Cloner le projet**
+1. **Aller dans le dossier backend**
 ```bash
-git clone https://github.com/votre-username/focus-carot-web.git
-cd focus-carot-web/backend
-```
-
-2. **Installer les dépendances**
-```bash
-composer install
-```
-
-3. **Configurer l'environnement**
-```bash
-cp .env.example .env
-# Modifier .env avec vos infos :
-DB_HOST=localhost
-DB_DATABASE=focus_carot
-DB_USERNAME=utilisateur
-DB_PASSWORD=motdepasse
-```
-
-4. **Initier la Base de données*
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-5. **Générer la clé JWT**
-```bash
-php artisan jwt:secret
-```
-
-### 💻 Frontend
-
-1. **Aller dans le dossier frontend**
-```bash
-cd ../frontend
+cd backend
 ```
 
 2. **Installer les dépendances**
@@ -88,77 +58,169 @@ cd ../frontend
 npm install
 ```
 
-3. **Démarrer le serveur de développement**
+3. **Configurer l'environnement**
 ```bash
 cp .env.example .env
-# Modifier .env avec l’URL de l’API
-REACT_APP_API_URL=http://localhost:8000/api
+# Modifier .env avec vos informations MongoDB
+MONGODB_URI=mongodb://localhost:27017/focus_carot
+JWT_SECRET=votre_secret_jwt
 ```
 
-4. **Lancer l’application**
+4. **Démarrer le serveur**
 ```bash
 npm start
 ```
-🔗 Accédez à l’application sur : http://localhost:3000
+🔗 API disponible sur : http://localhost:5000
 
+### 💻 Frontend Web (Port 3000)
+
+1. **Aller dans le dossier frontend**
+```bash
+cd frontend
+```
+
+2. **Installer les dépendances**
+```bash
+npm install
+```
+
+3. **Démarrer l'application**
+```bash
+npm start
+```
+🔗 Application disponible sur : http://localhost:3000
+
+### 📱 Mobile (Port 8001)
+
+1. **Aller dans le dossier mobile**
+```bash
+cd mobile
+```
+
+2. **Installer les dépendances**
+```bash
+npm install
+```
+
+3. **Démarrer l'application Expo**
+```bash
+npm start
+```
+🔗 Application Expo disponible sur : http://localhost:8001
+
+---
+
+## 🔌 Configuration des ports
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **Backend** | `5000` | API Node.js/Express |
+| **Frontend Web** | `3000` | Application React |
+| **Mobile (Expo)** | `8001` | Application React Native |
 
 ## 🔌 API Endpoints
 
 ### 🔐 Authentification
-
-POST /api/auth/register → Inscription
-
-POST /api/auth/login → Connexion
-
-POST /api/auth/logout → Déconnexion
+- `POST /api/auth/register` → Inscription
+- `POST /api/auth/login` → Connexion
+- `POST /api/auth/logout` → Déconnexion
 
 ### 👤 Utilisateurs
-
-GET /api/users/{id} → Obtenir un utilisateur
-
-PUT /api/users/{id} → Modifier un utilisateur
-
-GET /api/users/{id}/experience → Récupérer l’expérience
+- `GET /api/users/profile` → Profil utilisateur
+- `PUT /api/users/profile` → Modifier le profil
+- `PUT /api/users/avatar` → Modifier l'avatar
 
 ### 📝 Tâches
+- `GET /api/tasks` → Lister toutes les tâches
+- `POST /api/tasks` → Créer une tâche
+- `PUT /api/tasks/:id` → Modifier une tâche
+- `DELETE /api/tasks/:id` → Supprimer une tâche
+- `PUT /api/tasks/:id/toggle` → Basculer le statut
 
-GET /api/tasks → Lister toutes les tâches
+### 🏆 Succès
+- `GET /api/achievements` → Lister tous les succès
+- `GET /api/achievements/user` → Succès de l'utilisateur
 
-POST /api/tasks → Créer une tâche
+### 👨‍💼 Admin
+- `GET /api/admin/users` → Liste des utilisateurs
+- `GET /api/admin/achievements` → Gestion des succès
+- `POST /api/admin/achievements` → Créer un succès
+- `PUT /api/admin/achievements/:id` → Modifier un succès
+- `DELETE /api/admin/achievements/:id` → Supprimer un succès
 
-PUT /api/tasks/{id} → Modifier une tâche
-
-DELETE /api/tasks/{id} → Supprimer une tâche
+---
 
 ## 🧪 Tests
 
 ### Backend
 ```bash
-composer test
+cd backend
+npm test
 ```
 
 ### Frontend
 ```bash
+cd frontend
 npm test
 ```
 
-### 🤝 Contribuer
-Fork le projet
+### Mobile
+```bash
+cd mobile
+npm test
+```
 
-Crée ta branche :
-git checkout -b feature/ma-fonctionnalite
+---
 
-Commit tes modifications :
-git commit -am "Ajout : ma fonctionnalité"
+## 🔄 Ordre de démarrage recommandé
 
-Push ta branche :
-git push origin feature/ma-fonctionnalite
+1. **Backend** (port 5000) - Doit être démarré en premier
+2. **Frontend Web** (port 3000) - Se connecte au backend
+3. **Mobile** (port 8001) - Se connecte au backend
 
-Crée une Pull Request 🚀
+---
 
-### 📜 License
+## 🚨 Dépannage
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d’infos.
+### Erreur CORS
+Le backend est configuré pour accepter les requêtes depuis :
+- `http://localhost:3000` (Frontend web)
+- `http://localhost:8001` (Mobile Expo)
+- `exp://localhost:8001` (Expo development server)
 
+### Erreur de connexion
+Vérifiez que :
+1. Le backend est démarré sur le port 5000
+2. MongoDB est en cours d'exécution
+3. Les variables d'environnement sont correctement configurées
 
-Petit bonus il y a une version mobile react native SDK 52 qui est en cours de production :)
+---
+
+## 🤝 Contribuer
+
+1. **Fork le projet**
+2. **Crée ta branche** :
+   ```bash
+   git checkout -b feature/ma-fonctionnalite
+   ```
+3. **Commit tes modifications** :
+   ```bash
+   git commit -am "Ajout : ma fonctionnalité"
+   ```
+4. **Push ta branche** :
+   ```bash
+   git push origin feature/ma-fonctionnalite
+   ```
+5. **Crée une Pull Request** 🚀
+
+---
+
+## 📜 License
+
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d'infos.
+
+---
+
+## 📱 Version Mobile
+
+Une version mobile React Native avec Expo SDK 52 est disponible dans le dossier `mobile/` ! 🎉

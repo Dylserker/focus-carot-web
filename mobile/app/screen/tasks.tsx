@@ -1,40 +1,33 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, SafeAreaView, ImageBackground, Modal, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, SafeAreaView, ImageBackground, Modal, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useAuth } from '../../src/context/AuthContext';
+import { taskService } from '../../src/services/taskService';
+import { Task } from '../../src/services/api';
 
-interface Task {
-    id: string;
-    title: string;
-    description: string;
-    status: 'à faire' | 'en cours' | 'terminé';
-    date: Date;
-    priority: 'basse' | 'moyenne' | 'haute';
-    completed: boolean;
-}
-
-const TaskModal = ({ visible, onClose, onSubmit }: {
+const TaskModal = ({ visible, onClose, onSubmit, isLoading }: {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (task: Omit<Task, 'id' | 'completed'>) => void;
+    onSubmit: (task: { title: string; description: string }) => void;
+    isLoading: boolean;
 }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState<Task['status']>('à faire');
-    const [date, setDate] = useState(new Date());
-    const [priority, setPriority] = useState<Task['priority']>('basse');
 
     const handleSubmit = () => {
-        onSubmit({
-            title,
-            description,
-            status,
-            date,
-            priority
-        });
+        if (!title.trim() || !description.trim()) {
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+            return;
+        }
+
+        const validation = taskService.validateTaskData({ title, description });
+        if (!validation.isValid) {
+            Alert.alert('Erreur de validation', validation.errors.join('\n'));
+            return;
+        }
+
+        onSubmit({ title: title.trim(), description: description.trim() });
         setTitle('');
         setDescription('');
-        setStatus('à faire');
-        setDate(new Date());
-        setPriority('basse');
         onClose();
     };
 
@@ -54,6 +47,7 @@ const TaskModal = ({ visible, onClose, onSubmit }: {
                             placeholder="Titre"
                             value={title}
                             onChangeText={setTitle}
+                            editable={!isLoading}
                         />
 
                         <TextInput
@@ -62,48 +56,27 @@ const TaskModal = ({ visible, onClose, onSubmit }: {
                             value={description}
                             onChangeText={setDescription}
                             multiline
+                            editable={!isLoading}
                         />
 
-                        <View style={styles.selectContainer}>
-                            <Text>Status:</Text>
-                            {['à faire', 'en cours', 'terminé'].map((s) => (
-                                <TouchableOpacity
-                                    key={s}
-                                    style={[styles.selectButton, status === s && styles.selectedButton]}
-                                    onPress={() => setStatus(s as Task['status'])}
-                                >
-                                    <Text style={status === s ? styles.selectedButtonText : styles.buttonText}>
-                                        {s}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <View style={styles.selectContainer}>
-                            <Text>Priorité:</Text>
-                            {[
-                                { label: 'Basse (10 XP)', value: 'basse' },
-                                { label: 'Moyenne (25 XP)', value: 'moyenne' },
-                                { label: 'Haute (50 XP)', value: 'haute' }
-                            ].map((p) => (
-                                <TouchableOpacity
-                                    key={p.value}
-                                    style={[styles.selectButton, priority === p.value && styles.selectedButton]}
-                                    onPress={() => setPriority(p.value as Task['priority'])}
-                                >
-                                    <Text style={priority === p.value ? styles.selectedButtonText : styles.buttonText}>
-                                        {p.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                            <TouchableOpacity 
+                                style={styles.cancelButton} 
+                                onPress={onClose}
+                                disabled={isLoading}
+                            >
                                 <Text style={styles.buttonText}>Annuler</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                                <Text style={styles.selectedButtonText}>Ajouter</Text>
+                            <TouchableOpacity 
+                                style={[styles.submitButton, isLoading && styles.buttonDisabled]} 
+                                onPress={handleSubmit}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#fff" size="small" />
+                                ) : (
+                                    <Text style={styles.selectedButtonText}>Ajouter</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
@@ -116,26 +89,90 @@ const TaskModal = ({ visible, onClose, onSubmit }: {
 export default function TasksScreen() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isAuthenticated } = useAuth();
 
-    const addTask = (taskData: Omit<Task, 'id' | 'completed'>) => {
-        const task: Task = {
-            id: Date.now().toString(),
-            ...taskData,
-            completed: false
-        };
-        setTasks([...tasks, task]);
+    // Charger les tâches au montage du composant
+    useEffect(() => {
+        if (isAuthenticated) {
+            loadTasks();
+        }
+    }, [isAuthenticated]);
+
+    const loadTasks = async () => {
+        setIsLoading(true);
+        try {
+            const result = await taskService.getTasks();
+            if (result.success && result.data) {
+                setTasks(result.data);
+            } else {
+                Alert.alert('Erreur', result.message || 'Impossible de charger les tâches');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Erreur lors du chargement des tâches');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const toggleTaskCompletion = (id: string) => {
-        setTasks(
-            tasks.map(task =>
-                task.id === id ? { ...task, completed: !task.completed } : task
-            )
+    const addTask = async (taskData: { title: string; description: string }) => {
+        setIsSubmitting(true);
+        try {
+            const result = await taskService.createTask(taskData);
+            if (result.success && result.data) {
+                setTasks([result.data, ...tasks]);
+                Alert.alert('Succès', 'Tâche créée avec succès');
+            } else {
+                Alert.alert('Erreur', result.message || 'Impossible de créer la tâche');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Erreur lors de la création de la tâche');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const toggleTaskCompletion = async (id: string) => {
+        try {
+            const result = await taskService.toggleTaskComplete(id);
+            if (result.success && result.data) {
+                setTasks(tasks.map(task =>
+                    task.id === id ? result.data! : task
+                ));
+            } else {
+                Alert.alert('Erreur', result.message || 'Impossible de modifier la tâche');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Erreur lors de la modification de la tâche');
+        }
+    };
+
+    const deleteTask = async (id: string) => {
+        Alert.alert(
+            'Confirmation',
+            'Êtes-vous sûr de vouloir supprimer cette tâche ?',
+            [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                    text: 'Supprimer',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const result = await taskService.deleteTask(id);
+                            if (result.success) {
+                                setTasks(tasks.filter(task => task.id !== id));
+                                Alert.alert('Succès', 'Tâche supprimée avec succès');
+                            } else {
+                                Alert.alert('Erreur', result.message || 'Impossible de supprimer la tâche');
+                            }
+                        } catch (error) {
+                            Alert.alert('Erreur', 'Erreur lors de la suppression de la tâche');
+                        }
+                    }
+                }
+            ]
         );
-    };
-
-    const deleteTask = (id: string) => {
-        setTasks(tasks.filter(task => task.id !== id));
     };
 
     const renderItem = ({ item }: { item: Task }) => (
@@ -150,7 +187,7 @@ export default function TasksScreen() {
                 </Text>
                 <Text style={styles.taskDescription}>{item.description}</Text>
                 <Text style={styles.taskDetails}>
-                    Status: {item.status} | Priorité: {item.priority}
+                    Créée le: {new Date(item.createdAt).toLocaleDateString('fr-FR')}
                 </Text>
             </View>
             <TouchableOpacity onPress={() => deleteTask(item.id)}>
@@ -158,6 +195,16 @@ export default function TasksScreen() {
             </TouchableOpacity>
         </View>
     );
+
+    if (!isAuthenticated) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.content}>
+                    <Text style={styles.title}>Veuillez vous connecter pour voir vos tâches</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -175,17 +222,33 @@ export default function TasksScreen() {
                         <Text style={styles.addButtonText}>+</Text>
                     </TouchableOpacity>
 
-                    <FlatList
-                        data={tasks}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                        style={styles.list}
-                    />
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#fff" />
+                            <Text style={styles.loadingText}>Chargement des tâches...</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={tasks}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                            style={styles.list}
+                            refreshing={isLoading}
+                            onRefresh={loadTasks}
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <Text style={styles.emptyText}>Aucune tâche pour le moment</Text>
+                                    <Text style={styles.emptySubtext}>Appuyez sur + pour ajouter une tâche</Text>
+                                </View>
+                            }
+                        />
+                    )}
 
                     <TaskModal
                         visible={modalVisible}
                         onClose={() => setModalVisible(false)}
                         onSubmit={addTask}
+                        isLoading={isSubmitting}
                     />
                 </View>
             </ImageBackground>
@@ -197,6 +260,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    backgroundImage: {
+        flex: 1,
     },
     content: {
         flex: 1,
@@ -249,81 +315,60 @@ const styles = StyleSheet.create({
     },
     taskDetails: {
         fontSize: 12,
-        color: '#888',
+        color: '#999',
         marginTop: 4,
     },
+    completedText: {
+        textDecorationLine: 'line-through',
+        color: '#999',
+    },
     checkbox: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 20,
+        height: 20,
         borderWidth: 2,
-        borderColor: '#5cb85c',
+        borderColor: '#ddd',
+        borderRadius: 4,
         marginRight: 10,
     },
     checked: {
         backgroundColor: '#5cb85c',
-    },
-    completedText: {
-        textDecorationLine: 'line-through',
-        color: '#888',
+        borderColor: '#5cb85c',
     },
     deleteBtn: {
-        color: '#ff6347',
+        color: '#dc3545',
         fontSize: 24,
         fontWeight: 'bold',
-        paddingHorizontal: 10,
-    },
-    backgroundImage: {
-        flex: 1,
-        width: '100%',
+        padding: 5,
     },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        padding: 20,
     },
     modalContent: {
         backgroundColor: 'white',
-        padding: 20,
         borderRadius: 10,
+        padding: 20,
+        width: '90%',
         maxHeight: '80%',
     },
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
+        textAlign: 'center',
     },
     modalInput: {
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 5,
         padding: 10,
-        marginBottom: 10,
+        marginBottom: 15,
     },
     textArea: {
         height: 100,
         textAlignVertical: 'top',
-    },
-    selectContainer: {
-        marginVertical: 10,
-    },
-    selectButton: {
-        padding: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 5,
-        marginTop: 5,
-    },
-    selectedButton: {
-        backgroundColor: '#5cb85c',
-        borderColor: '#5cb85c',
-    },
-    buttonText: {
-        color: '#333',
-    },
-    selectedButtonText: {
-        color: 'white',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -331,20 +376,59 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     cancelButton: {
+        backgroundColor: '#6c757d',
         padding: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
         borderRadius: 5,
         flex: 1,
         marginRight: 10,
         alignItems: 'center',
     },
     submitButton: {
-        padding: 10,
         backgroundColor: '#5cb85c',
+        padding: 10,
         borderRadius: 5,
         flex: 1,
         marginLeft: 10,
         alignItems: 'center',
+    },
+    buttonDisabled: {
+        backgroundColor: '#7fb7e6',
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    selectedButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: '#fff',
+        marginTop: 10,
+        fontSize: 16,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    emptyText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    emptySubtext: {
+        color: '#fff',
+        fontSize: 14,
+        textAlign: 'center',
+        marginTop: 10,
+        opacity: 0.8,
     },
 });

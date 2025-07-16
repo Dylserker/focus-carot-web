@@ -1,67 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useAuth } from '../../src/context/AuthContext';
+import { achievementService } from '../../src/services/achievementService';
+import { Achievement, UserAchievement } from '../../src/services/api';
 
-interface Achievement {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    unlocked: boolean;
-}
-
-const achievementsData: Achievement[] = [
-    {
-        id: '1',
-        title: 'Première tâche',
-        description: 'Vous avez complété votre première tâche',
-        icon: '🏆',
-        unlocked: true,
-    },
-    {
-        id: '2',
-        title: 'Dix tâches',
-        description: 'Vous avez complété dix tâches',
-        icon: '⭐',
-        unlocked: true,
-    },
-    {
-        id: '3',
-        title: 'Tâche difficile',
-        description: 'Vous avez complété une tâche difficile',
-        icon: '🥇',
-        unlocked: false,
-    },
-    {
-        id: '4',
-        title: 'Master organisateur',
-        description: 'Vous avez complété 50 tâches',
-        icon: '🎖️',
-        unlocked: false,
-    },
-    {
-        id: '5',
-        title: 'Persévérance',
-        description: 'Vous avez utilisé l\'application pendant 30 jours consécutifs',
-        icon: '🔄',
-        unlocked: false,
-    },
-];
-
-const AchievementCard = ({ achievement }: { achievement: Achievement }) => {
+const AchievementCard = ({ 
+    achievement, 
+    isUnlocked, 
+    unlockDate 
+}: { 
+    achievement: Achievement; 
+    isUnlocked: boolean;
+    unlockDate?: string;
+}) => {
     return (
         <View style={[
             styles.achievementCard,
-            !achievement.unlocked && styles.lockedAchievement
+            !isUnlocked && styles.lockedAchievement
         ]}>
             <Text style={styles.achievementIcon}>{achievement.icon}</Text>
             <View style={styles.achievementInfo}>
-                <Text style={styles.achievementTitle}>{achievement.title}</Text>
+                <Text style={styles.achievementTitle}>{achievement.name}</Text>
                 <Text style={styles.achievementDescription}>{achievement.description}</Text>
+                <Text style={styles.achievementPoints}>{achievement.points} points</Text>
+                {isUnlocked && unlockDate && (
+                    <Text style={styles.unlockDate}>
+                        Débloqué le {new Date(unlockDate).toLocaleDateString('fr-FR')}
+                    </Text>
+                )}
             </View>
-            {!achievement.unlocked && (
+            {!isUnlocked && (
                 <View style={styles.lockedOverlay}>
                     <Text style={styles.lockedText}>🔒</Text>
+                </View>
+            )}
+            {isUnlocked && (
+                <View style={styles.unlockedOverlay}>
+                    <Text style={styles.unlockedText}>✅</Text>
                 </View>
             )}
         </View>
@@ -69,10 +45,64 @@ const AchievementCard = ({ achievement }: { achievement: Achievement }) => {
 };
 
 export default function AchievementsScreen() {
-    const [achievements, setAchievements] = useState<Achievement[]>(achievementsData);
+    const [achievements, setAchievements] = useState<Achievement[]>([]);
+    const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-    }, []);
+        if (isAuthenticated) {
+            loadAchievements();
+        }
+    }, [isAuthenticated]);
+
+    const loadAchievements = async () => {
+        try {
+            setIsLoading(true);
+            
+            // Charger tous les succès
+            const achievementsResult = await achievementService.getAchievements();
+            if (achievementsResult.success && achievementsResult.data) {
+                setAchievements(achievementsResult.data);
+            } else {
+                Alert.alert('Erreur', achievementsResult.message || 'Impossible de charger les succès');
+            }
+
+            // Charger les succès de l'utilisateur
+            const userAchievementsResult = await achievementService.getUserAchievements();
+            if (userAchievementsResult.success && userAchievementsResult.data) {
+                setUserAchievements(userAchievementsResult.data);
+            } else {
+                Alert.alert('Erreur', userAchievementsResult.message || 'Impossible de charger vos succès');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Erreur lors du chargement des succès');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const onRefresh = async () => {
+        setIsRefreshing(true);
+        await loadAchievements();
+        setIsRefreshing(false);
+    };
+
+    const stats = achievementService.getAchievementStats(achievements, userAchievements);
+
+    if (!isAuthenticated) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Mes Succès</Text>
+                </View>
+                <View style={styles.centerContainer}>
+                    <Text style={styles.centerText}>Veuillez vous connecter pour voir vos succès</Text>
+                </View>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -82,31 +112,79 @@ export default function AchievementsScreen() {
                 <Text style={styles.headerTitle}>Mes Succès</Text>
             </View>
 
-            <ScrollView style={styles.scrollView}>
-                <View style={styles.statsContainer}>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statNumber}>
-                            {achievements.filter(a => a.unlocked).length}
-                        </Text>
-                        <Text style={styles.statLabel}>Débloqués</Text>
-                    </View>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statNumber}>
-                            {achievements.length}
-                        </Text>
-                        <Text style={styles.statLabel}>Total</Text>
-                    </View>
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#f0ad4e" />
+                    <Text style={styles.loadingText}>Chargement des succès...</Text>
                 </View>
-
-                <View style={styles.achievementsContainer}>
-                    {achievements.map((achievement) => (
-                        <AchievementCard
-                            key={achievement.id}
-                            achievement={achievement}
+            ) : (
+                <ScrollView 
+                    style={styles.scrollView}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={onRefresh}
+                            colors={['#f0ad4e']}
                         />
-                    ))}
-                </View>
-            </ScrollView>
+                    }
+                >
+                    <View style={styles.statsContainer}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>
+                                {stats.unlockedAchievements}
+                            </Text>
+                            <Text style={styles.statLabel}>Débloqués</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>
+                                {stats.totalAchievements}
+                            </Text>
+                            <Text style={styles.statLabel}>Total</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>
+                                {stats.totalPoints}
+                            </Text>
+                            <Text style={styles.statLabel}>Points</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>
+                                {stats.completionRate}%
+                            </Text>
+                            <Text style={styles.statLabel}>Progression</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.achievementsContainer}>
+                        {achievements.length === 0 ? (
+                            <View style={styles.emptyContainer}>
+                                <Text style={styles.emptyText}>Aucun succès disponible</Text>
+                                <Text style={styles.emptySubtext}>Les succès apparaîtront ici</Text>
+                            </View>
+                        ) : (
+                            achievements.map((achievement) => {
+                                const isUnlocked = achievementService.isAchievementUnlocked(
+                                    achievement.id, 
+                                    userAchievements
+                                );
+                                const unlockDate = achievementService.getAchievementUnlockDate(
+                                    achievement.id, 
+                                    userAchievements
+                                );
+
+                                return (
+                                    <AchievementCard
+                                        key={achievement.id}
+                                        achievement={achievement}
+                                        isUnlocked={isUnlocked}
+                                        unlockDate={unlockDate || undefined}
+                                    />
+                                );
+                            })
+                        )}
+                    </View>
+                </ScrollView>
+            )}
         </View>
     );
 }
@@ -130,6 +208,27 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         marginBottom: 60,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    centerText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
     statsContainer: {
         flexDirection: 'row',
@@ -183,6 +282,17 @@ const styles = StyleSheet.create({
     achievementDescription: {
         fontSize: 14,
         color: '#666',
+        marginBottom: 5,
+    },
+    achievementPoints: {
+        fontSize: 12,
+        color: '#f0ad4e',
+        fontWeight: 'bold',
+    },
+    unlockDate: {
+        fontSize: 11,
+        color: '#999',
+        fontStyle: 'italic',
     },
     lockedAchievement: {
         opacity: 0.7,
@@ -195,5 +305,29 @@ const styles = StyleSheet.create({
     },
     lockedText: {
         fontSize: 24,
+    },
+    unlockedOverlay: {
+        position: 'absolute',
+        right: 15,
+        top: '50%',
+        marginTop: -12,
+    },
+    unlockedText: {
+        fontSize: 24,
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    emptyText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#666',
+        marginBottom: 10,
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: '#999',
+        textAlign: 'center',
     },
 });

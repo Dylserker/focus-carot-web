@@ -1,35 +1,50 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { register, isLoading } = useAuth();
     const router = useRouter();
 
     const handleRegister = async () => {
         // Validation de base
         if (!name || !email || !password || !confirmPassword) {
-            alert('Veuillez remplir tous les champs');
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs');
             return;
         }
 
         if (password !== confirmPassword) {
-            alert("Les mots de passe ne correspondent pas");
+            Alert.alert('Erreur', "Les mots de passe ne correspondent pas");
             return;
         }
 
-        const success = await register(name, email, password);
-        if (success) {
-            router.replace('/screen/home');
-        } else {
-            alert('Échec de l\'inscription. Veuillez réessayer.');
+        if (password.length < 6) {
+            Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const result = await register(name, email, password);
+            if (result.success) {
+                router.replace('/screen/home');
+            } else {
+                Alert.alert('Erreur d\'inscription', result.message || 'Veuillez réessayer');
+            }
+        } catch (error) {
+            Alert.alert('Erreur', 'Une erreur inattendue s\'est produite');
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    const isButtonDisabled = isLoading || isSubmitting;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -41,7 +56,7 @@ export default function Register() {
                     placeholder="Nom"
                     value={name}
                     onChangeText={setName}
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TextInput
@@ -51,7 +66,7 @@ export default function Register() {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TextInput
@@ -60,7 +75,7 @@ export default function Register() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TextInput
@@ -69,15 +84,15 @@ export default function Register() {
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry
-                    editable={!isLoading}
+                    editable={!isButtonDisabled}
                 />
 
                 <TouchableOpacity
-                    style={[styles.button, isLoading && styles.buttonDisabled]}
+                    style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
                     onPress={handleRegister}
-                    disabled={isLoading}
+                    disabled={isButtonDisabled}
                 >
-                    {isLoading ? (
+                    {isButtonDisabled ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
                         <Text style={styles.buttonText}>S'inscrire</Text>
