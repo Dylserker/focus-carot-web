@@ -11,7 +11,8 @@ const registerValidation = [
   body('email')
     .isEmail()
     .withMessage('Email invalide')
-    .normalizeEmail(),
+    .toLowerCase()
+    .trim(),
   body('password')
     .isLength({ min: 6 })
     .withMessage('Le mot de passe doit contenir au moins 6 caractères'),
@@ -36,7 +37,8 @@ const loginValidation = [
   body('email')
     .isEmail()
     .withMessage('Email invalide')
-    .normalizeEmail(),
+    .toLowerCase()
+    .trim(),
   body('password')
     .notEmpty()
     .withMessage('Mot de passe requis'),
@@ -217,6 +219,24 @@ router.get('/verify', async (req, res) => {
     res.status(401).json({
       success: false,
       message: 'Token invalide'
+    });
+  }
+});
+
+// Route de déconnexion
+router.post('/logout', async (req, res) => {
+  try {
+    // Pour une déconnexion côté serveur, on peut simplement répondre avec succès
+    // Le client devra supprimer le token localement
+    res.json({
+      success: true,
+      message: 'Déconnexion réussie'
+    });
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la déconnexion'
     });
   }
 });

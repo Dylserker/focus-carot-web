@@ -10,11 +10,28 @@ export class TaskService {
     async getTasks(): Promise<{ success: boolean; data?: Task[]; message?: string }> {
         try {
             const response = await apiService.getTasks();
-            return {
-                success: response.success,
-                data: response.data,
-                message: response.error
-            };
+            console.log('🔍 Réponse getTasks:', JSON.stringify(response, null, 2));
+            
+            // Gérer la structure réelle de l'API
+            if (response.success && (response as any).tasks) {
+                return {
+                    success: true,
+                    data: (response as any).tasks,
+                    message: undefined
+                };
+            } else if (response.success && response.data) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: undefined
+                };
+            } else {
+                return {
+                    success: false,
+                    data: undefined,
+                    message: response.error || 'Aucune tâche trouvée'
+                };
+            }
         } catch (error) {
             console.error('Erreur lors de la récupération des tâches:', error);
             return {
@@ -28,11 +45,28 @@ export class TaskService {
     async createTask(taskData: TaskFormData): Promise<{ success: boolean; data?: Task; message?: string }> {
         try {
             const response = await apiService.createTask(taskData);
-            return {
-                success: response.success,
-                data: response.data,
-                message: response.error
-            };
+            console.log('🔍 Réponse createTask:', JSON.stringify(response, null, 2));
+            
+            // Gérer la structure réelle de l'API
+            if (response.success && (response as any).task) {
+                return {
+                    success: true,
+                    data: (response as any).task,
+                    message: undefined
+                };
+            } else if (response.success && response.data) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: undefined
+                };
+            } else {
+                return {
+                    success: false,
+                    data: undefined,
+                    message: response.error || 'Impossible de créer la tâche'
+                };
+            }
         } catch (error) {
             console.error('Erreur lors de la création de la tâche:', error);
             return {

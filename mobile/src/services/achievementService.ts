@@ -12,11 +12,28 @@ export class AchievementService {
     async getAchievements(): Promise<{ success: boolean; data?: Achievement[]; message?: string }> {
         try {
             const response = await apiService.getAchievements();
-            return {
-                success: response.success,
-                data: response.data,
-                message: response.error
-            };
+            console.log('🔍 Réponse getAchievements:', JSON.stringify(response, null, 2));
+            
+            // Gérer la structure réelle de l'API
+            if (response.success && (response as any).achievements) {
+                return {
+                    success: true,
+                    data: (response as any).achievements,
+                    message: undefined
+                };
+            } else if (response.success && response.data) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: undefined
+                };
+            } else {
+                return {
+                    success: false,
+                    data: undefined,
+                    message: response.error || 'Aucun succès trouvé'
+                };
+            }
         } catch (error) {
             console.error('Erreur lors de la récupération des succès:', error);
             return {
@@ -30,11 +47,28 @@ export class AchievementService {
     async getUserAchievements(): Promise<{ success: boolean; data?: UserAchievement[]; message?: string }> {
         try {
             const response = await apiService.getUserAchievements();
-            return {
-                success: response.success,
-                data: response.data,
-                message: response.error
-            };
+            console.log('🔍 Réponse getUserAchievements:', JSON.stringify(response, null, 2));
+            
+            // Gérer la structure réelle de l'API
+            if (response.success && (response as any).userAchievements) {
+                return {
+                    success: true,
+                    data: (response as any).userAchievements,
+                    message: undefined
+                };
+            } else if (response.success && response.data) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: undefined
+                };
+            } else {
+                return {
+                    success: false,
+                    data: undefined,
+                    message: response.error || 'Aucun succès utilisateur trouvé'
+                };
+            }
         } catch (error) {
             console.error('Erreur lors de la récupération des succès utilisateur:', error);
             return {

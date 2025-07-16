@@ -7,7 +7,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(email) {
+        // Validation d'email plus permissive qui accepte les points avant le @
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      },
+      message: 'Format d\'email invalide'
+    }
   },
   password: {
     type: String,

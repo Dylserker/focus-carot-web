@@ -171,7 +171,7 @@ class ApiService {
 
     // === TÂCHES ===
     async getTasks(): Promise<ApiResponse<Task[]>> {
-        return this.apiCall<Task[]>('/tasks');
+        return this.apiCall<Task[]>('/tasks/my-tasks');
     }
 
     async createTask(taskData: { title: string; description: string }): Promise<ApiResponse<Task>> {
@@ -206,7 +206,7 @@ class ApiService {
     }
 
     async getUserAchievements(): Promise<ApiResponse<UserAchievement[]>> {
-        return this.apiCall<UserAchievement[]>('/achievements/user');
+        return this.apiCall<UserAchievement[]>('/achievements/user-progress');
     }
 
     // === ADMIN ===
