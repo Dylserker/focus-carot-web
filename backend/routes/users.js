@@ -23,6 +23,15 @@ const updateProfileValidation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Le nom doit contenir entre 2 et 100 caractères')
     .trim(),
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('Email invalide')
+    .normalizeEmail(),
+  body('password')
+    .optional()
+    .isLength({ min: 6 })
+    .withMessage('Le mot de passe doit contenir au moins 6 caractères'),
   body('profile.bio')
     .optional()
     .isLength({ max: 500 })
@@ -172,20 +181,9 @@ router.get('/:id/profile', validateObjectId('id'), requireOwnership('id'), async
 // Mettre à jour le profil d'un utilisateur
 router.put('/:id/profile', validateObjectId('id'), requireOwnership('id'), updateProfileValidation, async (req, res) => {
   try {
-    const { firstName, lastName, profile, settings } = req.body;
+    const { firstName, lastName, profile, settings, email, password } = req.body;
     
-    const updateData = {};
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (profile) updateData.profile = profile;
-    if (settings) updateData.settings = settings;
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password');
-
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -193,10 +191,31 @@ router.put('/:id/profile', validateObjectId('id'), requireOwnership('id'), updat
       });
     }
 
+    // Vérifier si l'email existe déjà (sauf pour cet utilisateur)
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ email, _id: { $ne: req.params.id } });
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message: 'Cet email est déjà utilisé'
+        });
+      }
+    }
+
+    // Mettre à jour les champs
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (profile) user.profile = profile;
+    if (settings) user.settings = settings;
+    if (password) user.password = password; // Le middleware de hash s'occupera du hashage
+
+    await user.save();
+
     res.json({
       success: true,
       message: 'Profil mis à jour avec succès',
-      user
+      user: user.toPublicJSON()
     });
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);

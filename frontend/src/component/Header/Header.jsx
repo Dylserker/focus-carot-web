@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../../assets/logo/Logo_sans_titre.png';
@@ -26,15 +26,6 @@ const Header = () => {
         progress: Math.max(0, Math.min(100, progressPercent))
     };
 
-    const [userData, setUserData] = useState(null);
-
-    useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-            setUserData(user);
-        }
-    }, []);
-
     const handleProfileClick = () => {
         navigate('/profile');
     };
@@ -43,6 +34,10 @@ const Header = () => {
         logout();
         navigate('/login');
     };
+
+    // Détermination de la source de l'avatar
+    const avatarSrc = currentUser?.avatarUrl
+        || '/assets/images/default-avatar.png';
 
     return (
         <header className="header">
@@ -86,25 +81,16 @@ const Header = () => {
                         <ProgressBar progress={userInfo.progress} />
                     </div>
                     <div className="profile-photo-container">
-                        {userData && userData.id ? (
-                            <img
-                                className="profile-photo"
-                                src={`http://localhost:5000/api/users/${userData.id}/avatar`}
-                                alt="Avatar"
-                                onClick={handleProfileClick}
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = '/assets/images/default-avatar.png';
-                                }}
-                            />
-                        ) : (
-                            <img
-                                className="profile-photo"
-                                src={'/assets/images/default-avatar.png'}
-                                alt="Avatar"
-                                onClick={handleProfileClick}
-                            />
-                        )}
+                        <img
+                            className="profile-photo"
+                            src={avatarSrc}
+                            alt="Avatar"
+                            onClick={handleProfileClick}
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/assets/images/default-avatar.png';
+                            }}
+                        />
                     </div>
                 </div>
             </div>

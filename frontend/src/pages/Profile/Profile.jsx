@@ -17,7 +17,10 @@ const Profile = () => {
         profilePicture: null
     });
     const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -29,13 +32,13 @@ const Profile = () => {
                 const response = await apiService.getUserProfile(currentUser._id);
 
                 if (response.success) {
-                    const user = response.user;
+                    const user = response.profile;
                     setProfileData({
-                        username: user.username || '',
+                        username: user.firstName || '',
                         firstName: user.firstName || '',
                         lastName: user.lastName || '',
                         birthDate: user.profile?.dateOfBirth ? new Date(user.profile.dateOfBirth).toISOString().split('T')[0] : '',
-                        email: user.email || '',
+                        email: currentUser.email || '',
                         password: '',
                         title: `Niveau ${user.progression?.level || 1}`,
                         profilePicture: user.avatarUrl || null
@@ -58,47 +61,67 @@ const Profile = () => {
             ...prev,
             [name]: value
         }));
+        // Effacer les messages d'erreur/succès quand l'utilisateur modifie quelque chose
+        setError(null);
+        setSuccess(null);
     };
 
     const handleProfilePictureChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Vérifier la taille du fichier (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Le fichier est trop volumineux. Taille maximum : 5MB');
+                return;
+            }
+
+            // Vérifier le type de fichier
+            if (!file.type.startsWith('image/')) {
+                setError('Veuillez sélectionner un fichier image valide');
+                return;
+            }
+
+            setIsUploading(true);
+            setError(null);
+            
             try {
                 const reader = new FileReader();
                 reader.onloadend = async () => {
                     const base64Image = reader.result;
-                    const userData = JSON.parse(localStorage.getItem('user'));
 
-                    const response = await fetch(`http://localhost:8000/api/users/${userData.id}/profile-picture`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        body: JSON.stringify({ image: base64Image })
-                    });
+                    const response = await apiService.uploadAvatar(currentUser._id, base64Image);
 
-                    if (!response.ok) {
-                        throw new Error('Erreur lors de l\'upload de l\'image');
-                    }
-
-                    const result = await response.json();
-                    if (result.success) {
+                    if (response.success) {
                         setProfileData(prev => ({
                             ...prev,
                             profilePicture: base64Image
                         }));
+                        setSuccess('Photo de profil mise à jour avec succès !');
+                        
+                        // Mettre à jour le contexte utilisateur
+                        updateUser({
+                            ...currentUser,
+                            avatarUrl: base64Image
+                        });
+                    } else {
+                        throw new Error(response.message || 'Erreur lors de l\'upload de l\'image');
                     }
                 };
                 reader.readAsDataURL(file);
             } catch (err) {
                 setError(err.message);
                 console.error('Erreur:', err);
+            } finally {
+                setIsUploading(false);
             }
         }
     };
 
     const handleSaveChanges = async () => {
+        setIsLoading(true);
+        setError(null);
+        setSuccess(null);
+        
         try {
             if (!currentUser || !currentUser._id) {
                 throw new Error('Utilisateur non connecté');
@@ -123,6 +146,7 @@ const Profile = () => {
             if (response.success) {
                 // Mettre à jour le contexte utilisateur
                 updateUser({
+                    ...currentUser,
                     email: profileData.email,
                     username: profileData.username,
                     firstName: profileData.firstName,
@@ -133,13 +157,40 @@ const Profile = () => {
                 });
 
                 setIsEditing(false);
-                setError(null);
+                setSuccess('Profil mis à jour avec succès !');
+                
+                // Vider le champ mot de passe
+                setProfileData(prev => ({
+                    ...prev,
+                    password: ''
+                }));
             } else {
                 throw new Error(response.message || 'Erreur lors de la mise à jour');
             }
         } catch (err) {
             setError(err.message);
             console.error('Erreur:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setError(null);
+        setSuccess(null);
+        // Recharger les données originales
+        if (currentUser) {
+            setProfileData(prev => ({
+                ...prev,
+                username: currentUser.firstName || '',
+                firstName: currentUser.firstName || '',
+                lastName: currentUser.lastName || '',
+                birthDate: currentUser.profile?.dateOfBirth ? new Date(currentUser.profile.dateOfBirth).toISOString().split('T')[0] : '',
+                email: currentUser.email || '',
+                password: '',
+                title: `Niveau ${currentUser.progression?.level || 1}`
+            }));
         }
     };
 
@@ -150,25 +201,52 @@ const Profile = () => {
             <div className="profile-container">
                 <h1>Mon Profil</h1>
 
+                {/* Messages d'erreur et de succès */}
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="success-message">
+                        {success}
+                    </div>
+                )}
+
                 <div className="profile-picture-section">
                     <div className="profile-picture">
                         {profileData.profilePicture ? (
                             <img
-                                src={`http://localhost:8000/api/users/${JSON.parse(localStorage.getItem('user')).id}/avatar`}
-                                alt="Profil"
+                                src={profileData.profilePicture}
+                                alt="Photo de profil"
                                 onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = 'chemin/vers/image/par/defaut.png';
+                                    e.target.src = '/assets/images/default-avatar.png';
                                 }}
                             />
                         ) : (
-                            <div className="placeholder-image">Photo</div>
+                            <div className="placeholder-image">
+                                <img 
+                                    src="/assets/images/default-avatar.png" 
+                                    alt="Photo par défaut"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                                <div style={{ display: 'none' }}>Photo</div>
+                            </div>
+                        )}
+                        {isUploading && (
+                            <div className="upload-overlay">
+                                <div className="upload-spinner">Chargement...</div>
+                            </div>
                         )}
                     </div>
                     {isEditing && (
                         <div className="upload-button">
                             <label htmlFor="profile-picture-upload" className="btn">
-                                Modifier la photo
+                                {isUploading ? 'Chargement...' : 'Modifier la photo'}
                             </label>
                             <input
                                 type="file"
@@ -176,6 +254,7 @@ const Profile = () => {
                                 accept="image/*"
                                 onChange={handleProfilePictureChange}
                                 style={{ display: 'none' }}
+                                disabled={isUploading}
                             />
                         </div>
                     )}
@@ -243,7 +322,7 @@ const Profile = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Mot de passe</label>
+                        <label htmlFor="password">Nouveau mot de passe (optionnel)</label>
                         <input
                             type="password"
                             id="password"
@@ -251,6 +330,7 @@ const Profile = () => {
                             value={profileData.password}
                             onChange={handleInputChange}
                             disabled={!isEditing}
+                            placeholder="Laissez vide pour ne pas changer"
                         />
                     </div>
 
@@ -262,16 +342,30 @@ const Profile = () => {
                             name="title"
                             value={profileData.title}
                             onChange={handleInputChange}
-                            disabled={!isEditing}
+                            disabled={true}
+                            className="disabled-field"
                         />
                     </div>
                 </div>
 
                 <div className="action-buttons">
                     {isEditing ? (
-                        <button className="save-btn" onClick={handleSaveChanges}>
-                            Enregistrer les modifications
-                        </button>
+                        <>
+                            <button 
+                                className="save-btn" 
+                                onClick={handleSaveChanges}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                            </button>
+                            <button 
+                                className="cancel-btn" 
+                                onClick={handleCancelEdit}
+                                disabled={isLoading}
+                            >
+                                Annuler
+                            </button>
+                        </>
                     ) : (
                         <button className="edit-btn" onClick={() => setIsEditing(true)}>
                             Modifier les informations

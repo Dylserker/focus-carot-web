@@ -107,6 +107,76 @@ h1 {
     background-color: #e0e0e0;
 }
 
+/* Messages d'erreur et de succès */
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #c62828;
+    font-weight: 500;
+}
+
+.success-message {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #2e7d32;
+    font-weight: 500;
+}
+
+/* Overlay de chargement pour l'upload */
+.upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.upload-spinner {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Styles pour les champs désactivés */
+.disabled-field {
+    background-color: #f5f5f5 !important;
+    color: #666 !important;
+    cursor: not-allowed;
+}
+
+/* Bouton d'annulation */
+.cancel-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #d32f2f;
+}
+
+.cancel-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* États désactivés pour les boutons */
+.action-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 .profile-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
