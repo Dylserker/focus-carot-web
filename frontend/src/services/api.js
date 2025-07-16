@@ -139,6 +139,19 @@ class ApiService {
     });
   }
 
+  // Upload d'avatar
+  async uploadAvatar(userId, imageData) {
+    return this.request(`/users/${userId}/avatar`, {
+      method: 'POST',
+      body: JSON.stringify({ image: imageData })
+    });
+  }
+
+  // Obtenir l'avatar d'un utilisateur
+  async getUserAvatar(userId) {
+    return this.request(`/users/${userId}/avatar`);
+  }
+
   // ===== TÂCHES =====
   async createTask(taskData) {
     return this.request('/tasks', {

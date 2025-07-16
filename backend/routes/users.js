@@ -475,4 +475,74 @@ router.get('/:id/achievements', validateObjectId('id'), requireRole(['admin']), 
   }
 });
 
+// Upload d'avatar pour un utilisateur
+router.post('/:id/avatar', validateObjectId('id'), requireOwnership('id'), async (req, res) => {
+  try {
+    const { image } = req.body;
+    
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image requise'
+      });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    // Mettre à jour l'avatar
+    user.avatarUrl = image;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Avatar mis à jour avec succès',
+      avatarUrl: user.avatarUrl
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'upload de l\'avatar:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'upload de l\'avatar'
+    });
+  }
+});
+
+// Obtenir l'avatar d'un utilisateur
+router.get('/:id/avatar', validateObjectId('id'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('avatarUrl');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    if (!user.avatarUrl) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aucun avatar trouvé'
+      });
+    }
+
+    res.json({
+      success: true,
+      avatarUrl: user.avatarUrl
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'avatar:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de l\'avatar'
+    });
+  }
+});
+
 module.exports = router; 
