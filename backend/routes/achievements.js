@@ -583,4 +583,74 @@ router.delete('/:id', validateObjectId('id'), requireRole(['admin']), async (req
   }
 });
 
+// Bloquer ou débloquer un succès (admin seulement)
+router.patch('/:id/block', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
+  try {
+    const { blocked } = req.body;
+    if (typeof blocked !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'Le champ "blocked" doit être un booléen.'
+      });
+    }
+    const achievement = await Achievement.findByIdAndUpdate(
+      req.params.id,
+      { blocked },
+      { new: true, runValidators: true }
+    );
+    if (!achievement) {
+      return res.status(404).json({
+        success: false,
+        message: 'Achievement non trouvé'
+      });
+    }
+    res.json({
+      success: true,
+      message: `Succès ${blocked ? 'bloqué' : 'débloqué'} avec succès`,
+      achievement
+    });
+  } catch (error) {
+    console.error('Erreur lors du blocage/déblocage du succès:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors du blocage/déblocage du succès'
+    });
+  }
+});
+
+// Modifier le niveau d'un succès (admin seulement)
+router.patch('/:id/level', validateObjectId('id'), requireRole(['admin']), async (req, res) => {
+  try {
+    const { level } = req.body;
+    if (typeof level !== 'number' || level < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Le champ "level" doit être un nombre positif.'
+      });
+    }
+    const achievement = await Achievement.findByIdAndUpdate(
+      req.params.id,
+      { level },
+      { new: true, runValidators: true }
+    );
+    if (!achievement) {
+      return res.status(404).json({
+        success: false,
+        message: 'Achievement non trouvé'
+      });
+    }
+    res.json({
+      success: true,
+      message: 'Niveau du succès modifié avec succès',
+      achievement
+    });
+  } catch (error) {
+    console.error('Erreur lors de la modification du niveau du succès:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la modification du niveau du succès'
+    });
+  }
+});
+
 module.exports = router; 

@@ -278,6 +278,25 @@ const Admin = () => {
         }
     };
 
+    // Nouvelle fonction pour bloquer/débloquer un succès
+    const toggleBlockAchievement = async (achievementId, blocked) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/achievements/${achievementId}/block`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ blocked: !blocked })
+            });
+            if (!response.ok) throw new Error('Erreur lors du blocage/déblocage du succès');
+            // Met à jour l'état local pour refléter le changement
+            setAllAchievements(prev => prev.map(a => a._id === achievementId ? { ...a, blocked: !blocked } : a));
+        } catch (error) {
+            console.error('Erreur lors du blocage/déblocage du succès:', error);
+        }
+    };
+
     const calculateExperiencePoints = (level, progressPercent) => {
         const xpForNextLevel = 10 * Math.pow(2, level - 1);
         return Math.floor((progressPercent / 100) * xpForNextLevel);
@@ -485,27 +504,20 @@ const Admin = () => {
                                 </div>
                             )}
                             {isEditModalOpen && allAchievements.length > 0 && (
-                                <div className="detail-group">
+                                <div className="form-group">
                                     <label>Succès</label>
                                     <div className="achievements-list">
                                         {allAchievements.map((achievement, idx) => (
-                                            <div key={achievement.id || idx} className="achievement-item">
+                                            <div key={achievement._id || idx} className="achievement-item">
                                                 <span>{achievement.name}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        toggleAchievement(
-                                                            achievement.id,
-                                                            !(Array.isArray(userAchievements) && userAchievements.includes(achievement.id))
-                                                        );
-                                                    }}
-                                                    className={`achievement-toggle ${
-                                                        Array.isArray(userAchievements) && userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'
-                                                    }`}
+                                                <Button
+                                                    variant={achievement.blocked ? 'danger' : 'secondary'}
+                                                    size="small"
+                                                    style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.75rem', minWidth: 0 }}
+                                                    onClick={() => toggleBlockAchievement(achievement._id, achievement.blocked)}
                                                 >
-                                                    {Array.isArray(userAchievements) && userAchievements.includes(achievement.id) ? 'Débloqué' : 'Bloqué'}
-                                                </button>
+                                                    {achievement.blocked ? 'Débloquer' : 'Bloquer'}
+                                                </Button>
                                             </div>
                                         ))}
                                     </div>

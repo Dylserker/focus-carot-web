@@ -43,6 +43,14 @@ const achievementSchema = new mongoose.Schema({
     type: String,
     enum: ['common', 'rare', 'epic', 'legendary'],
     default: 'common'
+  },
+  blocked: {
+    type: Boolean,
+    default: false
+  },
+  level: {
+    type: Number,
+    default: 1
   }
 }, {
   timestamps: true
