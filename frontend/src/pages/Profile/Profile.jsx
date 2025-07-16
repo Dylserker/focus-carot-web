@@ -40,7 +40,7 @@ const Profile = () => {
                         birthDate: user.profile?.dateOfBirth ? new Date(user.profile.dateOfBirth).toISOString().split('T')[0] : '',
                         email: currentUser.email || '',
                         password: '',
-                        title: `Niveau ${user.progression?.level || 1}`,
+                        title: '',
                         profilePicture: user.avatarUrl || null
                     });
                 }
@@ -189,7 +189,7 @@ const Profile = () => {
                 birthDate: currentUser.profile?.dateOfBirth ? new Date(currentUser.profile.dateOfBirth).toISOString().split('T')[0] : '',
                 email: currentUser.email || '',
                 password: '',
-                title: `Niveau ${currentUser.progression?.level || 1}`
+                title: ''
             }));
         }
     };
