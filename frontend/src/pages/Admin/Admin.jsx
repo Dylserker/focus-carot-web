@@ -26,6 +26,10 @@ const Admin = () => {
         password: '',
         role: 'user'
     });
+    // Ajout d'un état local pour les niveaux en édition
+    const [editedLevels, setEditedLevels] = useState({});
+    // Ajout d'un état pour l'avertissement de cohérence niveau/XP
+    const [levelWarning, setLevelWarning] = useState("");
 
     const token = localStorage.getItem('token');
     const usersPerPage = 10;
@@ -61,6 +65,13 @@ const Admin = () => {
         }
     };
 
+    // Fonction utilitaire pour calculer le pourcentage d'XP dans le niveau courant
+    const computeProgressPercent = (xp, level) => {
+        const xpMin = 100 * Math.pow(level - 1, 2);
+        const xpMax = 100 * Math.pow(level, 2);
+        return ((xp - xpMin) / (xpMax - xpMin)) * 100;
+    };
+
     const fetchUserProgress = async (userId) => {
         try {
             const response = await fetch(`http://localhost:5000/api/users/${userId}/progression`, {
@@ -68,7 +79,9 @@ const Admin = () => {
             });
             const data = await response.json();
             if (data.success) {
-                setUserProgress(data.progression);
+                const progression = data.progression;
+                const progress = computeProgressPercent(progression.experiencePoints, progression.level);
+                setUserProgress({ ...progression, progress: isNaN(progress) ? 0 : progress });
             }
         } catch (error) {
             console.error('Erreur lors de la récupération de la progression:', error);
@@ -213,18 +226,38 @@ const Admin = () => {
                 });
 
                 if (userProgress) {
-                    const experiencePoints = calculateExperiencePoints(userProgress.level, userProgress.progress);
-                    await fetch(`http://localhost:5000/api/users/${formData.id}/progression`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            level: userProgress.level,
-                            experience_points: experiencePoints
-                        })
-                    });
+                    if (
+                        userProgress.level &&
+                        userProgress.progress !== undefined &&
+                        !isNaN(userProgress.level) &&
+                        !isNaN(userProgress.progress)
+                    ) {
+                        // Calcul de l'XP cible à partir du niveau et du pourcentage
+                        const xpMin = 100 * Math.pow(userProgress.level - 1, 2);
+                        const xpMax = 100 * Math.pow(userProgress.level, 2);
+                        let experiencePoints = xpMin + (xpMax - xpMin) * (userProgress.progress / 100);
+                        // On force l'XP à être strictement inférieure à xpMax
+                        if (experiencePoints >= xpMax) {
+                            experiencePoints = xpMax - 1;
+                        }
+                        experiencePoints = Math.floor(experiencePoints);
+                        const resp = await fetch(`http://localhost:5000/api/users/${formData.id}/progression`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                level: userProgress.level,
+                                experiencePoints
+                            })
+                        });
+                        if (!resp.ok) {
+                            const errorData = await resp.json();
+                            throw new Error(errorData.message || 'Erreur lors de la sauvegarde de la progression');
+                        }
+                        await fetchUserProgress(formData.id);
+                    }
                 }
             }
 
@@ -290,10 +323,33 @@ const Admin = () => {
                 body: JSON.stringify({ blocked: !blocked })
             });
             if (!response.ok) throw new Error('Erreur lors du blocage/déblocage du succès');
-            // Met à jour l'état local pour refléter le changement
             setAllAchievements(prev => prev.map(a => a._id === achievementId ? { ...a, blocked: !blocked } : a));
+            // Déclenche un événement custom pour synchroniser la page succès
+            window.dispatchEvent(new Event('achievement-updated'));
         } catch (error) {
             console.error('Erreur lors du blocage/déblocage du succès:', error);
+        }
+    };
+
+    // Fonction pour sauvegarder le niveau d'un succès
+    const saveAchievementLevel = async (achievementId, newLevel) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/achievements/${achievementId}/level`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ level: newLevel })
+            });
+            if (!response.ok) throw new Error('Erreur lors de la modification du niveau');
+            // Met à jour l'état local pour refléter le changement
+            setAllAchievements(prev => prev.map(a => a._id === achievementId ? { ...a, level: newLevel } : a));
+            // Remet l'XP à zéro (ou au début du niveau) si tu veux gérer ça côté frontend ici
+            // (Sinon, à faire côté backend si l'XP dépend du niveau)
+            setEditedLevels(prev => ({ ...prev, [achievementId]: undefined }));
+        } catch (error) {
+            console.error('Erreur lors de la modification du niveau:', error);
         }
     };
 
@@ -301,6 +357,24 @@ const Admin = () => {
         const xpForNextLevel = 10 * Math.pow(2, level - 1);
         return Math.floor((progressPercent / 100) * xpForNextLevel);
     };
+
+    // Vérifie la cohérence niveau/XP à chaque changement de niveau ou pourcentage
+    useEffect(() => {
+        if (userProgress && userProgress.level && userProgress.progress !== undefined) {
+            const xpMin = 100 * Math.pow(userProgress.level - 1, 2);
+            const xpMax = 100 * Math.pow(userProgress.level, 2);
+            const experiencePoints = Math.round(xpMin + (xpMax - xpMin) * (userProgress.progress / 100));
+            // Calcul du niveau réel à partir de l'XP cible
+            const realLevel = Math.floor(1 + Math.sqrt(experiencePoints / 100));
+            if (realLevel !== userProgress.level) {
+                setLevelWarning(`Attention : avec ce pourcentage, le niveau réel sera ${realLevel} après sauvegarde.`);
+            } else {
+                setLevelWarning("");
+            }
+        } else {
+            setLevelWarning("");
+        }
+    }, [userProgress && userProgress.level, userProgress && userProgress.progress]);
 
     return (
         <div className="admin-page">
@@ -481,9 +555,9 @@ const Admin = () => {
                                                 type="number"
                                                 min="1"
                                                 value={userProgress.level}
-                                                onChange={(e) => setUserProgress({
+                                                onChange={e => setUserProgress({
                                                     ...userProgress,
-                                                    level: parseInt(e.target.value)
+                                                    level: parseInt(e.target.value),
                                                 })}
                                             />
                                         </div>
@@ -493,14 +567,17 @@ const Admin = () => {
                                                 type="number"
                                                 min="0"
                                                 max="100"
-                                                value={userProgress.progress !== undefined && userProgress.progress !== null ? userProgress.progress.toFixed(2) : ''}
-                                                onChange={(e) => setUserProgress({
+                                                value={userProgress.progress !== undefined && userProgress.progress !== null ? Number(userProgress.progress).toFixed(2) : ''}
+                                                onChange={e => setUserProgress({
                                                     ...userProgress,
                                                     progress: parseFloat(e.target.value)
                                                 })}
                                             />
                                         </div>
                                     </div>
+                                    {levelWarning && (
+                                        <div style={{ color: 'orange', marginTop: 8, fontWeight: 'bold' }}>{levelWarning}</div>
+                                    )}
                                 </div>
                             )}
                             {isEditModalOpen && allAchievements.length > 0 && (

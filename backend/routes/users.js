@@ -235,7 +235,7 @@ router.get('/:id/progression', validateObjectId('id'), requireOwnership('id'), a
 // Mettre à jour la progression d'un utilisateur
 router.put('/:id/progression', validateObjectId('id'), requireOwnership('id'), async (req, res) => {
   try {
-    const { experiencePoints, currentStreak } = req.body;
+    const { experiencePoints, currentStreak, level, xpPercent } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -245,10 +245,37 @@ router.put('/:id/progression', validateObjectId('id'), requireOwnership('id'), a
       });
     }
 
+    // Si l'admin fournit level ET experiencePoints, on les applique tels quels
+    if (level !== undefined && experiencePoints !== undefined) {
+      user.progression.level = level;
+      user.progression.experiencePoints = experiencePoints;
+      await user.save();
+      return res.json({
+        success: true,
+        message: 'Progression mise à jour avec succès',
+        progression: user.progression
+      });
+    }
+
+    // Nouvelle logique : mise à jour du niveau et de l'xp selon le pourcentage
+    if (level && xpPercent !== undefined) {
+      const xpMin = 100 * Math.pow(level - 1, 2);
+      const xpMax = 100 * Math.pow(level, 2);
+      const newXP = Math.round(xpMin + (xpMax - xpMin) * (xpPercent / 100));
+      user.progression.level = level;
+      user.progression.experiencePoints = newXP;
+      await user.save();
+      return res.json({
+        success: true,
+        message: 'Progression mise à jour avec succès',
+        progression: user.progression
+      });
+    }
+
+    // Ancienne logique (ajout d'xp brut ou streak)
     if (experiencePoints) {
       await user.addExperience(experiencePoints);
     }
-
     if (currentStreak !== undefined) {
       user.progression.currentStreak = currentStreak;
       if (currentStreak > user.progression.longestStreak) {

@@ -130,11 +130,7 @@ userSchema.methods.addExperience = function(amount) {
   this.progression.totalExperienceEarned += amount;
   
   // Calcul du niveau (formule: niveau = 1 + sqrt(exp / 100))
-  const newLevel = Math.floor(1 + Math.sqrt(this.progression.experiencePoints / 100));
-  
-  if (newLevel > this.progression.level) {
-    this.progression.level = newLevel;
-  }
+  this.progression.level = Math.floor(1 + Math.sqrt(this.progression.experiencePoints / 100));
   
   return this.save();
 };

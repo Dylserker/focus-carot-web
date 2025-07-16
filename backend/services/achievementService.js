@@ -132,7 +132,7 @@ class AchievementService {
   // Vérifier et débloquer tous les succès pour un utilisateur
   static async checkAllAchievements(userId) {
     const userStats = await this.calculateUserStats(userId);
-    const achievements = await Achievement.find({ isActive: true });
+    const achievements = await Achievement.find({ isActive: true, blocked: false });
     const unlockedAchievements = [];
 
     for (const achievement of achievements) {
