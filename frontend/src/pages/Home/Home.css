@@ -1,20 +1,48 @@
 .home-container {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .home-content {
-    padding: 2rem;
+    padding: var(--spacing-lg);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .gif-container {
     display: flex;
     justify-content: center;
     margin-top: 5rem;
+    animation: fadeIn var(--transition-slow) ease-out;
 }
 
 .rabbit-gif {
     width: 550px;
     height: auto;
     image-rendering: pixelated;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-medium);
+    transition: transform var(--transition-normal);
+}
+
+.rabbit-gif:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .home-content {
+        padding: var(--spacing-md);
+    }
+    .gif-container {
+        margin-top: 3rem;
+    }
+    .rabbit-gif {
+        width: 100%;
+        max-width: 400px;
+    }
 }

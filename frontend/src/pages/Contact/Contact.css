@@ -9,37 +9,35 @@
 
 .contact-container {
     max-width: 800px;
-    margin: 2rem auto;
-    padding: 30px;
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-xl);
     background-color: #2a5834;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     position: relative;
-    border: 20px solid;
+    border: var(--border-thick) solid;
     border-image: repeating-linear-gradient(
-            45deg,
-            #8b4513,
-            #8b4513 10px,
-            #a0522d 10px,
-            #a0522d 20px
+        45deg,
+        var(--primary-brown),
+        var(--primary-brown) 10px,
+        var(--secondary-brown) 10px,
+        var(--secondary-brown) 20px
     ) 20;
-    box-shadow:
-            inset 0 0 20px rgba(0, 0, 0, 0.4),
-            0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-inset), var(--shadow-heavy);
 }
 
 .contact-container::before {
     content: '';
     position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
+    top: calc(-1 * var(--border-thick));
+    left: calc(-1 * var(--border-thick));
+    right: calc(-1 * var(--border-thick));
+    bottom: calc(-1 * var(--border-thick));
     background:
-            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 15px 15px;
     pointer-events: none;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .contact-container h1 {
@@ -48,13 +46,13 @@
     color: rgba(255, 255, 255, 0.9);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
 }
 
 .contact-container p {
     font-family: 'Permanent Marker', cursive;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: var(--spacing-lg);
     color: rgba(255, 255, 255, 0.8);
     font-size: 1.2rem;
 }
@@ -62,16 +60,16 @@
 .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-md);
 }
 
-.form-group {
+.contact-form .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
 }
 
-.form-group label {
+.contact-form .form-group label {
     font-family: 'Permanent Marker', cursive;
     color: #ffffff !important;
     font-size: 1.2rem;
@@ -79,40 +77,68 @@
     letter-spacing: 1px;
 }
 
-.form-group input,
-.form-group textarea {
+.contact-form .form-group input,
+.contact-form .form-group textarea {
     background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    padding: 0.8rem;
+    border: var(--border-medium) solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
     color: rgba(255, 255, 255, 0.9);
     font-family: 'Permanent Marker', cursive;
     font-size: 1rem;
+    transition: all var(--transition-fast);
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.contact-form .form-group input::placeholder,
+.contact-form .form-group textarea::placeholder {
     color: rgba(255, 255, 255, 0.5);
     font-family: 'Permanent Marker', cursive;
 }
 
-.form-group textarea {
+.contact-form .form-group textarea {
     resize: vertical;
     min-height: 120px;
 }
 
+.contact-form .form-group input[type="email"],
+.contact-form .form-group input[type="text"],
+.contact-form .form-group textarea {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: var(--border-medium) solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-family: 'Permanent Marker', cursive;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.1);
+    font-size: 1.1rem;
+}
+
+.contact-form .form-group input[type="email"]::placeholder,
+.contact-form .form-group input[type="text"]::placeholder,
+.contact-form .form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Permanent Marker', cursive;
+    text-shadow: none;
+}
+
+.contact-form .form-group input:focus,
+.contact-form .form-group textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
 .submit-btn {
-    background: linear-gradient(to bottom, #8b4513, #654321);
-    border: 3px solid #432;
-    color: #fff;
-    padding: 12px 24px;
-    border-radius: 8px;
+    background: linear-gradient(to bottom, var(--primary-brown), var(--dark-brown));
+    border: var(--border-medium) solid #432;
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
     font-family: 'Permanent Marker', cursive;
     font-size: 1.1rem;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    transition: all var(--transition-normal);
 }
 
 .submit-btn::before {
@@ -123,11 +149,11 @@
     right: 0;
     bottom: 0;
     background: repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 12px,
-            rgba(255, 255, 255, 0.1) 12px,
-            rgba(255, 255, 255, 0.1) 15px
+        90deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.1) 12px,
+        rgba(255, 255, 255, 0.1) 15px
     );
     pointer-events: none;
 }
@@ -135,36 +161,26 @@
 .submit-btn:hover {
     background: linear-gradient(to bottom, #9b5523, #755331);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-medium);
 }
 
 .submit-btn:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-light);
 }
 
-.form-group input[type="email"],
-.form-group input[type="text"],
-.form-group textarea {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-family: 'Permanent Marker', cursive;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.1);
-    font-size: 1.1rem;
-}
-
-.form-group input[type="email"]::placeholder,
-.form-group input[type="text"]::placeholder,
-.form-group textarea::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-family: 'Permanent Marker', cursive;
-    text-shadow: none;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+@media (max-width: 768px) {
+    .contact-container {
+        margin: var(--spacing-md) auto;
+        padding: var(--spacing-lg);
+    }
+    .contact-container h1 {
+        font-size: 2rem;
+    }
+    .contact-container p {
+        font-size: 1rem;
+    }
+    .contact-form .form-group label {
+        font-size: 1rem;
+    }
 }
