@@ -38,7 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setUser(userData);
                     
                     // Vérifier si le token est toujours valide
-                    const profileResponse = await apiService.getProfile();
+                    const userId = userData._id || userData.id;
+                    const profileResponse = await apiService.getProfile(userId);
                     if (!profileResponse.success) {
                         // Token invalide, déconnecter l'utilisateur
                         await logout();
