@@ -4,23 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 
 export default function Index() {
-    const router = useRouter();
-    const { user, isLoading } = useAuth();
-
-    useEffect(() => {
-        if (!isLoading) {
-            router.replace(user ? '/screen/home' : '/screen/login');
-        }
-    }, [isLoading, user]);
-
-    return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.contentContainer}>
-                <ActivityIndicator size="large" color="#007BFF" />
-                <Text style={styles.title}>Chargement...</Text>
-            </View>
-        </SafeAreaView>
-    );
+  return null;
 }
 
 const styles = StyleSheet.create({

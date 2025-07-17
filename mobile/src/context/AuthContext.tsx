@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService, User, LoginResponse } from '../services/api';
+import { useRouter } from 'expo-router';
 
 type AuthContextType = {
     user: User | null;
@@ -73,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 
                 // Sauvegarder le token et les données utilisateur
                 await AsyncStorage.setItem('authToken', token);
+                console.log("🔑 Token stocké après login :", token);
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
                 
                 setUser(userData);
@@ -106,6 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 
                 // Sauvegarder le token et les données utilisateur
                 await AsyncStorage.setItem('authToken', token);
+                console.log("🔑 Token stocké après register :", token);
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
                 
                 setUser(userData);

@@ -91,7 +91,7 @@ export default function TasksScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
 
     // Charger les tâches au montage du composant
     useEffect(() => {
@@ -106,6 +106,10 @@ export default function TasksScreen() {
             const result = await taskService.getTasks();
             if (result.success && result.data) {
                 setTasks(result.data);
+            } else if (result.message && (result.message.includes('ID invalide') || result.message.includes('401'))) {
+                // Déconnexion si token invalide
+                await logout();
+                Alert.alert('Erreur', 'Session expirée, veuillez vous reconnecter.');
             } else {
                 Alert.alert('Erreur', result.message || 'Impossible de charger les tâches');
             }

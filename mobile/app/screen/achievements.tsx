@@ -49,7 +49,7 @@ export default function AchievementsScreen() {
     const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -65,6 +65,10 @@ export default function AchievementsScreen() {
             const achievementsResult = await achievementService.getAchievements();
             if (achievementsResult.success && achievementsResult.data) {
                 setAchievements(achievementsResult.data);
+            } else if (achievementsResult.message && (achievementsResult.message.includes('ID invalide') || achievementsResult.message.includes('401'))) {
+                await logout();
+                Alert.alert('Erreur', 'Session expirée, veuillez vous reconnecter.');
+                return;
             } else {
                 Alert.alert('Erreur', achievementsResult.message || 'Impossible de charger les succès');
             }
@@ -73,6 +77,10 @@ export default function AchievementsScreen() {
             const userAchievementsResult = await achievementService.getUserAchievements();
             if (userAchievementsResult.success && userAchievementsResult.data) {
                 setUserAchievements(userAchievementsResult.data);
+            } else if (userAchievementsResult.message && (userAchievementsResult.message.includes('ID invalide') || userAchievementsResult.message.includes('401'))) {
+                await logout();
+                Alert.alert('Erreur', 'Session expirée, veuillez vous reconnecter.');
+                return;
             } else {
                 Alert.alert('Erreur', userAchievementsResult.message || 'Impossible de charger vos succès');
             }

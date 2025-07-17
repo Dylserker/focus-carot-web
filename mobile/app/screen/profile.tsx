@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ImageBackground, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { apiService } from '../../src/services/api';
 import { StatusBar } from 'expo-status-bar';
 import { User } from '../../src/services/api';
 
 const ProfileScreen = () => {
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, isLoading, updateUser } = useAuth();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    // Rafraîchir le profil utilisateur à chaque affichage
+    useEffect(() => {
+        const refreshProfile = async () => {
+            const userId = user && (user._id || user.id);
+            if (isAuthenticated && userId) {
+                const response = await apiService.getProfile(userId);
+                if (response.success && response.data) {
+                    updateUser(response.data);
+                } else if (!response.success && response.error) {
+                    // Si le token est invalide, déconnecter
+                    await logout();
+                }
+            }
+        };
+        refreshProfile();
+    }, [isAuthenticated, user]);
 
     const handleLogout = async () => {
         Alert.alert(
@@ -31,6 +49,14 @@ const ProfileScreen = () => {
             ]
         );
     };
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+                <ActivityIndicator size="large" color="#f0ad4e" />
+            </View>
+        );
+    }
 
     if (!isAuthenticated || !user) {
         return (

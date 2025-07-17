@@ -1,18 +1,44 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ImageBackground, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { apiService } from '../../src/services/api';
 import { Image } from 'expo-image';
 
 export default function Home() {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isLoading, updateUser, logout } = useAuth();
     const router = useRouter();
 
+    // Rafraîchir le profil utilisateur à chaque affichage
     useEffect(() => {
-        if (!isAuthenticated) {
+        const refreshProfile = async () => {
+            const userId = user && (user._id || user.id);
+            if (isAuthenticated && userId) {
+                const response = await apiService.getProfile(userId);
+                if (response.success && response.data) {
+                    updateUser(response.data);
+                } else if (!response.success && response.error) {
+                    // Si le token est invalide, déconnecter
+                    await logout();
+                }
+            }
+        };
+        refreshProfile();
+    }, [isAuthenticated, user]);
+
+    useEffect(() => {
+        if (!isLoading && (!isAuthenticated || !user)) {
             router.replace('/screen/login');
         }
-    }, [isAuthenticated]);
+    }, [isLoading, isAuthenticated, user]);
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+                <ActivityIndicator size="large" color="#f0ad4e" />
+            </View>
+        );
+    }
 
     if (!isAuthenticated || !user) {
         return null;
@@ -24,7 +50,7 @@ export default function Home() {
                 source={require('../../assets/images/background.jpg')}
                 style={styles.backgroundImage}
             >
-                <View style={styles.contentContainer}>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
                     <View style={styles.welcomeSection}>
                         <Text style={styles.title}>Bienvenue, {user.name}!</Text>
                         <Text style={styles.subtitle}>
@@ -70,7 +96,7 @@ export default function Home() {
                             <Text style={styles.actionButtonText}>🏆 Mes Succès</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </ScrollView>
             </ImageBackground>
         </SafeAreaView>
     );
@@ -85,10 +111,12 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
-    contentContainer: {
-        flex: 1,
+    scrollContent: {
+        flexGrow: 1,
         paddingHorizontal: 20,
         paddingTop: 60,
+        paddingBottom: 80, // pour laisser la place au Footer
+        justifyContent: 'flex-start',
     },
     welcomeSection: {
         alignItems: 'center',
@@ -141,9 +169,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     gifContainer: {
-        flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 30,
     },
     gif: {
         width: 200,

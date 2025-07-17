@@ -7,7 +7,8 @@ const API_BASE_URL = CONFIG.API_BASE_URL;
 // Types pour les réponses API
 export interface User {
     id: string;
-    name: string;
+    _id?: string; // Ajout pour compatibilité MongoDB côté mobile
+    name?: string;
     email: string;
     avatar?: string;
     title?: string;
@@ -83,6 +84,9 @@ class ApiService {
             const token = await this.getAuthToken();
             const url = `${this.baseURL}${endpoint}`;
 
+            // AJOUT POUR DEBUG
+            console.log("🔑 Token utilisé pour l'appel API :", token);
+
             console.log(`🌐 Tentative de connexion à: ${url}`);
 
             const config: RequestInit = {
@@ -151,8 +155,9 @@ class ApiService {
         });
     }
 
-    async getProfile(): Promise<ApiResponse<User>> {
-        return this.apiCall<User>('/users/profile');
+    // Correction : getProfile prend l'id utilisateur
+    async getProfile(userId: string): Promise<ApiResponse<User>> {
+        return this.apiCall<User>(`/users/${userId}/profile`);
     }
 
     async updateProfile(userData: Partial<User>): Promise<ApiResponse<User>> {
