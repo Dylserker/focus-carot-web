@@ -169,18 +169,22 @@
     box-shadow: var(--shadow-light);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .contact-container {
-        margin: var(--spacing-md) auto;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-md);
+        width: 98%;
+    }
+}
+
+@media (max-width: 600px) {
+    .contact-container {
+        padding: var(--spacing-xs);
+        width: 100%;
     }
     .contact-container h1 {
-        font-size: 2rem;
+        font-size: 1.2rem;
     }
     .contact-container p {
-        font-size: 1rem;
-    }
-    .contact-form .form-group label {
         font-size: 1rem;
     }
 }

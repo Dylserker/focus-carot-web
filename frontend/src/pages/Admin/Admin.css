@@ -966,19 +966,22 @@ button[children="Créer un utilisateur"]:hover,
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-    .achievements-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 900px) {
+    .admin-container {
+        padding: var(--spacing-md);
+        width: 98%;
     }
-    
-    .achievement-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .admin-container {
+        padding: var(--spacing-xs);
+        width: 100%;
     }
-    
-    .achievement-details {
-        flex-direction: column;
-        gap: 0.5rem;
+    .admin-container h1 {
+        font-size: 1.2rem;
+    }
+    .user-list {
+        padding: 8px;
     }
 }

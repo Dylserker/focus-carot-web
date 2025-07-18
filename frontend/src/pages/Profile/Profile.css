@@ -304,3 +304,39 @@
         padding: var(--spacing-md);
     }
 }
+
+@media (max-width: 900px) {
+    .profile-container {
+        padding: var(--spacing-md);
+        width: 98%;
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-container {
+        padding: var(--spacing-xs);
+        width: 100%;
+    }
+    .profile-info-section {
+        padding: var(--spacing-sm);
+    }
+    .profile-info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        padding: 0.7rem 0.7rem;
+    }
+    .profile-info-label {
+        min-width: unset;
+    }
+    .profile-picture {
+        width: 90px;
+        height: 90px;
+    }
+    .profile-container h1 {
+        font-size: 1.2rem;
+    }
+    .profile-info-label, .profile-info-value {
+        font-size: 1rem;
+    }
+}
