@@ -28,6 +28,8 @@ function Home() {
         }
     ]);
 
+    const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+
     const getTypeIcon = (type) => {
         switch (type) {
             case 'feature':
@@ -78,6 +80,8 @@ function Home() {
                             <div 
                                 key={announcement.id} 
                                 className={`announcement-item ${getTypeClass(announcement.type)}`}
+                                onClick={() => setSelectedAnnouncement(announcement)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <div className="announcement-icon">
                                     {getTypeIcon(announcement.type)}
@@ -94,6 +98,25 @@ function Home() {
                     </div>
                 </aside>
             </div>
+
+            {/* Modal d'annonce */}
+            {selectedAnnouncement && (
+                <div className="modal-announcement-overlay" onClick={() => setSelectedAnnouncement(null)}>
+                    <div className="modal-announcement" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close-btn" onClick={() => setSelectedAnnouncement(null)}>&times;</button>
+                        <div className="modal-announcement-header">
+                            <span className="modal-announcement-icon">{getTypeIcon(selectedAnnouncement.type)}</span>
+                            <h2>{selectedAnnouncement.title}</h2>
+                        </div>
+                        <div className="modal-announcement-date">
+                            {new Date(selectedAnnouncement.date).toLocaleDateString('fr-FR')}
+                        </div>
+                        <div className="modal-announcement-content">
+                            <p>{selectedAnnouncement.content}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
