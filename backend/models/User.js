@@ -10,9 +10,8 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(email) {
-        // Validation d'email plus permissive qui accepte les points avant le @
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+        // Validation d'email améliorée qui conserve les points
+        return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(email);
       },
       message: 'Format d\'email invalide'
     }

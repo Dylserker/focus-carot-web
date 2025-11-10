@@ -27,7 +27,7 @@ const updateProfileValidation = [
     .optional()
     .isEmail()
     .withMessage('Email invalide')
-    .normalizeEmail(),
+    .trim(),
   body('password')
     .optional()
     .isLength({ min: 6 })
