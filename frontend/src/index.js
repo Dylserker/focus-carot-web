@@ -15,3 +15,26 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const swUrl = '/service-worker.js';
+    navigator.serviceWorker.register(swUrl).then((registration) => {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+      // Optional: listen for updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New update available
+            console.log('New content is available; please refresh.');
+          }
+        });
+      });
+    }).catch((error) => {
+      console.error('ServiceWorker registration failed:', error);
+    });
+  });
+}

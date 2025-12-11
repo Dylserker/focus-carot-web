@@ -189,3 +189,23 @@ REACT_APP_API_URL=https://votre-api.com/api
 
 ### Compatibilité
 Le frontend est maintenant entièrement compatible avec le nouveau backend Express.js + MongoDB. Tous les endpoints ont été mis à jour pour correspondre à la nouvelle API. 
+
+## 🔔 PWA (Progressive Web App)
+
+Ce projet inclut un service worker simple pour supporter le mode hors-ligne et l'installation en tant que PWA.
+
+- **Fichiers importants** : `public/manifest.json`, `public/service-worker.js`, `public/logo192.png`, `public/logo512.png`.
+- **Enregistrement** : le service worker est enregistré automatiquement par `src/index.js`.
+
+Pour tester localement :
+```bash
+cd frontend
+npm install
+npm run build
+npx serve -s build
+# puis ouvrez http://localhost:3000
+```
+
+Ouvrez les DevTools → Application pour vérifier le `Service Worker` et l'installation en tant qu'application.
+
+Si vous mettez à jour le service worker, rechargez la page et vérifiez la console pour les messages d'update.

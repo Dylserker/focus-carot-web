@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/static/css/main.71f18ad2.css",
+    "main.js": "/static/js/main.d07d0b01.js",
+    "static/js/511.3e56ef14.chunk.js": "/static/js/511.3e56ef14.chunk.js",
+    "static/media/Carot.png": "/static/media/Carot.7f9b97f4fb68ea143f70.png",
+    "static/media/Carot_Crok.png": "/static/media/Carot_Crok.e60abe3f31a4a78872e2.png",
+    "static/media/Logo_sans_titre.png": "/static/media/Logo_sans_titre.fa79540ff01497b229de.png",
+    "static/media/background.jpg": "/static/media/background.858b256f8e2f4575d62d.jpg",
+    "static/media/rabbit-home.gif": "/static/media/rabbit-home.3c65008a4eacd3f2ff8a.gif",
+    "static/media/Sol.png": "/static/media/Sol.65fafeb79e1822a998d2.png",
+    "index.html": "/index.html",
+    "main.71f18ad2.css.map": "/static/css/main.71f18ad2.css.map",
+    "main.d07d0b01.js.map": "/static/js/main.d07d0b01.js.map",
+    "511.3e56ef14.chunk.js.map": "/static/js/511.3e56ef14.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.71f18ad2.css",
+    "static/js/main.d07d0b01.js"
+  ]
+}
